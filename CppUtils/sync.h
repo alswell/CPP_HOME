@@ -1,5 +1,5 @@
-#ifndef SYNC_OBJ_H
-#define SYNC_OBJ_H
+#ifndef __SYNC_OBJ_H
+#define __SYNC_OBJ_H
 
 #include <semaphore.h>
 #include <pthread.h>

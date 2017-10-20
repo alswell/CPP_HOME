@@ -1,7 +1,7 @@
-#ifndef SOCK_H
-#define SOCK_H
+#ifndef __SOCK_H
+#define __SOCK_H
 
-#include <unistd.h>
+#include "afx.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -23,6 +23,17 @@ public:
 	char* Read();
 	int Read(void* buff, int n);
 	int Write(const void* buff, int n);
+};
+
+class CServSock
+{
+	int m_fd;
+
+public:
+	CServSock(short port, int backlog = 10, const char* net_addr = "0.0.0.0");
+	~CServSock();
+
+	CSock Accept();
 };
 
 #endif

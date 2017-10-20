@@ -1,4 +1,4 @@
-#include "SyncObj.h"
+#include "sync.h"
 
 #define SYNC_WAIT(sync_obj, _lock, _timedlock, nTimeout) \
 	if (nTimeout == -1)\

@@ -1,10 +1,9 @@
-#include "Camera.h"
+#include "camera.h"
 
 
-Camera::Camera(const char *pDevName, bool print_detail)
+Camera::Camera(int nDevNum, bool print_detail)
 {
-	m_strDevName = "/dev/video";
-	m_strDevName += pDevName;
+	m_strDevName.Format("/dev/video%d", nDevNum);
 	m_ioMethod = IO_METHOD_MMAP;//IO_METHOD_READ;//IO_METHOD_MMAP;
 	m_nImageSize = 0;
 
@@ -70,7 +69,7 @@ CBuff * Camera::GetBuffer()
 void Camera::Identify()
 {
 	struct stat st;
-	if (-1 == stat(m_strDevName.c_str(), &st)) 
+	if (-1 == stat(m_strDevName, &st))
 		errno_exit("stat fail!!!");
 	
 	if (!S_ISCHR(st.st_mode)) 
@@ -79,7 +78,7 @@ void Camera::Identify()
 
 bool Camera::open_device(void)
 {
-	m_fd = open(m_strDevName.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
+	m_fd = open(m_strDevName, O_RDWR /* required */ | O_NONBLOCK, 0);
 	if (-1 == m_fd)
 		errno_exit("open dev failed");
 
@@ -110,6 +109,36 @@ void Camera::list_info(bool print_detail)
 		}
 		++fmtdesc.index;
 	}
+}
+
+int Camera::AutoFocus(int bOn)
+{
+	struct v4l2_control control;
+	control.id = V4L2_CID_FOCUS_AUTO;
+	control.value = bOn;
+	int r = ioctl(m_fd, VIDIOC_S_CTRL, &control);
+	if (r == -1)
+		return -1;
+	return GetFocus();
+}
+
+int Camera::SetFocus(int nValue)
+{
+	struct v4l2_control control;
+	control.id = V4L2_CID_FOCUS_ABSOLUTE;
+	control.value = nValue;
+	return ioctl(m_fd, VIDIOC_S_CTRL, &control);
+}
+
+int Camera::GetFocus()
+{
+	struct v4l2_control control;
+	control.id = V4L2_CID_FOCUS_ABSOLUTE;
+	control.value = 0;
+	int r = ioctl(m_fd, VIDIOC_G_CTRL, &control);
+	if (r == -1)
+		return -1;
+	return control.value;
 }
 
 int Camera::enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 height)
@@ -281,7 +310,7 @@ bool Camera::init_mmap(void)
 {
 	struct v4l2_requestbuffers req;
 	CLEAR(req);
-	req.count = 4;
+	req.count = 2;//4;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
@@ -383,7 +412,7 @@ bool Camera::wait_frame()
 	m_tmSelect.tv_sec = 2;
 	m_tmSelect.tv_usec = 0;
 	int r = select(m_fdMax, &m_fds, NULL, NULL, &m_tmSelect);
-	printf("%d.%06d\n", m_tmSelect.tv_sec, m_tmSelect.tv_usec);
+	printf("select time remain: %d.%06d\n", m_tmSelect.tv_sec, m_tmSelect.tv_usec);
 	if (-1 == r)
 		errno_exit("select");
 
@@ -413,12 +442,12 @@ CBuff* Camera::read_frame()
 
 void Camera::print_info(const char * str)
 {
-	printf("[%s] %s", m_strDevName.c_str(), str);
+	printf("[%s] %s", m_strDevName, str);
 }
 
 void Camera::print_error(const char * str)
 {
-	printf("[%s] %s ?_? %m(%d)\n", m_strDevName.c_str(), str, errno);
+	printf("[%s] %s ?_? %m(%d)\n", m_strDevName, str, errno);
 }
 
 void Camera::errno_exit(const char * str)

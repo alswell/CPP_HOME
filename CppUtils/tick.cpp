@@ -1,4 +1,4 @@
-#include "TickCount.h"
+#include "tick.h"
 
 CTickCount::CTickCount()
 {
@@ -15,8 +15,8 @@ int CTickCount::TickCount()
 	return sec * 1000000 + usec;
 }
 
-CTickCount g_tick;
 int GetTickCount()
 {
+	static CTickCount g_tick;
 	return g_tick.TickCount();
 }

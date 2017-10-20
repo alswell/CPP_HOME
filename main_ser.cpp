@@ -1,7 +1,8 @@
-#include "Thread.h"
-#include "ServSock.h"
-#include "Sock.h"
-#include "TickCount.h"
+#include "thread.h"
+#include "sock.h"
+#include "tick.h"
+#include <signal.h>
+
 
 class CWorker : public CThreadImpl<CWorker>
 {
@@ -16,17 +17,20 @@ public:
 	{
 		while (1)
 		{
-			char* p = m_sock.Read();
-			if (p)
-				printf("thread ID: %lu: %s; tick count: %d\n", m_tid, p, GetTickCount());
+			sleep(1);
+			int r = m_sock.Write("hello", 5);
+			if (r != -1)
+				printf("thread ID: %lu: %d; tick count: %d\n", m_tid, r, GetTickCount());
 			else
 				return 0;
+				
 		}
 	}
 };
 
 int main()
 {
+	signal(SIGPIPE, SIG_IGN);
 	CServSock server(8866);
 	printf("Server start!\n");
 	while (1)

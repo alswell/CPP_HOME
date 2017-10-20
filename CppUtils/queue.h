@@ -1,9 +1,8 @@
-#ifndef MULTI_THREAD_QUEUE
-#define MULTI_THREAD_QUEUE
+#ifndef __QUEUE_H
+#define __QUEUE_H
 
-#include "SyncObj.h"
-#include <list>
-using namespace std;
+#include "afx.h"
+#include "sync.h"
 
 template <class T>
 class CArrayQueue

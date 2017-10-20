@@ -1,24 +1,16 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef __CAMERA_H
+#define __CAMERA_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "afx.h"
 #include <assert.h>
-#include <getopt.h>             /* getopt_long() */
-#include <fcntl.h>              /* low-level i/o */
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <malloc.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>              /* low-level i/o */
+#include <getopt.h>             /* getopt_long() */
 #include <asm/types.h>          /* for videodev2.h */
 #include <linux/videodev2.h>
-#include <sys/types.h>
-#include <string>
-#include <vector>
+#include "str.h"
 
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -63,7 +55,7 @@ class Camera
 {
 	friend class CBuff;
 public:
-	Camera(const char *pDevName, bool print_detail = true);
+	Camera(int nDevNum, bool print_detail = true);
 	~Camera();
 	bool Init(int w, int h, int nDataType = 0);
 	int GetBuffer(void* image);
@@ -72,8 +64,12 @@ public:
 	unsigned GetImageSize();
 	void Identify();
 	void list_info(bool print_detail);
+
+	int AutoFocus(int bOn);
+	int SetFocus(int nValue);
+	int GetFocus();
 private:
-	std::string m_strDevName;
+	CStr m_strDevName;
 	int m_fd;
 	int m_nWidth;
 	int m_nHeight;
@@ -85,7 +81,7 @@ private:
 	struct timeval m_tmSelect; 	// timeout for select
 
 	io_method m_ioMethod;
-	std::vector<SFmtInfo> m_vFmts;
+    vector<SFmtInfo> m_vFmts;
 	SBuff * m_pBuff;
 	unsigned m_nBuff;
 
@@ -115,5 +111,5 @@ private:
 	bool QBUF(v4l2_buffer& buf);
 };
 
-#endif // CAMERA_H
+#endif
 

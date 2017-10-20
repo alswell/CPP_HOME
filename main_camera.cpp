@@ -3,8 +3,8 @@
 #include <string.h>
 #include <malloc.h>
 #include <time.h>
-#include "Camera.h"
-#include "TickCount.h"
+#include "camera.h"
+#include "tick.h"
 
 #define NUM_FRAM		100
 
@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
 		printf("usage: ./camera /dev/video? [w h] [nFmt]\n");
 		return 0;
 	}
-	Camera *camera = new Camera(argv[1], argc==2);
+	Camera *camera = new Camera(atoi(argv[1]), argc==2);
 
 	if (argc == 2)
 		return 0;
