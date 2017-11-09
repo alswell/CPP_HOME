@@ -16,6 +16,97 @@ bool in(cls c, cls arr[], int n)\
 
 DEF_IN(char)
 
+inline void BuildNext(const char* pattern, size_t length, unsigned int* next)
+{
+	unsigned int i, t;
+
+	i = 1;
+	t = 0;
+	next[1] = 0;
+
+	while(i < length + 1)
+	{
+		while(t > 0 && pattern[i - 1] != pattern[t - 1])
+		{
+			t = next[t];
+		}
+
+		++t;
+		++i;
+
+		if(pattern[i - 1] == pattern[t - 1])
+		{
+			next[i] = next[t];
+		}
+		else
+		{
+			next[i] = t;
+		}
+	}
+
+	//pattern末尾的结束符控制，用于寻找目标字符串中的所有匹配结果用
+	while(t > 0 && pattern[i - 1] != pattern[t - 1])
+	{
+		t = next[t];
+	}
+
+	++t;
+	++i;
+
+	next[i] = t;
+}
+
+int KMP(const char* str, const char* pattern, int begin = 0)
+{
+	size_t str_length = strlen(str);
+	if (begin >= str_length)
+		return -1;
+
+	const char* text = &str[begin];
+	size_t text_length = str_length - begin;
+	size_t pattern_length = strlen(pattern);
+	unsigned int i, j, n;
+	unsigned int next[pattern_length + 2];
+
+	BuildNext(pattern, pattern_length, next);
+
+	i = 0;
+	j = 1;
+	n = 0;
+
+	while(pattern_length + 1 - j <= text_length - i)
+	{
+		if(text[i] == pattern[j - 1])
+		{
+			++i;
+			++j;
+
+			//发现匹配结果，将匹配子串的位置，加入结果
+			if(j == pattern_length + 1)
+			{
+				return i - pattern_length + begin;
+				//matches[n++] = i - pattern_length;
+				//j = next[j];
+			}
+		}
+		else
+		{
+			j = next[j];
+
+			if(j == 0)
+			{
+				++i;
+				++j;
+			}
+		}
+	}
+
+	return -1;
+	//返回发现的匹配数
+	//return n;
+}
+
+
 char CStr::white_char[] = " \r\n\t";
 CStr::CStr()
 {
@@ -33,7 +124,7 @@ CStr::CStr(const CStr & str)
 	strcpy(m_pBuff, str.m_pBuff);
 }
 
-CStr::CStr(char str[], int n)
+CStr::CStr(const char *str, int n)
 {
 	m_nLength = n == -1 ? strlen(str) : n;
 	m_nCountInc = m_nLength / INCREAMENT;
@@ -49,14 +140,19 @@ CStr::~CStr()
     delete[] m_pBuff;
 }
 
-unsigned CStr::BuffSize()
+unsigned CStr::BuffSize() const
 {
 	return m_nCountInc * INCREAMENT;
 }
 
-unsigned CStr::Length()
+unsigned CStr::Length() const
 {
 	return m_nLength;
+}
+
+bool CStr::Empty() const
+{
+	return m_nLength == 0;
 }
 
 char* CStr::GetBuffer(int n /*= 0*/)
@@ -97,12 +193,17 @@ void CStr::operator=(const CStr & str)
 	strcpy(m_pBuff, str.m_pBuff);
 }
 
-bool CStr::operator ==(const CStr &str) const
+bool CStr::operator ==(const char* str) const
 {
-	return strcmp(m_pBuff, str.m_pBuff);
+	return strcmp(m_pBuff, str) == 0;
 }
 
-char CStr::operator[](int i) const
+bool CStr::operator !=(const char* str) const
+{
+	return strcmp(m_pBuff, str) != 0;
+}
+
+char &CStr::operator [](int i) const
 {
 	if (i < 0)
 		i += m_nLength;
@@ -111,6 +212,7 @@ char CStr::operator[](int i) const
 
 bool CStr::operator <(const CStr & str) const
 {
+	return strcmp(m_pBuff, str) < 0;
 	for (int i = 0; i < m_nLength && i < str.m_nLength; ++i)
 	{
 		if ((*this)[i] != str[i])
@@ -131,7 +233,7 @@ CStr & CStr::operator +=(const char* str)
 	return this->AppendFormat("%s", str);
 }
 
-CStr & CStr::Format(char fmt[], ...)
+CStr & CStr::Format(const char *fmt, ...)
 {
     va_list vArgList;
 	do
@@ -148,7 +250,7 @@ CStr & CStr::Format(char fmt[], ...)
 	return *this;
 }
 
-CStr & CStr::AppendFormat(char fmt[], ...)
+CStr & CStr::AppendFormat(const char *fmt, ...)
 {
 	va_list vArgList;
 	do
@@ -183,6 +285,25 @@ int CStr::Find(char c, int start)
 	return -1;
 }
 
+int CStr::Find(const char *str, int start)
+{
+	if (start < 0)
+		start += m_nLength;
+	return KMP(m_pBuff, str, start);
+}
+
+bool CStr::StartWith(const char *str)
+{
+	int i = 0;
+	while (str[i])
+	{
+		if (i >= Length() || (*this)[i] != str[i])
+			return false;
+		++i;
+	}
+	return true;
+}
+
 CStr CStr::SubStr(int start, int end) const
 {
 	if (start < 0)
@@ -192,6 +313,22 @@ CStr CStr::SubStr(int start, int end) const
 	if (start > end)
 		return CStr();
 	return CStr(&m_pBuff[start], end - start);
+}
+
+void CStr::Truncate(int n)
+{
+	m_pBuff[n] = 0;
+	m_nLength = n;
+}
+
+CStr CStr::Left(unsigned n) const
+{
+	return CStr(m_pBuff, n);
+}
+
+CStr CStr::Right(unsigned n) const
+{
+	return CStr(&m_pBuff[n], Length() - n);
 }
 
 CStr& CStr::TrimLeft(char c)
@@ -247,3 +384,36 @@ list<CStr> CStr::Split(char c, unsigned num) const
 	lsStr.push_back(SubStr(temp_i, m_nLength));
 	return lsStr;
 }
+
+list<CStr> CStr::Split(const char *str, unsigned num) const
+{
+	list<CStr> lsStr;
+	int n = 0;
+	int p = 0;
+	while (1)
+	{
+		n = KMP(m_pBuff, str, n);
+		if (n == -1)
+			break;
+		lsStr.push_back(CStr(&m_pBuff[p], n - p));
+		n += strlen(str);
+		p = n;
+	}
+	if (m_pBuff[p])
+		lsStr.push_back(CStr(&m_pBuff[p]));
+	return lsStr;
+}
+
+void ToHexStr(CStr& str, const void *buff, unsigned nSize)
+{
+	unsigned char* p = (unsigned char*)buff;
+	str = "";
+	for (unsigned i = 0; i < nSize; ++i)
+		str.AppendFormat("%02X", p[i]);
+}
+
+void ToHexStr(CStr& str, const CStr& buff)
+{
+	ToHexStr(str, buff, buff.Length());
+}
+

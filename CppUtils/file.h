@@ -6,12 +6,13 @@
 class File
 {
 	FILE* pf;
-	unsigned nSize;
 	CStr strBuff;
 public:
-	File(CStr strFileName, char mode[]);
+	File(const char* file, const char* mode);
 	~File();
 
+	int write(const char* str);
+	int writeline(const char* str);
 	list<CStr> readlines();
 };
 

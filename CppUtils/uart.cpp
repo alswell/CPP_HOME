@@ -82,10 +82,8 @@ void CUART::Write(const void *buff, unsigned nSize) const
 
 void CUART::WriteHex(const void *buff, unsigned nSize) const
 {
-	unsigned char* p = (unsigned char*)buff;
 	CStr str;
-	for (unsigned i = 0; i < nSize; ++i)
-		str.AppendFormat("%02X", p[i]);
+	ToHexStr(str, buff, nSize);
 
 	for (int i = 0; i < 10; ++i)
 		Write('\0');

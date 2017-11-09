@@ -13,30 +13,41 @@ class CStr
 public:
 	CStr();
 	CStr(const CStr& str);
-	CStr(char str[], int n = -1);
+	CStr(const char* str, int n = -1);
 	~CStr();
 
-	inline unsigned BuffSize();
-	unsigned Length();
+	inline unsigned BuffSize() const;
+	unsigned Length() const;
+	bool Empty() const;
 	char* GetBuffer(int n = 0);
 	void ReleaseBuffer();
 	operator const char* () const;
 
 	void operator = (const CStr& str);
-	bool operator ==(const CStr& str) const;
-	char operator [] (int i) const;
+	bool operator ==(const char *str) const;
+	bool operator !=(const char *str) const;
+	char& operator [] (int i) const;
 	bool operator < (const CStr& str) const;
 	CStr& operator += (char c);
 	CStr& operator += (const char* str);
 
-	CStr& Format(char fmt[], ...);
-	CStr& AppendFormat(char fmt[], ...);
+	CStr& Format(const char* fmt, ...);
+	CStr& AppendFormat(const char* fmt, ...);
 	int Find(char c, int start = 0);
+	int Find(const char *str, int start = 0);
+	bool StartWith(const char* str);
 	CStr SubStr(int start, int end) const;
+	void Truncate(int n);
+	CStr Left(unsigned n) const;
+	CStr Right(unsigned n) const;
 	CStr& TrimLeft(char c = 0);
 	CStr& TrimRight(char c = 0);
 	CStr& Trim(char c = 0);
 	list<CStr> Split(char c = 0, unsigned num = 0) const;
+	list<CStr> Split(const char *str, unsigned num = 0) const;
 };
+
+void ToHexStr(CStr& str, const void *buff, unsigned nSize);
+void ToHexStr(CStr& str, const CStr& buff);
 
 #endif

@@ -1,14 +1,16 @@
 #include "sock.h"
-#include <stdio.h>
+#include <signal.h>
 
 
 CSock::CSock(int fd)
 {
+	IgnoreSig();
 	m_fd = fd;
 }
 
 CSock::CSock(const char * net_addr, short port)
 {	
+	IgnoreSig();
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	struct sockaddr_in addr;
@@ -21,6 +23,17 @@ CSock::CSock(const char * net_addr, short port)
 
 CSock::~CSock()
 {
+}
+
+void CSock::IgnoreSig()
+{
+	static bool bIgn = true;
+	if (bIgn)
+	{
+		bIgn = false;
+		signal(SIGPIPE, SIG_IGN);
+		cout << "ignore SIGPIPE" << endl;
+	}
 }
 
 void CSock::PrintReadErr(int r)
@@ -36,6 +49,12 @@ void CSock::PrintReadErr(int r)
 		printf("recv err: %d\n", r);
 		break;
 	}
+}
+
+void CSock::SetTimeout(int nSecond)
+{
+	struct timeval timeout={nSecond, 0};
+	setsockopt(m_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 }
 
 char * CSock::Read()
@@ -61,6 +80,17 @@ int CSock::Read(void * buff, int n)
 		close(m_fd);
 	}
 
+	return r;
+}
+
+int CSock::Write(const char *str)
+{
+	int r = send(m_fd, str, strlen(str), 0);
+	if (r == -1)
+	{
+		printf("write error, close!\n");
+		close(m_fd);
+	}
 	return r;
 }
 

@@ -3,16 +3,13 @@
 
 #include "afx.h"
 #include "str.h"
-
-#define DICT(value_type) map<CStr, value_type>
-//#include <hash_map>
-//#define DICT(value_type) __gnu_cxx::hash_map<const char*, value_type>
+#include "dict.h"
 
 class CConf
 {
 	DICT(DICT(CStr)) m_kv;
 public:
-	CConf(CStr strFileName);
+	CConf(const char *filename);
 	~CConf();
 
 	CStr& operator () (CStr section, CStr key);

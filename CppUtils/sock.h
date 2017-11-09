@@ -18,10 +18,14 @@ public:
 	CSock(const char* net_addr, short port);
 	~CSock();
 
+	void IgnoreSig();
 	void PrintReadErr(int r);
+
+	void SetTimeout(int nSecond);
 
 	char* Read();
 	int Read(void* buff, int n);
+	int Write(const char* str);
 	int Write(const void* buff, int n);
 };
 

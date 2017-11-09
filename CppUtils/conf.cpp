@@ -2,10 +2,10 @@
 #include "file.h"
 
 
-CConf::CConf(CStr strFileName)
+CConf::CConf(const char* filename)
 {
 	CStr strSection;
-	File file(strFileName, "rb");
+	File file(filename, "rb");
 	list<CStr> ls = file.readlines();
 	FOR_LIST(CStr, ls, it)
 	{

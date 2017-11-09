@@ -442,12 +442,12 @@ CBuff* Camera::read_frame()
 
 void Camera::print_info(const char * str)
 {
-	printf("[%s] %s", m_strDevName, str);
+	printf("[%s] %s", (const char*)m_strDevName, str);
 }
 
 void Camera::print_error(const char * str)
 {
-	printf("[%s] %s ?_? %m(%d)\n", m_strDevName, str, errno);
+	printf("[%s] %s ?_? %m(%d)\n", (const char*)m_strDevName, str, errno);
 }
 
 void Camera::errno_exit(const char * str)
