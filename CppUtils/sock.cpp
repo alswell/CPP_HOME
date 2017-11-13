@@ -1,4 +1,5 @@
 #include "sock.h"
+#include "str.h"
 #include <signal.h>
 
 
@@ -23,7 +24,6 @@ void CSock::Connect(const char *net_addr, short port)
 {
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(net_addr);
@@ -48,17 +48,22 @@ void CSock::IgnoreSig()
 
 void CSock::PrintReadErr(int r)
 {
+	CStr msg;
 	switch (r) {
 	case 0:
-		printf("remote close!\n");
+		msg = "remote close!";
 		break;
 	case -1:
-		printf("net error!\n");
+		msg = "net error!";
 		break;
 	default:
-		printf("recv err: %d\n", r);
+		msg.Format("recv err(%d)", r);
 		break;
 	}
+	msg += inet_ntoa(addr.sin_addr);
+	msg += ": ";
+	msg += ntohs(addr.sin_port);
+	perror(msg);
 }
 
 void CSock::SetTimeout(int nSecond)
@@ -84,6 +89,8 @@ char * CSock::Read()
 
 int CSock::Read(void * buff, int n)
 {
+	if (n == 0)
+		return 0;
 	int r = recv(m_fd, buff, n, MSG_WAITALL);
 	if (r <= 0) 
 	{
@@ -97,10 +104,13 @@ int CSock::Read(void * buff, int n)
 
 int CSock::Write(const char *str)
 {
-	int r = send(m_fd, str, strlen(str), 0);
+	int n = strlen(str);
+	if (n == 0)
+		return 0;
+	int r = send(m_fd, str, n, 0);
 	if (r == -1)
 	{
-		printf("write error, close!\n");
+		perror("write error, close!");
 		close(m_fd);
 		m_fd = -1;
 	}
@@ -109,10 +119,12 @@ int CSock::Write(const char *str)
 
 int CSock::Write(const void* buff, int n)
 {
+	if (n == 0)
+		return 0;
 	int r = send(m_fd, buff, n, 0);
 	if (r == -1)
 	{
-		printf("write error, close!\n");
+		perror("write error, close!");
 		close(m_fd);
 		m_fd = -1;
 	}

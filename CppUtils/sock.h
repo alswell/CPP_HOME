@@ -12,6 +12,7 @@ class CSock
 	friend class CServSock;
 	char m_buff[SOCK_BUFF_SIZE];
 	int m_fd;
+	sockaddr_in addr;
 
 public:
 	CSock(int fd = -1);

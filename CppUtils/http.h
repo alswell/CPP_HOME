@@ -36,6 +36,9 @@ public:
 	HttpRequest(const char* host, int port = 80, const char* url = "/", const char* method = "GET", float version = 1.1);
 	HttpRequest(const CStr& str);
 
+	CStr &METHOD();
+	CStr &URL();
+	CStr &BODY();
 	CStr &operator [] (const CStr& key);
 	HttpRequest &operator () (const CStr& strBody);
 	CStr &operator () ();

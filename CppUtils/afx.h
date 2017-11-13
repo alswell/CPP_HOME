@@ -32,6 +32,8 @@ for (map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
 #define FOR_I(a, b) \
 for (int i = a; i < b; ++i)
 
+#define DEC_INSTANCE(cls) static cls* Instance()
+
 #define DEF_INSTANCE(cls, ...) \
 cls* cls::Instance()\
 {\

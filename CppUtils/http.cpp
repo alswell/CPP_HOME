@@ -101,14 +101,23 @@ HttpRequest::HttpRequest(const CStr &str)
 	m_strBody = m_strReq.Right(n + 4);
 }
 
+CStr &HttpRequest::METHOD()
+{
+	return m_strMethod;
+}
+
+CStr &HttpRequest::URL()
+{
+	return m_strUrl;
+}
+
+CStr &HttpRequest::BODY()
+{
+	return m_strBody;
+}
+
 CStr &HttpRequest::operator [](const CStr &key)
 {
-	if (key == "method")
-		return m_strMethod;
-	if (key == "url")
-		return m_strUrl;
-	if (key == "body")
-		return m_strBody;
 	return m_dHead[key];
 }
 
