@@ -233,6 +233,18 @@ CStr & CStr::operator +=(const char* str)
 	return this->AppendFormat("%s", str);
 }
 
+CStr CStr::operator +(char c)
+{
+	CStr new_str(*this);
+	return new_str += c;
+}
+
+CStr CStr::operator +(const char *str)
+{
+	CStr new_str(*this);
+	return new_str += str;
+}
+
 CStr & CStr::Format(const char *fmt, ...)
 {
     va_list vArgList;
@@ -270,6 +282,20 @@ CStr & CStr::AppendFormat(const char *fmt, ...)
 		delete[] pTemp;
 	} while (1);
 	return *this;
+}
+
+int CStr::Replace(char src, char des)
+{
+	int nCount = 0;
+	for (int i = 0; i < m_nLength; ++i)
+	{
+		if (m_pBuff[i] == src)
+		{
+			m_pBuff[i] = des;
+			++nCount;
+		}
+	}
+	return nCount;
 }
 
 int CStr::Find(char c, int start)

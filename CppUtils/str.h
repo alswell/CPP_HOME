@@ -30,9 +30,12 @@ public:
 	bool operator < (const CStr& str) const;
 	CStr& operator += (char c);
 	CStr& operator += (const char* str);
+	CStr operator +(char c);
+	CStr operator + (const char *str);
 
 	CStr& Format(const char* fmt, ...);
 	CStr& AppendFormat(const char* fmt, ...);
+	int Replace(char src, char des);
 	int Find(char c, int start = 0);
 	int Find(const char *str, int start = 0);
 	bool StartWith(const char* str);

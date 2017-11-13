@@ -18,6 +18,9 @@ public:
 	CSock(const char* net_addr, short port);
 	~CSock();
 
+	operator bool();
+	void Connect(const char* net_addr, short port);
+
 	void IgnoreSig();
 	void PrintReadErr(int r);
 

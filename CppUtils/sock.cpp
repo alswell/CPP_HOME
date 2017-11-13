@@ -11,6 +11,16 @@ CSock::CSock(int fd)
 CSock::CSock(const char * net_addr, short port)
 {	
 	IgnoreSig();
+	Connect(net_addr, port);
+}
+
+
+CSock::~CSock()
+{
+}
+
+void CSock::Connect(const char *net_addr, short port)
+{
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	struct sockaddr_in addr;
@@ -20,9 +30,9 @@ CSock::CSock(const char * net_addr, short port)
 	int r = connect(m_fd, (struct sockaddr*)&addr, sizeof(addr));
 }
 
-
-CSock::~CSock()
+CSock::operator bool()
 {
+	return m_fd != -1;
 }
 
 void CSock::IgnoreSig()
@@ -64,6 +74,7 @@ char * CSock::Read()
 	{
 		PrintReadErr(r);
 		close(m_fd);
+		m_fd = -1;
 		return 0;
 	}
 
@@ -78,6 +89,7 @@ int CSock::Read(void * buff, int n)
 	{
 		PrintReadErr(r);
 		close(m_fd);
+		m_fd = -1;
 	}
 
 	return r;
@@ -90,6 +102,7 @@ int CSock::Write(const char *str)
 	{
 		printf("write error, close!\n");
 		close(m_fd);
+		m_fd = -1;
 	}
 	return r;
 }
@@ -101,6 +114,7 @@ int CSock::Write(const void* buff, int n)
 	{
 		printf("write error, close!\n");
 		close(m_fd);
+		m_fd = -1;
 	}
 	return r;
 }
