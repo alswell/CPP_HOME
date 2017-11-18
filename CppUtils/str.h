@@ -46,7 +46,9 @@ public:
 	CStr& TrimLeft(char c = 0);
 	CStr& TrimRight(char c = 0);
 	CStr& Trim(char c = 0);
+	void Split(list<CStr>& lsStr, char c = 0, unsigned num = 0) const;
 	list<CStr> Split(char c = 0, unsigned num = 0) const;
+	void Split(list<CStr>& lsStr, const char *str, unsigned num = 0) const;
 	list<CStr> Split(const char *str, unsigned num = 0) const;
 };
 

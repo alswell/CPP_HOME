@@ -5,7 +5,7 @@
 CConf::CConf(const char* filename)
 {
 	CStr strSection;
-	File file(filename, "rb");
+	File file = File::OpenFile(filename, "rb");
 	list<CStr> ls = file.readlines();
 	FOR_LIST(CStr, ls, it)
 	{

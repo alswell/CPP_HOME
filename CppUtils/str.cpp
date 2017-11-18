@@ -392,9 +392,9 @@ CStr& CStr::Trim(char c)
 	return TrimLeft(c).TrimRight(c);
 }
 
-list<CStr> CStr::Split(char c, unsigned num) const
+void CStr::Split(list<CStr> &lsStr, char c, unsigned num) const
 {
-	list<CStr> lsStr;
+	lsStr.clear();
 	int temp_i = 0;
 	for (int i = 0, count = 0; i < m_nLength; ++i)
 	{
@@ -408,12 +408,18 @@ list<CStr> CStr::Split(char c, unsigned num) const
 		}
 	}
 	lsStr.push_back(SubStr(temp_i, m_nLength));
+}
+
+list<CStr> CStr::Split(char c, unsigned num) const
+{
+	list<CStr> lsStr;
+	Split(lsStr, c, num);
 	return lsStr;
 }
 
-list<CStr> CStr::Split(const char *str, unsigned num) const
+void CStr::Split(list<CStr> &lsStr, const char *str, unsigned num) const
 {
-	list<CStr> lsStr;
+	lsStr.clear();
 	int n = 0;
 	int p = 0;
 	while (1)
@@ -427,6 +433,12 @@ list<CStr> CStr::Split(const char *str, unsigned num) const
 	}
 	if (m_pBuff[p])
 		lsStr.push_back(CStr(&m_pBuff[p]));
+}
+
+list<CStr> CStr::Split(const char *str, unsigned num) const
+{
+	list<CStr> lsStr;
+	Split(lsStr, str, num);
 	return lsStr;
 }
 
