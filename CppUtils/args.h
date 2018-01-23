@@ -4,20 +4,34 @@
 
 #include "dict.h"
 #include "str.h"
+#include "type.h"
 
-class ArgsParser
+class CArgParser
 {
-	DICT(CStr) m_kv;
-	DICT(ArgsParser*) m_subs;
+	CStr m_strName;
+    DICT(CStr) m_kk;
+	DICT(CValueType) m_kv;
+	vector<CStr> m_vName;
+	int m_iName;
+	DICT(CArgParser*) m_dictSubParsers;
+	CArgParser* m_pSubParser;
 public:
-	ArgsParser(char **argv);
+	CArgParser();
 
-	CStr Get(const CStr& key, const char* strDefault = NULL);
+	void AddOption(CStr op, EValueType type = TYPE_STRING, CStr alias = "");
+	void AddArg(CStr name);
+    CArgParser &AddSub(CStr sub);
+	bool ParseArgs(int argc, char* argv[]);
 
-	CStr &operator [] (const CStr& key);
-	ArgsParser &operator () (const CStr& sub);
+//	CStr Get(const CStr& key, const char* strDefault = NULL);
 
-	void _str();
+//	CStr &operator [] (const CStr& key);
+	CArgParser &operator () (const CStr& sub);
+
+	void PrintHelp();
+	void PrintResult();
+private:
+	void ParseValue(CValueType& value, char *argv[], int& i);
 };
 
 

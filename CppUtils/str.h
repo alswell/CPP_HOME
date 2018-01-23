@@ -12,7 +12,8 @@ class CStr
 	int m_nLength;
 public:
 	CStr();
-	CStr(const CStr& str);
+    CStr(char c);
+    CStr(const CStr& str);
 	CStr(const char* str, int n = -1);
 	~CStr();
 
@@ -23,7 +24,8 @@ public:
 	void ReleaseBuffer();
 	operator const char* () const;
 
-	void operator = (const CStr& str);
+    void operator = (char c);
+    void operator = (const CStr& str);
 	bool operator ==(const char *str) const;
 	bool operator !=(const char *str) const;
 	char& operator [] (int i) const;
@@ -34,9 +36,9 @@ public:
 	CStr operator + (const char *str);
 
 	CStr& Format(const char* fmt, ...);
-	CStr& AppendFormat(const char* fmt, ...);
+    CStr& AppendFormat(const char* fmt, ...);
 	int Replace(char src, char des);
-	int Find(char c, int start = 0);
+	int Find(char c, int start = 0) const;
 	int Find(const char *str, int start = 0);
 	bool StartWith(const char* str);
 	CStr SubStr(int start, int end) const;

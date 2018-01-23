@@ -26,29 +26,21 @@ inline void BuildNext(const char* pattern, size_t length, unsigned int* next)
 
 	while(i < length + 1)
 	{
-		while(t > 0 && pattern[i - 1] != pattern[t - 1])
-		{
+		while (t > 0 && pattern[i - 1] != pattern[t - 1])
 			t = next[t];
-		}
 
 		++t;
 		++i;
 
 		if(pattern[i - 1] == pattern[t - 1])
-		{
 			next[i] = next[t];
-		}
 		else
-		{
 			next[i] = t;
-		}
 	}
 
 	//pattern末尾的结束符控制，用于寻找目标字符串中的所有匹配结果用
 	while(t > 0 && pattern[i - 1] != pattern[t - 1])
-	{
 		t = next[t];
-	}
 
 	++t;
 	++i;
@@ -74,9 +66,9 @@ int KMP(const char* str, const char* pattern, int begin = 0)
 	j = 1;
 	n = 0;
 
-	while(pattern_length + 1 - j <= text_length - i)
+	while (pattern_length + 1 - j <= text_length - i)
 	{
-		if(text[i] == pattern[j - 1])
+		if (text[i] == pattern[j - 1])
 		{
 			++i;
 			++j;
@@ -111,9 +103,18 @@ char CStr::white_char[] = " \r\n\t";
 CStr::CStr()
 {
 	m_nLength = 0;
-	m_pBuff = new char[INCREAMENT];
-	m_nCountInc = 1;
-	memset(m_pBuff, 0, BuffSize());
+    m_nCountInc = 1;
+    m_pBuff = new char[INCREAMENT];
+    memset(m_pBuff, 0, INCREAMENT);
+}
+
+CStr::CStr(char c)
+{
+    m_nLength = 1;
+    m_nCountInc = 1;
+    m_pBuff = new char[INCREAMENT];
+    memset(m_pBuff, 0, INCREAMENT);
+    m_pBuff[0] = c;
 }
 
 CStr::CStr(const CStr & str)
@@ -175,7 +176,12 @@ char* CStr::GetBuffer(int n /*= 0*/)
 
 void CStr::ReleaseBuffer()
 {
-	m_nLength = strlen(m_pBuff);
+    m_nLength = strlen(m_pBuff);
+}
+
+void CStr::operator =(char c)
+{
+    this->Format("%c", c);
 }
 
 CStr::operator const char*() const
@@ -298,7 +304,7 @@ int CStr::Replace(char src, char des)
 	return nCount;
 }
 
-int CStr::Find(char c, int start)
+int CStr::Find(char c, int start) const
 {
 	if (start < 0)
 		start += m_nLength;

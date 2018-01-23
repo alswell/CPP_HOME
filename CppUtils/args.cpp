@@ -1,78 +1,227 @@
 #include "args.h"
 
 
-ArgsParser::ArgsParser(char **argv)
+CArgParser::CArgParser()
 {
-	CStr strCurKey = "";
-	int i = 1;
-	while (1)
+	AddOption("help", TYPE_BOOL, "h");
+	m_iName = 0;
+	m_pSubParser = NULL;
+}
+
+void CArgParser::AddOption(CStr op, EValueType type, CStr alias)
+{
+    if (alias == "")
+        alias = op;
+    m_kk[op] = alias;
+	m_kv[alias].m_type = type;
+	m_kv[alias].m_value = 0;
+}
+
+void CArgParser::AddArg(CStr name)
+{
+	m_vName.push_back(name);
+	m_kv[name].m_type = TYPE_STRING;
+	m_kv[name].m_value = 0;
+}
+
+CArgParser &CArgParser::AddSub(CStr sub)
+{
+	m_dictSubParsers[sub] = new CArgParser();
+	return *(m_dictSubParsers[sub]);
+}
+
+bool CArgParser::ParseArgs(int argc, char *argv[])
+{
+	m_strName = argv[0];
+	for (int i = 1; i < argc; ++i)
+    {
+		CStr str(argv[i]);
+        if (str.StartWith("--"))
+        {
+			str = str.Right(2);
+			if (m_kk.find(str) == m_kk.end())
+			{
+				cout << "unknown option: " << str << endl;
+				return false;
+			}
+			CValueType& value = m_kv[m_kk[str]];
+			ParseValue(value, argv, i);
+		}
+        else if (str.StartWith("-"))
+        {
+			str = str.Right(1);
+			if (m_kv.find(str) != m_kv.end())
+			{
+				CValueType& value = m_kv[str];
+				ParseValue(value, argv, i);
+			}
+			else
+			{
+				for (int j = 0; j < str.Length() - 1; ++j)
+				{
+					CStr alias = str[j];
+					if (m_kv.find(alias) == m_kv.end())
+					{
+						cout << "unknown alias: " << alias << endl;
+						return false;
+					}
+					CValueType& value = m_kv[alias];
+					if (value.m_type != TYPE_BOOL)
+					{
+						cout << "alias should be BOOL: " << alias << endl;
+						return false;
+					}
+					value.m_value = (void*)1;
+				}
+				CStr alias = str[-1];
+				if (m_kv.find(alias) == m_kv.end())
+				{
+					cout << "unknown alias: " << alias << endl;
+					return false;
+				}
+				CValueType& value = m_kv[alias];
+				ParseValue(value, argv, i);
+			}
+		}
+        else
+        {
+			if (m_iName < m_vName.size())
+			{
+				CValueType& value = m_kv[m_vName[m_iName]];
+				++m_iName;
+				int j = i - 1;
+				ParseValue(value, argv, j);
+			}
+			else
+			{
+				if (m_dictSubParsers.find(str) == m_dictSubParsers.end())
+				{
+					cout << "unknown sub command: " << str << endl;
+					return false;
+				}
+				m_pSubParser = m_dictSubParsers[str];
+				m_pSubParser->ParseArgs(argc - i, &argv[i]);
+				break;
+			}
+		}
+		if (m_kv['h'].m_value)
+		{
+			PrintHelp();
+			return false;
+		}
+	}
+	return true;
+}
+
+//CStr ArgsParser::Get(const CStr &key, const char *strDefault)
+//{
+//	CStr& strValue = (*this)[key];
+//	if (strValue != "")
+//		return strValue;
+//	if (strDefault)
+//		return CStr(strDefault);
+//	return "";
+//}
+
+//CStr &ArgsParser::operator [](const CStr &key)
+//{
+//	return m_kv[key];
+//}
+
+CArgParser &CArgParser::operator ()(const CStr &sub)
+{
+	return *m_dictSubParsers[sub];
+}
+
+void CArgParser::PrintHelp()
+{
+	FOR_DICT(CStr, m_kk, it)
 	{
-		char* p = argv[i];
-		if (p == NULL)
+		if (it->first == "help")
+			continue;
+		CStr& alias = m_kk[it->first];
+		CValueType& value = m_kv[alias];
+		cout << "[--" << it->first << "|-" << alias;
+		switch (value.m_type)
+		{
+		case TYPE_BOOL:
 			break;
-
-		CStr str(p);
-		if (str.StartWith("--"))
-		{
-			if (strCurKey != "")
-			{
-				m_kv[strCurKey] = "true";
-				strCurKey = "";
-			}
-			list<CStr> lsKV = str.Right(2).Split('=');
-			if (lsKV.size() == 2)
-				m_kv[lsKV.front()] = lsKV.back();
-			else
-				strCurKey = lsKV.front();
+		case TYPE_INT:
+			cout << " INT";
+			break;
+		case TYPE_STRING:
+			cout << " STRING";
+			break;
+		default:
+			cout << " UNKNOWN";
+			break;
 		}
-		else
-		{
-			if (strCurKey != "")
-			{
-				m_kv[strCurKey] = str;
-				strCurKey = "";
-			}
-			else
-			{
-				m_subs[str] = new ArgsParser(&argv[i]);
-				return;
-			}
-		}
+		cout << "] ";
+	}
+	for (int i = 0; i < m_vName.size(); ++i)
+	{
+		cout << m_vName[i] << " ";
+	}
+	cout << "{";
+	FOR_DICT(CArgParser*, m_dictSubParsers, it)
+	{
+		cout << it->first << ", ";
+	}
+	cout << "}" << endl;
+}
 
+void CArgParser::PrintResult()
+{
+	cout << m_strName << endl;
+	FOR_DICT(CStr, m_kk, it)
+	{
+		if (it->first == "help")
+			continue;
+		CStr& alias = m_kk[it->first];
+		CValueType& value = m_kv[alias];
+		cout << "--" << it->first << ";\t-" << alias << ":\t";
+		switch (value.m_type)
+		{
+		case TYPE_STRING:
+			cout << value.GetString();
+			break;
+		case TYPE_INT:
+			cout << value.GetInt();
+			break;
+		case TYPE_BOOL:
+			cout << (value.GetBool() ? "True" : "False");
+			break;
+		}
+		cout << endl;
+	}
+	for (int i = 0; i < m_vName.size(); ++i)
+	{
+		CValueType& value = m_kv[m_vName[i]];
+		cout << m_vName[i] << ": " << value.GetString() << endl;
+	}
+	if (m_pSubParser)
+	{
+		m_pSubParser->PrintResult();
+	}
+}
+
+void CArgParser::ParseValue(CValueType &value, char *argv[], int &i)
+{
+	if (value.m_type == TYPE_BOOL)
+	{
+		value.m_value = (void*)1;
+	}
+	else
+	{
 		++i;
+		switch (value.m_type)
+		{
+		case TYPE_INT:
+			value.m_value = (void*)atol(argv[i]);
+			break;
+		case TYPE_STRING:
+			value.SetString(argv[i]);
+			break;
+		}
 	}
 }
-
-CStr ArgsParser::Get(const CStr &key, const char *strDefault)
-{
-	CStr& strValue = (*this)[key];
-	if (strValue != "")
-		return strValue;
-	if (strDefault)
-		return CStr(strDefault);
-	return "";
-}
-
-CStr &ArgsParser::operator [](const CStr &key)
-{
-	return m_kv[key];
-}
-
-ArgsParser &ArgsParser::operator ()(const CStr &sub)
-{
-	return *m_subs[sub];
-}
-
-void ArgsParser::_str()
-{
-	FOR_DICT(CStr, m_kv, it)
-	{
-		cout << it->first << ": " << it->second << endl;
-	}
-	FOR_DICT(ArgsParser*, m_subs, it)
-	{
-		cout << it->first << endl;
-		it->second->_str();
-	}
-}
-
