@@ -1,7 +1,7 @@
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
-#include "afx.h"
+#include "env.h"
 #include "sync.h"
 
 template <class T>

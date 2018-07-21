@@ -1,7 +1,5 @@
-#ifndef __UART_H
-#define __UART_H
-
-#include "afx.h"
+#pragma once
+#include "stream.h"
 #include <fcntl.h>
 #include <termios.h>
 
@@ -9,25 +7,21 @@
 
 //  CUART uart("/dev/ttySAC3", 115200, 8, 'N', 1);
 //  uart.Write("hello uart!");
-class CUART
+class CUART : public IStream
 {
     int m_fd;
-	CStr m_buff;
 public:
 	CUART();
 	CUART(CStr dev, int nSpeed, int nBits, char nEvent, int nStop);
 
 	operator bool ();
 
-	const char *Read();
-	char ReadChar();
+	virtual int Read(void* pBuff, unsigned nSize);
+	virtual int Write(const void* pBuff, unsigned nSize);
+	virtual void Close();
 
-	void Write(char c) const;
-	void Write(CStr str) const;
-	void Write(const void* buff, unsigned nSize) const;
-	void WriteHex(const void* buff, unsigned nSize) const;
+	char ReadChar();
 private:
     int SetOpt(int fd,int nSpeed, int nBits, char nEvent, int nStop);
 };
 
-#endif

@@ -3,73 +3,63 @@
 //int fileno(FILE * stream)
 //FILE * fdopen(int fd, const char * mode)
 
-File::File(FILE *f)
+CFile::CFile(const char *strFileName, const char* mode)
 {
-	pf = f;
+	m_pFile = fopen(strFileName, mode);
 }
 
-
-File::~File()
+int CFile::Read(void *pBuff, unsigned nSize)
 {
-	if (pf)
+	return fread(pBuff, 1, nSize, m_pFile);
+}
+
+int CFile::Write(const void *pBuff, unsigned nSize)
+{
+	return fwrite(pBuff, 1, nSize, m_pFile);
+}
+
+void CFile::Close()
+{
+	if (m_pFile)
 	{
-		fclose(pf);
-		pf = NULL;
+		fclose(m_pFile);
+		m_pFile = NULL;
 	}
 }
 
-int File::write(const char *str)
+list<CStr> CFile::ReadLines()
 {
-	return fwrite(str, 1, strlen(str), pf);
-}
-
-int File::writeline(const char *str)
-{
-	int r = fwrite(str, 1, strlen(str), pf);
-	fwrite("\n", 1, 1, pf);
-	return r;
-}
-
-CStr& File::read(int size)
-{
-	if (size < 0)
-		size = 1023;
-	fread(strBuff.GetBuffer(size + 1), 1, size, pf);
-	strBuff.ReleaseBuffer();
-	return strBuff;
-}
-
-list<CStr> File::readlines()
-{
-	fseek(pf, 0, SEEK_END);
-	unsigned nSize = ftell(pf);
-	rewind(pf);
-	fread(strBuff.GetBuffer(nSize + 1), 1, nSize, pf);
+	fseek(m_pFile, 0, SEEK_END);
+	unsigned nSize = ftell(m_pFile);
+	rewind(m_pFile);
+	CStr strBuff;
+	fread(strBuff.GetBuffer(nSize + 1), 1, nSize, m_pFile);
 	strBuff.ReleaseBuffer();
 	return strBuff.Split('\n');
 }
 
-FILE *File::Attach(FILE *f)
-{
-	FILE* temp = pf;
-	pf = f;
-	return temp;
-}
+//FILE *CFileIn::Attach(FILE *f)
+//{
+//	FILE* temp = m_pFile;
+//	m_pFile = f;
+//	return temp;
+//}
 
-FILE *File::Detach()
-{
-	FILE* temp = pf;
-	pf = NULL;
-	return temp;
-}
+//FILE *CFileIn::Detach()
+//{
+//	FILE* temp = m_pFile;
+//	m_pFile = NULL;
+//	return temp;
+//}
 
-File File::OpenFile(const char *file, const char *mode)
-{
-	return File(fopen(file, mode));
-}
+//CFileIn CFileIn::OpenFile(const char *file, const char *mode)
+//{
+//	return CFileIn(fopen(file, mode));
+//}
 
-File File::OpenPipe(const char *cmd, const char *mode)
-{
-	return File(popen(cmd, mode));
-}
+//CFileIn CFileIn::OpenPipe(const char *cmd, const char *mode)
+//{
+//	return CFileIn(popen(cmd, mode));
+//}
+
 

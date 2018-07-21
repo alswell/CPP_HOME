@@ -1,7 +1,6 @@
-#ifndef __STR_H
-#define __STR_H
+#pragma once
 
-#include "afx.h"
+#include "env.h"
 
 class CStr
 {
@@ -12,8 +11,8 @@ class CStr
 	int m_nLength;
 public:
 	CStr();
-    CStr(char c);
-    CStr(const CStr& str);
+	CStr(char c);
+	CStr(const CStr& str);
 	CStr(const char* str, int n = -1);
 	~CStr();
 
@@ -57,4 +56,3 @@ public:
 void ToHexStr(CStr& str, const void *buff, unsigned nSize);
 void ToHexStr(CStr& str, const CStr& buff);
 
-#endif

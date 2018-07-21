@@ -1,54 +1,107 @@
-#ifndef __TYPE_H
-#define __TYPE_H
+#pragma once
 
-#include "afx.h"
-#include "dict.h"
+#include "env.h"
+//#include "dict.h"
+#include "str.h"
 
-enum EValueType
+class CSmartType
 {
-	TYPE_UNKNOWN = 0,
-	TYPE_INT,
-	TYPE_FLOAT,
-	TYPE_BOOL,
+	class ISmartType
+	{
+	public:
+		virtual ~ISmartType();
+		virtual ISmartType* Copy() = 0;
+		virtual int ToStr(char* str, int n) = 0;
+	};
+	ISmartType* m_pSmartTypeImpl;
 
-	TYPE_STRING,
-	TYPE_LIST,
-	TYPE_DICT,
-};
+	class CBOOL : public ISmartType
+	{
+		friend class CSmartType;
+		bool m_value;
+	public:
+		CBOOL(bool b);
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
 
-class CValueType
-{
+	class CINT : public ISmartType
+	{
+		friend class CSmartType;
+		ssize_t m_value;
+	public:
+		CINT(ssize_t i);
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
+
+	class CFLOAT : public ISmartType
+	{
+		friend class CSmartType;
+		double m_value;
+	public:
+		CFLOAT(double d);
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
+
+	class CSTRING : public ISmartType
+	{
+		friend class CSmartType;
+		char* m_value;
+	public:
+		CSTRING(const char* str);
+		~CSTRING();
+		CSTRING &operator = (const CSTRING& str);
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
+
+	class CLIST : public ISmartType
+	{
+		friend class CSmartType;
+		vector<CSmartType> m_value;
+	public:
+		CSmartType& operator [] (size_t n);
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
+
+	class CDICT : public ISmartType
+	{
+		friend class CSmartType;
+		map<CStr, CSmartType> m_value;
+	public:
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+
+		CSmartType& operator [] (const char* key);
+	};
+
 public:
-	EValueType m_type;
-	void* m_value;
+	CSmartType();
+	CSmartType(bool b);
+	CSmartType(int i);
+	CSmartType(double d);
+	CSmartType(const char* str);
+	~CSmartType();
 
-	CValueType(EValueType t = TYPE_UNKNOWN, void* v = NULL);
-	~CValueType();
+	CSmartType(const CSmartType& e);
+	CSmartType& operator = (const CSmartType& e);
 
-	CValueType(const CValueType &v);
+	CSmartType& SmartInit(const CStr &str);
 
-	ssize_t GetInt() const;
-	void SetInt(ssize_t i);
+	operator bool ();
+	operator int ();
+	operator ssize_t ();
+	operator double ();
+	operator const char* ();
+	operator vector<CSmartType>& ();
+	operator map<CStr, CSmartType>& ();
 
-	double GetFloat() const;
-	void SetFloat(double d);
+	CSmartType& operator [] (const char* key);
 
-	bool GetBool() const;
-	void SetBool(bool b);
-
-	char *GetString() const;
-	void SetString(const char* str);
-
-	vector<CValueType> &GetList() const;
-	void SetList();
-
-	CDict<CValueType> &GetDict() const;
-	void SetDict();
-
-	void SetStrInt(const CStr& str);
-
-private:
-	void Release();
+	int ToStr(char* str, int n) const;
+	CSmartType& ToList();
+	CSmartType& ToDict();
 };
-
-#endif

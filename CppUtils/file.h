@@ -1,25 +1,15 @@
-#ifndef __COMMON_FILE_H
-#define __COMMON_FILE_H
-
+#pragma once
+#include "stream.h"
 #include "str.h"
 
-class File
+class CFile : public IStream
 {
-	FILE* pf;
-	CStr strBuff;
+	FILE* m_pFile;
 public:
-	File(FILE* f = NULL);
-	~File();
+	CFile(const char* strFileName, const char *mode = "a+");
 
-	int write(const char* str);
-	int writeline(const char* str);
-	CStr &read(int size = -1);
-	list<CStr> readlines();
-
-	FILE *Attach(FILE* f);
-	FILE *Detach();
-	static File OpenFile(const char* file, const char* mode);
-	static File OpenPipe(const char* cmd, const char* mode);
+	virtual int Read(void *pBuff, unsigned nSize);
+	virtual int Write(const void *pBuff, unsigned nSize);
+	virtual void Close();
+	list<CStr> ReadLines();
 };
-
-#endif

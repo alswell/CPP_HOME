@@ -1,6 +1,4 @@
-#ifndef __DICT_H
-#define __DICT_H
-
+#pragma once
 #include <hash_map>
 #include <hash_fun.h>
 #include "fmt.h"
@@ -11,6 +9,7 @@ struct _str_hash
 };
 #define DICT(value_type) typename::__gnu_cxx::hash_map<CStr, value_type, _str_hash>
 //#define DICT(value_type) map<CStr, value_type>
+
 #define FOR_DICT(value_type, obj, it) \
 for (DICT(value_type)::iterator it = obj.begin(); it != obj.end(); ++it)
 
@@ -38,6 +37,14 @@ public:
 		return m_strDict[str];
 	}
 
+	CDict<T>& operator = (const CDict<T>& d)
+	{
+		FOR_DICT(T, d.m_strDict, it)
+			m_strDict[it->first] = it->second;
+		FOR_HASH(int, T, d.m_intDict, it)
+			m_intDict[it->first] = it->second;
+	}
+
 	CStr Str()
 	{
 		CStr str = "{";
@@ -55,4 +62,3 @@ public:
 	}
 };
 
-#endif

@@ -1,33 +1,28 @@
 #include "sock.h"
-#include "str.h"
 #include <signal.h>
 
+struct InitSock {
+	InitSock() {
+		signal(SIGPIPE, SIG_IGN);
+		cout << "ignore SIGPIPE" << endl;
+	}
+};
+InitSock init_sock;
 
 CSock::CSock(int fd)
 {
-	IgnoreSig();
 	m_fd = fd;
 }
 
 CSock::CSock(const char * net_addr, short port)
 {	
-	IgnoreSig();
-	Connect(net_addr, port);
-}
-
-
-CSock::~CSock()
-{
-}
-
-void CSock::Connect(const char *net_addr, short port)
-{
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(net_addr);
-	int r = connect(m_fd, (struct sockaddr*)&addr, sizeof(addr));
+
+	Connect();
 }
 
 CSock::operator bool()
@@ -35,35 +30,28 @@ CSock::operator bool()
 	return m_fd != -1;
 }
 
-void CSock::IgnoreSig()
+int CSock::Connect()
 {
-	static bool bIgn = true;
-	if (bIgn)
-	{
-		bIgn = false;
-		signal(SIGPIPE, SIG_IGN);
-		cout << "ignore SIGPIPE" << endl;
-	}
+	return connect(m_fd, (struct sockaddr*)&addr, sizeof(addr));
 }
 
 void CSock::PrintReadErr(int r)
 {
-	CStr msg;
+	char err_msg[1024];
+	char *p;
 	switch (r) {
 	case 0:
-		msg = "remote close!";
+		p = "remote close";
 		break;
 	case -1:
-		msg = "net error!";
+		p = "net error";
 		break;
 	default:
-		msg.Format("recv err(%d)", r);
+		p = "recv err";
 		break;
 	}
-	msg += inet_ntoa(addr.sin_addr);
-	msg += ": ";
-	msg += ntohs(addr.sin_port);
-	perror(msg);
+	sprintf(err_msg, "%s(%d)[%s:%u]", p, r, inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+	perror(err_msg);
 }
 
 void CSock::SetTimeout(int nSecond)
@@ -72,63 +60,35 @@ void CSock::SetTimeout(int nSecond)
 	setsockopt(m_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 }
 
-char * CSock::Read()
+int CSock::Read(void *pBuff, unsigned nSize)
 {
-	int r = recv(m_fd, m_buff, SOCK_BUFF_SIZE - 1, 0);
-	if (r <= 0) 
-	{
+	if (nSize == 0)
+		return 0;
+	int r = recv(m_fd, pBuff, nSize, MSG_WAITALL);
+	if (r <= 0)
 		PrintReadErr(r);
-		close(m_fd);
-		m_fd = -1;
-		return 0;
-	}
-
-	m_buff[r] = 0;
-	return m_buff;
-}
-
-int CSock::Read(void * buff, int n)
-{
-	if (n == 0)
-		return 0;
-	int r = recv(m_fd, buff, n, MSG_WAITALL);
-	if (r <= 0) 
-	{
-		PrintReadErr(r);
-		close(m_fd);
-		m_fd = -1;
-	}
 
 	return r;
 }
 
-int CSock::Write(const char *str)
+int CSock::Write(const void *pBuff, unsigned nSize)
 {
-	int n = strlen(str);
-	if (n == 0)
+	if (nSize == 0)
 		return 0;
-	int r = send(m_fd, str, n, 0);
+	int r = send(m_fd, pBuff, nSize, 0);
 	if (r == -1)
-	{
-		perror("write error, close!");
-		close(m_fd);
-		m_fd = -1;
-	}
+		perror("write error, close");
+
 	return r;
 }
 
-int CSock::Write(const void* buff, int n)
+void CSock::Close()
 {
-	if (n == 0)
-		return 0;
-	int r = send(m_fd, buff, n, 0);
-	if (r == -1)
+	if (m_fd != -1)
 	{
-		perror("write error, close!");
 		close(m_fd);
 		m_fd = -1;
 	}
-	return r;
 }
 
 CServSock::CServSock(short port, int backlog, const char* net_addr)

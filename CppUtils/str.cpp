@@ -110,11 +110,11 @@ CStr::CStr()
 
 CStr::CStr(char c)
 {
-    m_nLength = 1;
-    m_nCountInc = 1;
-    m_pBuff = new char[INCREAMENT];
-    memset(m_pBuff, 0, INCREAMENT);
-    m_pBuff[0] = c;
+	m_nLength = 1;
+	m_nCountInc = 1;
+	m_pBuff = new char[INCREAMENT];
+	memset(m_pBuff, 0, INCREAMENT);
+	m_pBuff[0] = c;
 }
 
 CStr::CStr(const CStr & str)

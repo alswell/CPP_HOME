@@ -1,5 +1,4 @@
-#ifndef __LOG_H
-#define __LOG_H
+#pragma once
 #include "fmt.h"
 
 
@@ -29,4 +28,3 @@ extern CLog* g_log;
 void setup_log(const char* filename);
 #define LOG (*g_log)
 
-#endif

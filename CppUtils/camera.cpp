@@ -52,17 +52,17 @@ bool Camera::Init(int w, int h, int nDataType)
 	return true;
 }
 
-int Camera::GetBuffer(void* image) 
+int Camera::GetImage(void* image)
 {
 	if (wait_frame())
 		return read_frame(image);
 	return 0;
 }
 
-CBuff * Camera::GetBuffer()
+Camera * Camera::GetFrame()
 {
 	if (wait_frame())
-		return read_frame();
+		return this;
 	return NULL;
 }
 
@@ -116,10 +116,7 @@ int Camera::AutoFocus(int bOn)
 	struct v4l2_control control;
 	control.id = V4L2_CID_FOCUS_AUTO;
 	control.value = bOn;
-	int r = ioctl(m_fd, VIDIOC_S_CTRL, &control);
-	if (r == -1)
-		return -1;
-	return GetFocus();
+	return ioctl(m_fd, VIDIOC_S_CTRL, &control);
 }
 
 int Camera::SetFocus(int nValue)
@@ -136,9 +133,7 @@ int Camera::GetFocus()
 	control.id = V4L2_CID_FOCUS_ABSOLUTE;
 	control.value = 0;
 	int r = ioctl(m_fd, VIDIOC_G_CTRL, &control);
-	if (r == -1)
-		return -1;
-	return control.value;
+	return (r == -1) ? -1 : control.value;
 }
 
 int Camera::enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 height)
@@ -310,7 +305,7 @@ bool Camera::init_mmap(void)
 {
 	struct v4l2_requestbuffers req;
 	CLEAR(req);
-	req.count = 2;//4;
+	req.count = 4;//2;//
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
@@ -435,11 +430,6 @@ int Camera::read_frame(void* image)
 	return bytesused;
 }
 
-CBuff* Camera::read_frame()
-{
-	return new CBuff(this);
-}
-
 void Camera::print_info(const char * str)
 {
 	printf("[%s] %s", (const char*)m_strDevName, str);
@@ -498,7 +488,14 @@ bool Camera::QBUF(v4l2_buffer & buf)
 	return true;
 }
 
-CBuff::CBuff(Camera* pCam)
+
+Camera::SFmtInfo::SFmtInfo(__u32 _fmt, char _name[])
+{
+	fmt = _fmt;
+	strcpy(name, _name);
+}
+
+Camera::Frame::Frame(Camera* pCam)
 	: m_pCam(pCam)
 {
 	m_pCam->DQBUF(m_buf);
@@ -506,7 +503,7 @@ CBuff::CBuff(Camera* pCam)
 	len = m_buf.bytesused;
 }
 
-CBuff::~CBuff()
+Camera::Frame::~Frame()
 {
 	m_pCam->QBUF(m_buf);
 }

@@ -18,78 +18,41 @@ CUART::operator bool()
 	return m_fd != -1;
 }
 
-const char* CUART::Read()
+int CUART::Read(void *pBuff, unsigned nSize)
 {
-	m_buff = "";
-	while (1)
+	char* p = (char*)pBuff;
+	for (int i = 0; i < nSize; ++i)
 	{
-		int r;
-		char c;
-		do
+		int r = 0;
+		while (r == 0)
+			r = read(m_fd, &p[i], 1);
+		if (r < 0)
 		{
-			r = read(m_fd, &c, 1);
-		} while (r == 0);
-		if (c == '\n')
-			c = 0;
-
-		switch (r) {
-		case 1:
-			m_buff += c;
-			break;
-		case -1:
-			cout<<"uart read error"<<endl;
-			return NULL;
-		default:
-			cout << "uart r = " << r << endl;
-			break;
+			cout << "uart read error: " << r << endl;
+			return -1;
 		}
-
-		if (c == 0)
-			break;
 	}
-	return m_buff;
+}
+
+int CUART::Write(const void *pBuff, unsigned nSize)
+{
+	return write(m_fd, pBuff, nSize);
+}
+
+void CUART::Close()
+{
+	if (m_fd != -1)
+	{
+		close(m_fd);
+		m_fd = -1;
+	}
 }
 
 char CUART::ReadChar()
 {
-	char c = 0;
-	int r;
-	do
-	{
-		r = read(m_fd, &c, 1);
-	} while (r == 0);
-
-	if (r != 1)
-		cout << "uart r = " << r << endl;
-
+	char c = -1;
+	Read(&c, 1);
 	return c;
-}
-
-void CUART::Write(char c) const
-{
-	write(m_fd, &c, 1);
-}
-
-void CUART::Write(CStr str) const
-{
-	write(m_fd, str, str.Length());
-}
-
-void CUART::Write(const void *buff, unsigned nSize) const
-{
-	write(m_fd, buff, nSize);
-}
-
-void CUART::WriteHex(const void *buff, unsigned nSize) const
-{
-	CStr str;
-	ToHexStr(str, buff, nSize);
-
-	for (int i = 0; i < 10; ++i)
-		Write('\0');
-	Write('\n');
-	Write(str);
-	Write('\n');
 }
 
 int CUART::SetOpt(int fd, int nSpeed, int nBits, char nEvent, int nStop)
@@ -177,3 +140,16 @@ int CUART::SetOpt(int fd, int nSpeed, int nBits, char nEvent, int nStop)
 	//	printf("set done!\n\r");
 	return 0;
 }
+
+//void CUART::WriteHex(const void *buff, unsigned nSize) const
+//{
+//	CStr str;
+//	ToHexStr(str, buff, nSize);
+
+//	for (int i = 0; i < 10; ++i)
+//		Write("\0");
+//	Write("\n");
+//	Write(str);
+//	Write("\n");
+//}
+

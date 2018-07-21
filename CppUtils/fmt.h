@@ -2,7 +2,7 @@
 #define __FMT_H
 #include "str.h"
 
-class CValueType;
+class CSmartType;
 namespace FMT
 {
 	extern CStr m_buf;
@@ -19,7 +19,7 @@ namespace FMT
 	const char* Fmt(unsigned int u);
 	const char* Fmt(float f);
 	const char* Fmt(double d);
-	const char* Fmt(const CValueType &v);
+	const char* Fmt(const CSmartType &v);
 }
 #define _(x) FMT::Fmt(x)
 

@@ -1,7 +1,6 @@
-#ifndef __CONF_H
-#define __CONF_H
+#pragma once
 
-#include "afx.h"
+#include "env.h"
 #include "str.h"
 #include "dict.h"
 
@@ -16,4 +15,3 @@ public:
 	DICT(CStr) & operator [] (CStr section);
 };
 
-#endif

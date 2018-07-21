@@ -5,8 +5,8 @@
 CConf::CConf(const char* filename)
 {
 	CStr strSection;
-	File file = File::OpenFile(filename, "rb");
-	list<CStr> ls = file.readlines();
+	CFile file(filename/*, "rb"*/);
+	list<CStr> ls = file.ReadLines();
 	FOR_LIST(CStr, ls, it)
 	{
 		it->Trim();

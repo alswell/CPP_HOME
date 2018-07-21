@@ -1,14 +1,13 @@
-#ifndef __JSON_H
-#define __JSON_H
+#pragma once
 #include "dict.h"
 #include "type.h"
 
 namespace JSON {
 	void Dump(CStr& str, DICT(CStr) dict);
 
-	void Load(CValueType& json, const char* str);
-	char *ParseDict(CValueType& dict, const char* str);
-	char *ParseList(CValueType& list, const char* str);
+	void LoadFile(CSmartType& json, const char* filename);
+	void Load(CSmartType& json, const char* str);
+	char *ParseDict(CSmartType& dict, const char* str);
+	char *ParseList(CSmartType& list, const char* str);
 }
 
-#endif

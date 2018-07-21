@@ -52,38 +52,9 @@ const char * FMT::Fmt(double d)
 }
 
 
-const char *FMT::Fmt(const CValueType &v)
+const char *FMT::Fmt(const CSmartType &v)
 {
-	switch (v.m_type) {
-	case TYPE_BOOL:
-		Fmt(v.GetBool());
-		break;
-	case TYPE_STRING:
-		m_buf.Format("'%s'", v.GetString());
-		break;
-	case TYPE_INT:
-		Fmt(v.GetInt());
-		break;
-	case TYPE_FLOAT:
-		Fmt(v.GetFloat());
-		break;
-	case TYPE_DICT:
-		m_buf = v.GetDict().Str();
-		break;
-	case TYPE_LIST:
-	{
-		CStr buff = "[";
-		for (int i = 0; i < v.GetList().size(); ++i)
-		{
-			buff.AppendFormat("%s, ", Fmt(v.GetList()[i]));
-		}
-		buff += "]";
-		m_buf = buff;
-	}
-		break;
-	default:
-		return NULL;
-		break;
-	}
+	v.ToStr(m_buf.GetBuffer(1024), 1024);
+	m_buf.ReleaseBuffer();
 	return m_buf;
 }

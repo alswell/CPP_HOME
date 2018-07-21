@@ -1,7 +1,6 @@
-#ifndef __CAMERA_H
-#define __CAMERA_H
+#pragma once
 
-#include "afx.h"
+#include "env.h"
 #include <assert.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -15,51 +14,46 @@
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
-typedef enum 
-{
-	IO_METHOD_READ, 
-	IO_METHOD_MMAP, 
-	IO_METHOD_USERPTR,
-} io_method;
-
-struct SBuff 
-{
-	void * start;
-	size_t length;	//buffer's length is different from cap_image_size
-};
-
-struct SFmtInfo
-{
-	__u32 fmt;
-	char name[32];
-	SFmtInfo(__u32 _fmt, char _name[])
-	{
-		fmt = _fmt;
-		strcpy(name, _name);
-	}
-};
-
-class Camera;
-class CBuff
-{
-	Camera* m_pCam;
-	v4l2_buffer m_buf;
-public:
-	void* start;
-	size_t len;
-	CBuff(Camera* pCam);
-	~CBuff();
-};
 
 class Camera
 {
-	friend class CBuff;
+	friend class Frame;
+	typedef enum
+	{
+		IO_METHOD_READ,
+		IO_METHOD_MMAP,
+		IO_METHOD_USERPTR,
+	} io_method;
+
+	struct SBuff
+	{
+		void * start;
+		size_t length;	//buffer's length is different from cap_image_size
+	};
+	struct SFmtInfo
+	{
+		__u32 fmt;
+		char name[32];
+		SFmtInfo(__u32 _fmt, char _name[]);
+	};
 public:
 	Camera(int nDevNum, bool print_detail = true);
 	~Camera();
+
+	class Frame
+	{
+		Camera* m_pCam;
+		v4l2_buffer m_buf;
+	public:
+		void* start;
+		size_t len;
+		Frame(Camera* pCam);
+		~Frame();
+	};
+
 	bool Init(int w, int h, int nDataType = 0);
-	int GetBuffer(void* image);
-	CBuff* GetBuffer();
+	int GetImage(void* image);
+	Camera *GetFrame();
 
 	unsigned GetImageSize();
 	void Identify();
@@ -100,7 +94,6 @@ private:
 
 	bool wait_frame();
 	int read_frame(void* image);
-	CBuff* read_frame();
 
 	void print_info(const char * str);
 	void print_error(const char * str);
@@ -110,6 +103,4 @@ private:
 	bool DQBUF(v4l2_buffer& buf);
 	bool QBUF(v4l2_buffer& buf);
 };
-
-#endif
 
