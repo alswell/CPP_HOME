@@ -1,11 +1,9 @@
-#ifndef __TICK_COUNT_H
-#define __TICK_COUNT_H
-
+#pragma once
 #include <sys/time.h>
 
 class CTickCount
 {
-	struct timeval m_tLast;
+	struct timeval m_tInit;
 public:
 	CTickCount();
 	int TickCount();
@@ -13,4 +11,3 @@ public:
 
 int GetTickCount();
 
-#endif

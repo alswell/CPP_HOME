@@ -84,18 +84,18 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 			tmp_key = CStr(key, value-key-1).Trim();
 			p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
 			//if (tmp_key[0] == '"')
-			//	p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p+1);
+			//	p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
 			//else
-			//	p = JSON::ParseDict(D[atoi((const char*)tmp_key)], p+1);
+			//	p = JSON::ParseDict(D[atoi((const char*)tmp_key)], p);
 			key = NULL;
 			break;
 		case '[':
 			tmp_key = CStr(key, value-key-1).Trim();
 			p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
 			//if (tmp_key[0] == '"')
-			//	p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p+1);
+			//	p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
 			//else
-			//	p = JSON::ParseList(D[atoi((const char*)tmp_key)], p+1);
+			//	p = JSON::ParseList(D[atoi((const char*)tmp_key)], p);
 			key = NULL;
 			break;
 		}
