@@ -29,11 +29,6 @@ CConf::~CConf()
 {
 }
 
-CStr & CConf::operator()(CStr section, CStr key)
-{
-	return m_kv[section][key];
-}
-
 DICT(CStr) &CConf::operator [](CStr section)
 {
 	return m_kv[section];
