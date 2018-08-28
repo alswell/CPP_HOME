@@ -27,12 +27,12 @@ void CFile::Close()
 	}
 }
 
-list<CStr> CFile::ReadLines()
+list<CString> CFile::ReadLines()
 {
 	fseek(m_pFile, 0, SEEK_END);
 	unsigned nSize = ftell(m_pFile);
 	rewind(m_pFile);
-	CStr strBuff;
+	CString strBuff;
 	fread(strBuff.GetBuffer(nSize + 1), 1, nSize, m_pFile);
 	strBuff.ReleaseBuffer();
 	return strBuff.Split('\n');

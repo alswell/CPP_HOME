@@ -16,99 +16,33 @@ bool in(cls c, cls arr[], int n)\
 
 DEF_IN(char)
 
-inline void BuildNext(const char* pattern, size_t length, unsigned int* next)
-{
-	unsigned int i, t;
-
-	i = 1;
-	t = 0;
-	next[1] = 0;
-
-	while(i < length + 1)
-	{
-		while (t > 0 && pattern[i - 1] != pattern[t - 1])
-			t = next[t];
-
-		++t;
-		++i;
-
-		if(pattern[i - 1] == pattern[t - 1])
-			next[i] = next[t];
-		else
-			next[i] = t;
-	}
-
-	//pattern末尾的结束符控制，用于寻找目标字符串中的所有匹配结果用
-	while(t > 0 && pattern[i - 1] != pattern[t - 1])
-		t = next[t];
-
-	++t;
-	++i;
-
-	next[i] = t;
-}
-
 int KMP(const char* str, const char* pattern, int begin = 0)
 {
-	size_t str_length = strlen(str);
-	if (begin >= str_length)
-		return -1;
-
-	const char* text = &str[begin];
-	size_t text_length = str_length - begin;
-	size_t pattern_length = strlen(pattern);
-	unsigned int i, j, n;
-	unsigned int next[pattern_length + 2];
-
-	BuildNext(pattern, pattern_length, next);
-
-	i = 0;
-	j = 1;
-	n = 0;
-
-	while (pattern_length + 1 - j <= text_length - i)
+	// fake KMP algorithm
+	for (int i = 0; str[i]; ++i)
 	{
-		if (text[i] == pattern[j - 1])
+		if (str[i] == pattern[0])
 		{
-			++i;
-			++j;
-
-			//发现匹配结果，将匹配子串的位置，加入结果
-			if(j == pattern_length + 1)
-			{
-				return i - pattern_length + begin;
-				//matches[n++] = i - pattern_length;
-				//j = next[j];
-			}
-		}
-		else
-		{
-			j = next[j];
-
-			if(j == 0)
-			{
-				++i;
-				++j;
-			}
+			const char *p1 = pattern, *p2 = &str[i];
+			for (; *p1 != 0 && *p1 == *p2; ++p1, ++p2);
+			if (*p1 == 0)
+				return i;
 		}
 	}
-
 	return -1;
-	//返回发现的匹配数
-	//return n;
 }
 
 
-char CStr::white_char[] = " \r\n\t";
-CStr::CStr()
+char CString::white_char[] = " \r\n\t";
+CString::CString()
 {
 	m_nLength = 0;
-    m_nCountInc = 1;
-    m_pBuff = new char[INCREAMENT];
-    memset(m_pBuff, 0, INCREAMENT);
+	m_nCountInc = 1;
+	m_pBuff = new char[INCREAMENT];
+	memset(m_pBuff, 0, INCREAMENT);
 }
 
-CStr::CStr(char c)
+CString::CString(char c)
 {
 	m_nLength = 1;
 	m_nCountInc = 1;
@@ -117,7 +51,7 @@ CStr::CStr(char c)
 	m_pBuff[0] = c;
 }
 
-CStr::CStr(const CStr & str)
+CString::CString(const CString & str)
 {
 	m_nLength = str.m_nLength;
 	m_nCountInc = str.m_nCountInc;
@@ -125,7 +59,7 @@ CStr::CStr(const CStr & str)
 	strcpy(m_pBuff, str.m_pBuff);
 }
 
-CStr::CStr(const char *str, int n)
+CString::CString(const char *str, int n)
 {
 	m_nLength = n == -1 ? strlen(str) : n;
 	m_nCountInc = m_nLength / INCREAMENT;
@@ -136,27 +70,27 @@ CStr::CStr(const char *str, int n)
 		memcpy(m_pBuff, str, m_nLength);
 }
 
-CStr::~CStr()
+CString::~CString()
 {
-    delete[] m_pBuff;
+	delete[] m_pBuff;
 }
 
-unsigned CStr::BuffSize() const
+unsigned CString::BuffSize() const
 {
 	return m_nCountInc * INCREAMENT;
 }
 
-unsigned CStr::Length() const
+unsigned CString::GetLength() const
 {
 	return m_nLength;
 }
 
-bool CStr::Empty() const
+bool CString::Empty() const
 {
 	return m_nLength == 0;
 }
 
-char* CStr::GetBuffer(int n /*= 0*/)
+char* CString::GetBuffer(int n /*= 0*/)
 {
 	if (n && n >= BuffSize())
 	{
@@ -174,22 +108,22 @@ char* CStr::GetBuffer(int n /*= 0*/)
 	return m_pBuff;
 }
 
-void CStr::ReleaseBuffer()
+void CString::ReleaseBuffer()
 {
-    m_nLength = strlen(m_pBuff);
+	m_nLength = strlen(m_pBuff);
 }
 
-void CStr::operator =(char c)
+void CString::operator =(char c)
 {
-    this->Format("%c", c);
+	this->Format("%c", c);
 }
 
-CStr::operator const char*() const
+CString::operator const char*() const
 {
 	return m_pBuff;
 }
 
-void CStr::operator=(const CStr & str)
+void CString::operator=(const CString & str)
 {
 	m_nLength = str.m_nLength;
 	m_nCountInc = str.m_nCountInc;
@@ -199,24 +133,24 @@ void CStr::operator=(const CStr & str)
 	strcpy(m_pBuff, str.m_pBuff);
 }
 
-bool CStr::operator ==(const char* str) const
+bool CString::operator ==(const char* str) const
 {
 	return strcmp(m_pBuff, str) == 0;
 }
 
-bool CStr::operator !=(const char* str) const
+bool CString::operator !=(const char* str) const
 {
 	return strcmp(m_pBuff, str) != 0;
 }
 
-char &CStr::operator [](int i) const
+char &CString::operator [](int i) const
 {
 	if (i < 0)
 		i += m_nLength;
 	return m_pBuff[i];
 }
 
-bool CStr::operator <(const CStr & str) const
+bool CString::operator <(const CString & str) const
 {
 	return strcmp(m_pBuff, str) < 0;
 	for (int i = 0; i < m_nLength && i < str.m_nLength; ++i)
@@ -229,31 +163,31 @@ bool CStr::operator <(const CStr & str) const
 	return m_nLength < str.m_nLength;
 }
 
-CStr & CStr::operator +=(char c)
+CString & CString::operator +=(char c)
 {
 	return this->AppendFormat("%c", c);
 }
 
-CStr & CStr::operator +=(const char* str)
+CString & CString::operator +=(const char* str)
 {
 	return this->AppendFormat("%s", str);
 }
 
-CStr CStr::operator +(char c)
+CString CString::operator +(char c)
 {
-	CStr new_str(*this);
+	CString new_str(*this);
 	return new_str += c;
 }
 
-CStr CStr::operator +(const char *str)
+CString CString::operator +(const char *str)
 {
-	CStr new_str(*this);
+	CString new_str(*this);
 	return new_str += str;
 }
 
-CStr & CStr::Format(const char *fmt, ...)
+CString & CString::Format(const char *fmt, ...)
 {
-    va_list vArgList;
+	va_list vArgList;
 	do
 	{
 		va_start(vArgList, fmt);
@@ -268,7 +202,7 @@ CStr & CStr::Format(const char *fmt, ...)
 	return *this;
 }
 
-CStr & CStr::AppendFormat(const char *fmt, ...)
+CString & CString::AppendFormat(const char *fmt, ...)
 {
 	va_list vArgList;
 	do
@@ -290,7 +224,7 @@ CStr & CStr::AppendFormat(const char *fmt, ...)
 	return *this;
 }
 
-int CStr::Replace(char src, char des)
+int CString::Replace(char src, char des)
 {
 	int nCount = 0;
 	for (int i = 0; i < m_nLength; ++i)
@@ -304,7 +238,7 @@ int CStr::Replace(char src, char des)
 	return nCount;
 }
 
-int CStr::Find(char c, int start) const
+int CString::Find(char c, int start) const
 {
 	if (start < 0)
 		start += m_nLength;
@@ -317,53 +251,72 @@ int CStr::Find(char c, int start) const
 	return -1;
 }
 
-int CStr::Find(const char *str, int start)
+int CString::Find(const char *str, int start)
 {
 	if (start < 0)
 		start += m_nLength;
 	return KMP(m_pBuff, str, start);
 }
 
-bool CStr::StartWith(const char *str)
+int CString::ReverseFind(char c, int start) const
+{
+	for (int i = m_nLength - 1; i >= 0; --i)
+	{
+		if (m_pBuff[i] == c)
+			return i;
+	}
+	return -1;
+}
+
+bool CString::StartWith(const char *str)
 {
 	int i = 0;
 	while (str[i])
 	{
-		if (i >= Length() || (*this)[i] != str[i])
+		if (i >= GetLength() || (*this)[i] != str[i])
 			return false;
 		++i;
 	}
 	return true;
 }
 
-CStr CStr::SubStr(int start, int end) const
+CString CString::Mid(int start, int length) const
+{
+	if (start < 0)
+		start += m_nLength;
+	if (length == -1)
+		length = m_nLength - start;
+	return CString(&m_pBuff[start], length);
+}
+
+CString CString::SubStr(int start, int end) const
 {
 	if (start < 0)
 		start += m_nLength;
 	if (end < 0)
 		end += m_nLength;
 	if (start > end)
-		return CStr();
-	return CStr(&m_pBuff[start], end - start);
+		return CString();
+	return CString(&m_pBuff[start], end - start);
 }
 
-void CStr::Truncate(int n)
+void CString::Truncate(int n)
 {
 	m_pBuff[n] = 0;
 	m_nLength = n;
 }
 
-CStr CStr::Left(unsigned n) const
+CString CString::Left(unsigned n) const
 {
-	return CStr(m_pBuff, n);
+	return CString(m_pBuff, n);
 }
 
-CStr CStr::Right(unsigned n) const
+CString CString::Right(unsigned n) const
 {
-	return CStr(&m_pBuff[n], Length() - n);
+	return CString(&m_pBuff[n], GetLength() - n);
 }
 
-CStr& CStr::TrimLeft(char c)
+CString& CString::TrimLeft(char c)
 {
 	int i = 0;
 	for (; i < m_nLength; ++i)
@@ -380,7 +333,7 @@ CStr& CStr::TrimLeft(char c)
 	return *this;
 }
 
-CStr& CStr::TrimRight(char c)
+CString& CString::TrimRight(char c)
 {
 	while (m_nLength)
 	{
@@ -393,12 +346,12 @@ CStr& CStr::TrimRight(char c)
 	return *this;
 }
 
-CStr& CStr::Trim(char c)
+CString& CString::Trim(char c)
 {
 	return TrimLeft(c).TrimRight(c);
 }
 
-void CStr::Split(list<CStr> &lsStr, char c, unsigned num) const
+void CString::Split(list<CString> &lsStr, char c, unsigned num) const
 {
 	lsStr.clear();
 	int temp_i = 0;
@@ -416,14 +369,14 @@ void CStr::Split(list<CStr> &lsStr, char c, unsigned num) const
 	lsStr.push_back(SubStr(temp_i, m_nLength));
 }
 
-list<CStr> CStr::Split(char c, unsigned num) const
+list<CString> CString::Split(char c, unsigned num) const
 {
-	list<CStr> lsStr;
+	list<CString> lsStr;
 	Split(lsStr, c, num);
 	return lsStr;
 }
 
-void CStr::Split(list<CStr> &lsStr, const char *str, unsigned num) const
+void CString::Split(list<CString> &lsStr, const char *str, unsigned num) const
 {
 	lsStr.clear();
 	int n = 0;
@@ -433,22 +386,22 @@ void CStr::Split(list<CStr> &lsStr, const char *str, unsigned num) const
 		n = KMP(m_pBuff, str, n);
 		if (n == -1)
 			break;
-		lsStr.push_back(CStr(&m_pBuff[p], n - p));
+		lsStr.push_back(CString(&m_pBuff[p], n - p));
 		n += strlen(str);
 		p = n;
 	}
 	if (m_pBuff[p])
-		lsStr.push_back(CStr(&m_pBuff[p]));
+		lsStr.push_back(CString(&m_pBuff[p]));
 }
 
-list<CStr> CStr::Split(const char *str, unsigned num) const
+list<CString> CString::Split(const char *str, unsigned num) const
 {
-	list<CStr> lsStr;
+	list<CString> lsStr;
 	Split(lsStr, str, num);
 	return lsStr;
 }
 
-void ToHexStr(CStr& str, const void *buff, unsigned nSize)
+void ToHexStr(CString& str, const void *buff, unsigned nSize)
 {
 	unsigned char* p = (unsigned char*)buff;
 	str = "";
@@ -456,8 +409,8 @@ void ToHexStr(CStr& str, const void *buff, unsigned nSize)
 		str.AppendFormat("%02X", p[i]);
 }
 
-void ToHexStr(CStr& str, const CStr& buff)
+void ToHexStr(CString& str, const CString& buff)
 {
-	ToHexStr(str, buff, buff.Length());
+	ToHexStr(str, buff, buff.GetLength());
 }
 

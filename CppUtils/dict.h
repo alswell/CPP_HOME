@@ -5,7 +5,7 @@
 struct _str_hash
 {
 	__gnu_cxx::hash<const char*> _hash;
-	size_t operator () (CStr str) const;
+	size_t operator () (CString str) const;
 };
 #define DICT(value_type) typename::__gnu_cxx::hash_map<CStr, value_type, _str_hash>
 //#define DICT(value_type) map<CStr, value_type>
@@ -32,7 +32,7 @@ public:
 		return m_intDict[i];
 	}
 
-	T &operator [] (const CStr& str)
+	T &operator [] (const CString& str)
 	{
 		return m_strDict[str];
 	}
@@ -45,9 +45,9 @@ public:
 			m_intDict[it->first] = it->second;
 	}
 
-	CStr Str()
+	CString Str()
 	{
-		CStr str = "{";
+		CString str = "{";
 		FOR_HASH(int, T, m_intDict, it)
 		{
 			str.AppendFormat("%d: %s, ", it->first, _(it->second));

@@ -12,7 +12,7 @@ class CUART : public IStream
     int m_fd;
 public:
 	CUART();
-	CUART(CStr dev, int nSpeed, int nBits, char nEvent, int nStop);
+	CUART(CString dev, int nSpeed, int nBits, char nEvent, int nStop);
 
 	operator bool ();
 

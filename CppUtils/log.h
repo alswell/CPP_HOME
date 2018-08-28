@@ -4,7 +4,7 @@
 
 class CLog
 {
-	CStr m_filename;
+	CString m_filename;
 
 public:
 	CLog(const char* file = NULL);

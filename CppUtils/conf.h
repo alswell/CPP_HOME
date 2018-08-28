@@ -11,6 +11,6 @@ public:
 	CConf(const char *filename);
 	~CConf();
 
-	DICT(CStr) & operator [] (CStr section);
+	DICT(CStr) & operator [] (CString section);
 };
 

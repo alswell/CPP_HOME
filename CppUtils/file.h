@@ -11,5 +11,5 @@ public:
 	virtual int Read(void *pBuff, unsigned nSize);
 	virtual int Write(const void *pBuff, unsigned nSize);
 	virtual void Close();
-	list<CStr> ReadLines();
+	list<CString> ReadLines();
 };

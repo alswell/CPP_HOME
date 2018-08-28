@@ -1,6 +1,6 @@
 #include "dict.h"
 
-size_t _str_hash::operator ()(CStr str) const
+size_t _str_hash::operator ()(CString str) const
 {
 	return _hash((const char*)str);
 }

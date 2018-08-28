@@ -8,40 +8,40 @@
 class HttpResponse
 {
 	CSock m_sock;
-	CStr m_strResp;
-	CStr m_strVersion;
+	CString m_strResp;
+	CString m_strVersion;
 	int m_nStatus;
-	CStr m_strStatus;
-	CStr m_strBody;
+	CString m_strStatus;
+	CString m_strBody;
 	DICT(CStr) m_dHead;
 public:
 	HttpResponse(int status = 200, float version = 1.1);
 	HttpResponse(CSock _sock);
 
-	CStr &operator [] (const CStr& key);
-	HttpResponse &operator () (const CStr& strBody);
-	CStr &operator () ();
+	CString &operator [] (const CString& key);
+	HttpResponse &operator () (const CString& strBody);
+	CString &operator () ();
 };
 
 class HttpRequest
 {
 	CSock m_sock;
-	CStr m_strReq;
-	CStr m_strMethod;
-	CStr m_strUrl;
-	CStr m_strBody;
+	CString m_strReq;
+	CString m_strMethod;
+	CString m_strUrl;
+	CString m_strBody;
 	float m_fVersion;
 	DICT(CStr) m_dHead;
 public:
 	HttpRequest(const char* host, int port = 80, const char* url = "/", const char* method = "GET", float version = 1.1);
-	HttpRequest(const CStr& str);
+	HttpRequest(const CString& str);
 
-	CStr &METHOD();
-	CStr &URL();
-	CStr &BODY();
-	CStr &operator [] (const CStr& key);
-	HttpRequest &operator () (const CStr& strBody);
-	CStr &operator () ();
+	CString &METHOD();
+	CString &URL();
+	CString &BODY();
+	CString &operator [] (const CString& key);
+	HttpRequest &operator () (const CString& strBody);
+	CString &operator () ();
 
 	HttpResponse Send();
 };
@@ -64,7 +64,7 @@ public:
 	void* Run()
 	{
 		cout << "Accept!" << m_tid << endl;
-		CStr buff;
+		CString buff;
 		while (1)
 		{
 			char * p = m_sock.Read();
@@ -81,7 +81,7 @@ public:
 				HttpResponse resp(200);
 				if (!this->MainLoop(resp, req))
 					break;
-				CStr strResp = resp();
+				CString strResp = resp();
 				cout << strResp << endl;
 				m_sock.Write(strResp);
 				buff = "";

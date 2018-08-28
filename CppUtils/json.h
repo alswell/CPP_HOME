@@ -3,7 +3,7 @@
 #include "type.h"
 
 namespace JSON {
-	void Dump(CStr& str, DICT(CStr) dict);
+	void Dump(CString& str, DICT(CString) dict);
 
 	void LoadFile(CSmartType& json, const char* filename);
 	void Load(CSmartType& json, const char* str);

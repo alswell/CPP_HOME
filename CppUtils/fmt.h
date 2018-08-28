@@ -5,7 +5,7 @@
 class CSmartType;
 namespace FMT
 {
-	extern CStr m_buf;
+	extern CString m_buf;
 	extern const char* fmt_str;
 	extern const char* fmt_char;
 	extern const char* fmt_int;

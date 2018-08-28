@@ -63,7 +63,7 @@ public:
 	int SetFocus(int nValue);
 	int GetFocus();
 private:
-	CStr m_strDevName;
+	CString m_strDevName;
 	int m_fd;
 	int m_nWidth;
 	int m_nHeight;

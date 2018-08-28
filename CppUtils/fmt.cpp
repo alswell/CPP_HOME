@@ -1,7 +1,7 @@
 #include "fmt.h"
 #include "type.h"
 
-CStr FMT::m_buf;
+CString FMT::m_buf;
 const char* FMT::fmt_str = "%s";
 const char* FMT::fmt_char = "%c";
 const char* FMT::fmt_int = "%d";

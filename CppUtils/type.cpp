@@ -127,7 +127,7 @@ int CSmartType::CDICT::ToStr(char *str, int n)
 {
 	int size;
 	int count = 0;
-	for (map<CStr, CSmartType>::iterator it = m_value.begin(); it != m_value.end(); ++it)
+	for (map<CString, CSmartType>::iterator it = m_value.begin(); it != m_value.end(); ++it)
 	{
 		size = n - count;
 		if (size <= 1) break;
@@ -214,7 +214,7 @@ CSmartType &CSmartType::operator =(const CSmartType &e)
 	return *this;
 }
 
-CSmartType &CSmartType::SmartInit(const CStr& str)
+CSmartType &CSmartType::SmartInit(const CString& str)
 {
 	if (str == "true")
 		*this = true;
@@ -265,7 +265,7 @@ CSmartType::operator vector<CSmartType> &()
 	return p ? p->m_value : g_vNULL;
 }
 
-map<CStr, CSmartType> g_dNULL;
+map<CString, CSmartType> g_dNULL;
 CSmartType::operator map<CStr, CSmartType> &()
 {
 	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);

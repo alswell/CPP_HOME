@@ -1,9 +1,9 @@
 #include "json.h"
 
-void JSON::Dump(CStr& str, DICT(CStr) dict)
+void JSON::Dump(CString& str, DICT(CString) dict)
 {
 	str = "{";
-	FOR_DICT(CStr, dict, it)
+	FOR_DICT(CString, dict, it)
 	{
 		str.AppendFormat("\"%s\": \"%s\", ", (const char*)it->first, (const char*)it->second);
 	}
@@ -55,8 +55,8 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 	char* key = p;
 	char* value;
 	dict.ToDict();
-	map<CStr, CSmartType>& D = dict;
-	CStr tmp_key;
+	map<CString, CSmartType>& D = dict;
+	CString tmp_key;
 
 	while (*p)
 	{
@@ -69,8 +69,8 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 		case '}':
 			if (key)
 			{
-				tmp_key = CStr(key, value-key-1).Trim();
-				D[tmp_key.SubStr(1, -1)].SmartInit(CStr(value, p-value).Trim());
+				tmp_key = CString(key, value-key-1).Trim();
+				D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
 				//if (tmp_key[0] == '"')
 				//	D[tmp_key.SubStr(1, -1)].SmartInit(CStr(value, p-value).Trim());
 				//else
@@ -81,7 +81,7 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 			key = p+1;
 			break;
 		case '{':
-			tmp_key = CStr(key, value-key-1).Trim();
+			tmp_key = CString(key, value-key-1).Trim();
 			p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
 			//if (tmp_key[0] == '"')
 			//	p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
@@ -90,7 +90,7 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 			key = NULL;
 			break;
 		case '[':
-			tmp_key = CStr(key, value-key-1).Trim();
+			tmp_key = CString(key, value-key-1).Trim();
 			p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
 			//if (tmp_key[0] == '"')
 			//	p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
@@ -120,7 +120,7 @@ char *JSON::ParseList(CSmartType &list, const char *str)
 			if (key)
 			{
 				L.push_back(CSmartType());
-				L.back().SmartInit(CStr(key, p-key).Trim());
+				L.back().SmartInit(CString(key, p-key).Trim());
 			}
 			if (*p == ']')
 				break;

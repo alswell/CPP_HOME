@@ -8,25 +8,25 @@
 
 class CArgParser
 {
-	CStr m_strName;
+	CString m_strName;
     DICT(CStr) m_kk;
 	DICT(CValueType) m_kv;
-	vector<CStr> m_vName;
+	vector<CString> m_vName;
 	int m_iName;
 	DICT(CArgParser*) m_dictSubParsers;
 	CArgParser* m_pSubParser;
 public:
 	CArgParser();
 
-	void AddOption(CStr op, EValueType type = TYPE_STRING, CStr alias = "");
-	void AddArg(CStr name);
-    CArgParser &AddSub(CStr sub);
+	void AddOption(CString op, EValueType type = TYPE_STRING, CString alias = "");
+	void AddArg(CString name);
+    CArgParser &AddSub(CString sub);
 	bool ParseArgs(int argc, char* argv[]);
 
 //	CStr Get(const CStr& key, const char* strDefault = NULL);
 
 //	CStr &operator [] (const CStr& key);
-	CArgParser &operator () (const CStr& sub);
+	CArgParser &operator () (const CString& sub);
 
 	void PrintHelp();
 	void PrintResult();

@@ -6,7 +6,7 @@ CUART::CUART()
 	m_fd = -1;
 }
 
-CUART::CUART(CStr dev, int nSpeed, int nBits, char nEvent, int nStop)
+CUART::CUART(CString dev, int nSpeed, int nBits, char nEvent, int nStop)
 {
 	m_fd = open(dev, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (m_fd != -1)

@@ -21,38 +21,38 @@ HttpResponse::HttpResponse(CSock _sock)
 		n = m_strResp.Find("\r\n\r\n");
 		if (n != -1)
 		{
-			list<CStr> ls = m_strResp.Left(n).Split("\r\n");
-			list<CStr> lsStatus = ls.front().Split(' ');
+			list<CString> ls = m_strResp.Left(n).Split("\r\n");
+			list<CString> lsStatus = ls.front().Split(' ');
 			m_strVersion = lsStatus.front();
 			lsStatus.pop_front();
 			m_nStatus = atoi(lsStatus.front());
 			lsStatus.pop_front();
 			m_strStatus = lsStatus.front();
 			ls.pop_front();
-			FOR_LIST(CStr, ls, it)
+			FOR_LIST(CString, ls, it)
 			{
-				list<CStr> kv = it->Split(':', 1);
+				list<CString> kv = it->Split(':', 1);
 				m_dHead[kv.front()] = kv.back().Trim();
 			}
 			total = atoi(m_dHead["Content-Length"]) + n + 4;
 		}
-		if (total && m_strResp.Length() >= total)
+		if (total && m_strResp.GetLength() >= total)
 			break;
 	}
 	m_strBody = m_strResp.Right(n + 4);
 }
 
-CStr &HttpResponse::operator [](const CStr &key)
+CString &HttpResponse::operator [](const CString &key)
 {
 	if (key == "body")
 		return m_strBody;
 	return m_dHead[key];
 }
 
-CStr &HttpResponse::operator ()()
+CString &HttpResponse::operator ()()
 {
 	m_strResp.Format("%s %d %s\r\n", (const char*)m_strVersion, m_nStatus, (const char*)m_strStatus);
-	FOR_DICT(CStr, m_dHead, it)
+	FOR_DICT(CString, m_dHead, it)
 	{
 		m_strResp.AppendFormat("%s: %s\r\n", (const char*)(it->first), (const char*)(it->second));
 	}
@@ -60,7 +60,7 @@ CStr &HttpResponse::operator ()()
 	m_strResp += m_strBody;
 }
 
-HttpResponse &HttpResponse::operator ()(const CStr &strBody)
+HttpResponse &HttpResponse::operator ()(const CString &strBody)
 {
 	m_strBody = strBody;
 	return *this;
@@ -78,59 +78,59 @@ HttpRequest::HttpRequest(const char *host, int port, const char *url, const char
 	m_sock.SetTimeout(5);
 }
 
-HttpRequest::HttpRequest(const CStr &str)
+HttpRequest::HttpRequest(const CString &str)
 {
 	m_strReq = str;
 	int n = m_strReq.Find("\r\n\r\n");
 	if (n == -1)
 		return;
 
-	list<CStr> ls = m_strReq.Left(n).Split("\r\n");
-	list<CStr> lsStatus = ls.front().Split(' ');
+	list<CString> ls = m_strReq.Left(n).Split("\r\n");
+	list<CString> lsStatus = ls.front().Split(' ');
 	m_strMethod = lsStatus.front();
 	lsStatus.pop_front();
 	m_strUrl = lsStatus.front();
 	lsStatus.pop_front();
 	m_fVersion = atof(lsStatus.front().Right(5));
 	ls.pop_front();
-	FOR_LIST(CStr, ls, it)
+	FOR_LIST(CString, ls, it)
 	{
-		list<CStr> kv = it->Split(':', 1);
+		list<CString> kv = it->Split(':', 1);
 		m_dHead[kv.front()] = kv.back().Trim();
 	}
 	m_strBody = m_strReq.Right(n + 4);
 }
 
-CStr &HttpRequest::METHOD()
+CString &HttpRequest::METHOD()
 {
 	return m_strMethod;
 }
 
-CStr &HttpRequest::URL()
+CString &HttpRequest::URL()
 {
 	return m_strUrl;
 }
 
-CStr &HttpRequest::BODY()
+CString &HttpRequest::BODY()
 {
 	return m_strBody;
 }
 
-CStr &HttpRequest::operator [](const CStr &key)
+CString &HttpRequest::operator [](const CString &key)
 {
 	return m_dHead[key];
 }
 
-HttpRequest &HttpRequest::operator ()(const CStr &strBody)
+HttpRequest &HttpRequest::operator ()(const CString &strBody)
 {
 	m_strBody = strBody;
 	return *this;
 }
 
-CStr &HttpRequest::operator ()()
+CString &HttpRequest::operator ()()
 {
 	m_strReq.Format("%s %s HTTP/%.1f\r\n", (const char*)m_strMethod, (const char*)m_strUrl, m_fVersion);
-	FOR_DICT(CStr, m_dHead, it)
+	FOR_DICT(CString, m_dHead, it)
 	{
 		m_strReq.AppendFormat("%s: %s\r\n", (const char*)(it->first), (const char*)(it->second));
 	}

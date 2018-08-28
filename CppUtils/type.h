@@ -70,7 +70,7 @@ class CSmartType
 	class CDICT : public ISmartType
 	{
 		friend class CSmartType;
-		map<CStr, CSmartType> m_value;
+		map<CString, CSmartType> m_value;
 	public:
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
@@ -89,7 +89,7 @@ public:
 	CSmartType(const CSmartType& e);
 	CSmartType& operator = (const CSmartType& e);
 
-	CSmartType& SmartInit(const CStr &str);
+	CSmartType& SmartInit(const CString &str);
 
 	operator bool ();
 	operator int ();
@@ -97,7 +97,7 @@ public:
 	operator double ();
 	operator const char* ();
 	operator vector<CSmartType>& ();
-	operator map<CStr, CSmartType>& ();
+	operator map<CString, CSmartType>& ();
 
 	CSmartType& operator [] (const char* key);
 

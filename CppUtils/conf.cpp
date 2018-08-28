@@ -4,13 +4,13 @@
 
 CConf::CConf(const char* filename)
 {
-	CStr strSection;
+	CString strSection;
 	CFile file(filename/*, "rb"*/);
-	list<CStr> ls = file.ReadLines();
-	FOR_LIST(CStr, ls, it)
+	list<CString> ls = file.ReadLines();
+	FOR_LIST(CString, ls, it)
 	{
 		it->Trim();
-		if (it->Length() == 0)
+		if (it->GetLength() == 0)
 			continue;
 		if ((*it)[0] == '[' && (*it)[-1] == ']')
 		{
@@ -18,7 +18,7 @@ CConf::CConf(const char* filename)
 		}
 		else if ((*it)[0] != '#')
 		{
-			list<CStr> lsKV = it->Split('=');
+			list<CString> lsKV = it->Split('=');
 			if (lsKV.size() == 2)
 				m_kv[strSection][lsKV.front().Trim()] = lsKV.back().Trim();
 		}
@@ -29,7 +29,7 @@ CConf::~CConf()
 {
 }
 
-DICT(CStr) &CConf::operator [](CStr section)
+DICT(CStr) &CConf::operator [](CString section)
 {
 	return m_kv[section];
 }

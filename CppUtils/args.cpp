@@ -8,7 +8,7 @@ CArgParser::CArgParser()
 	m_pSubParser = NULL;
 }
 
-void CArgParser::AddOption(CStr op, EValueType type, CStr alias)
+void CArgParser::AddOption(CString op, EValueType type, CString alias)
 {
     if (alias == "")
         alias = op;
@@ -17,14 +17,14 @@ void CArgParser::AddOption(CStr op, EValueType type, CStr alias)
 	m_kv[alias].m_value = 0;
 }
 
-void CArgParser::AddArg(CStr name)
+void CArgParser::AddArg(CString name)
 {
 	m_vName.push_back(name);
 	m_kv[name].m_type = TYPE_STRING;
 	m_kv[name].m_value = 0;
 }
 
-CArgParser &CArgParser::AddSub(CStr sub)
+CArgParser &CArgParser::AddSub(CString sub)
 {
 	m_dictSubParsers[sub] = new CArgParser();
 	return *(m_dictSubParsers[sub]);
@@ -35,7 +35,7 @@ bool CArgParser::ParseArgs(int argc, char *argv[])
 	m_strName = argv[0];
 	for (int i = 1; i < argc; ++i)
     {
-		CStr str(argv[i]);
+		CString str(argv[i]);
         if (str.StartWith("--"))
         {
 			str = str.Right(2);
@@ -57,9 +57,9 @@ bool CArgParser::ParseArgs(int argc, char *argv[])
 			}
 			else
 			{
-				for (int j = 0; j < str.Length() - 1; ++j)
+				for (int j = 0; j < str.GetLength() - 1; ++j)
 				{
-					CStr alias = str[j];
+					CString alias = str[j];
 					if (m_kv.find(alias) == m_kv.end())
 					{
 						cout << "unknown alias: " << alias << endl;
@@ -73,7 +73,7 @@ bool CArgParser::ParseArgs(int argc, char *argv[])
 					}
 					value.m_value = (void*)1;
 				}
-				CStr alias = str[-1];
+				CString alias = str[-1];
 				if (m_kv.find(alias) == m_kv.end())
 				{
 					cout << "unknown alias: " << alias << endl;
@@ -128,18 +128,18 @@ bool CArgParser::ParseArgs(int argc, char *argv[])
 //	return m_kv[key];
 //}
 
-CArgParser &CArgParser::operator ()(const CStr &sub)
+CArgParser &CArgParser::operator ()(const CString &sub)
 {
 	return *m_dictSubParsers[sub];
 }
 
 void CArgParser::PrintHelp()
 {
-	FOR_DICT(CStr, m_kk, it)
+	FOR_DICT(CString, m_kk, it)
 	{
 		if (it->first == "help")
 			continue;
-		CStr& alias = m_kk[it->first];
+		CString& alias = m_kk[it->first];
 		CValueType& value = m_kv[alias];
 		cout << "[--" << it->first << "|-" << alias;
 		switch (value.m_type)
@@ -173,11 +173,11 @@ void CArgParser::PrintHelp()
 void CArgParser::PrintResult()
 {
 	cout << m_strName << endl;
-	FOR_DICT(CStr, m_kk, it)
+	FOR_DICT(CString, m_kk, it)
 	{
 		if (it->first == "help")
 			continue;
-		CStr& alias = m_kk[it->first];
+		CString& alias = m_kk[it->first];
 		CValueType& value = m_kv[alias];
 		cout << "--" << it->first << ";\t-" << alias << ":\t";
 		switch (value.m_type)

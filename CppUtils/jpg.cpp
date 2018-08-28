@@ -1,13 +1,7 @@
 #include "jpg.h"
 
-int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& rdata, unsigned& w, unsigned& h)
+void decompress(jpeg_decompress_struct& cinfo, unsigned char*& rdata, unsigned& w, unsigned& h)
 {
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-	jpeg_mem_src(&cinfo, buff, size);
 	jpeg_read_header(&cinfo, TRUE);
 
 	cinfo.out_color_space = JCS_EXT_BGRA;
@@ -24,6 +18,35 @@ int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& rdata, unsigned
 		row_pointer[0] = &rdata[(cinfo.output_scanline) * cinfo.image_width * cinfo.output_components];
 		jpeg_read_scanlines(&cinfo, row_pointer, 1);
 	}
+}
+
+int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& rdata, unsigned& w, unsigned& h)
+{
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr jerr;
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+
+	jpeg_mem_src(&cinfo, buff, size);
+	decompress(cinfo, rdata, w, h);
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+	return 0;
+}
+
+int jpeg2rgb(const char* file_name, unsigned char*& rdata, unsigned& w, unsigned& h)
+{
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr jerr;
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+
+	FILE* pf = fopen(file_name, "rb");
+	jpeg_stdio_src(&cinfo, pf);
+	decompress(cinfo, rdata, w, h);
+	fclose(pf);
+
 	jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
 	return 0;
