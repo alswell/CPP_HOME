@@ -1,7 +1,6 @@
-#ifndef __UDP_H
-#define __UDP_H
+#pragma once
 
-#include "afx.h"
+#include "env.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -33,4 +32,3 @@ public:
 	int SendTo(const char* str, const sockaddr_in &ad_snd);
 };
 
-#endif

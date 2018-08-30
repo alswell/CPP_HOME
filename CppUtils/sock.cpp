@@ -12,11 +12,13 @@ InitSock init_sock;
 CSock::CSock(int fd)
 {
 	m_fd = fd;
+	m_nRecvFlag = 0;
 }
 
 CSock::CSock(const char * net_addr, short port)
 {	
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
+	m_nRecvFlag = 0;
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
@@ -60,11 +62,21 @@ void CSock::SetTimeout(int nSecond)
 	setsockopt(m_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 }
 
+void CSock::SetRecvFlag(int flag)
+{
+	m_nRecvFlag = flag;
+}
+
+void CSock::SetWaitAll()
+{
+	m_nRecvFlag = MSG_WAITALL;
+}
+
 int CSock::Read(void *pBuff, unsigned nSize)
 {
 	if (nSize == 0)
 		return 0;
-	int r = recv(m_fd, pBuff, nSize, MSG_WAITALL);
+	int r = recv(m_fd, pBuff, nSize, m_nRecvFlag);
 	if (r <= 0)
 		PrintReadErr(r);
 

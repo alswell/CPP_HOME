@@ -16,7 +16,7 @@ IStream::~IStream()
 	//Close();
 }
 
-void *IStream::ReadN(unsigned nSize)
+char *IStream::ReadN(unsigned nSize)
 {
 	if (m_nSize < nSize)
 	{

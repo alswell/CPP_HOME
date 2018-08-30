@@ -266,7 +266,7 @@ CSmartType::operator vector<CSmartType> &()
 }
 
 map<CString, CSmartType> g_dNULL;
-CSmartType::operator map<CStr, CSmartType> &()
+CSmartType::operator map<CString, CSmartType> &()
 {
 	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);
 	return p ? p->m_value : g_dNULL;

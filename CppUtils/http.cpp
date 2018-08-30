@@ -12,9 +12,10 @@ HttpResponse::HttpResponse(CSock _sock)
 	m_sock = _sock;
 	int n = -1;
 	int total = 0;
+	m_sock.SetRecvFlag(0);
 	while (1)
 	{
-		char * p = m_sock.Read();
+		char * p = m_sock.ReadN(1024);
 		if (!p)
 			return;
 		m_strResp += p;
@@ -39,7 +40,7 @@ HttpResponse::HttpResponse(CSock _sock)
 		if (total && m_strResp.GetLength() >= total)
 			break;
 	}
-	m_strBody = m_strResp.Right(n + 4);
+	m_strBody = m_strResp.Mid(n + 4);
 }
 
 CString &HttpResponse::operator [](const CString &key)
@@ -91,14 +92,14 @@ HttpRequest::HttpRequest(const CString &str)
 	lsStatus.pop_front();
 	m_strUrl = lsStatus.front();
 	lsStatus.pop_front();
-	m_fVersion = atof(lsStatus.front().Right(5));
+	m_fVersion = atof(lsStatus.front().Mid(5));
 	ls.pop_front();
 	FOR_LIST(CString, ls, it)
 	{
 		list<CString> kv = it->Split(':', 1);
 		m_dHead[kv.front()] = kv.back().Trim();
 	}
-	m_strBody = m_strReq.Right(n + 4);
+	m_strBody = m_strReq.Mid(n + 4);
 }
 
 CString &HttpRequest::METHOD()
@@ -140,6 +141,6 @@ CString &HttpRequest::operator ()()
 
 HttpResponse HttpRequest::Send()
 {
-	m_sock.Write((*this)());
+	m_sock.WriteString((*this)());
 	return HttpResponse(m_sock);
 }

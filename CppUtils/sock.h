@@ -12,6 +12,7 @@ class CSock : public IStream
 	friend class CServSock;
 	int m_fd;
 	sockaddr_in addr;
+	int m_nRecvFlag;
 
 public:
 	CSock(int fd = -1);
@@ -21,6 +22,8 @@ public:
 	int Connect();
 	void PrintReadErr(int r);
 	void SetTimeout(int nSecond);
+	void SetRecvFlag(int flag);
+	void SetWaitAll();
 
 	virtual int Read(void* pBuff, unsigned nSize);
 	virtual int Write(const void* pBuff, unsigned nSize);

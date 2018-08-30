@@ -6,11 +6,11 @@
 
 class CConf
 {
-	DICT(DICT(CStr)) m_kv;
+	DICT(DICT(CString)) m_kv;
 public:
 	CConf(const char *filename);
 	~CConf();
 
-	DICT(CStr) & operator [] (CString section);
+	DICT(CString) & operator [] (CString section);
 };
 

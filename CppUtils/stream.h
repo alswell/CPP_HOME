@@ -13,7 +13,7 @@ public:
 
 
 	virtual int Read(void* pBuff, unsigned nSize) = 0;
-	void* ReadN(unsigned nSize);
+	char *ReadN(unsigned nSize);
 	char* ReadLine(int nSize = 1024);
 
 	virtual int Write(const void* pBuff, unsigned nSize) = 0;

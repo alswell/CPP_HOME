@@ -13,7 +13,7 @@ class HttpResponse
 	int m_nStatus;
 	CString m_strStatus;
 	CString m_strBody;
-	DICT(CStr) m_dHead;
+	DICT(CString) m_dHead;
 public:
 	HttpResponse(int status = 200, float version = 1.1);
 	HttpResponse(CSock _sock);
@@ -31,7 +31,7 @@ class HttpRequest
 	CString m_strUrl;
 	CString m_strBody;
 	float m_fVersion;
-	DICT(CStr) m_dHead;
+	DICT(CString) m_dHead;
 public:
 	HttpRequest(const char* host, int port = 80, const char* url = "/", const char* method = "GET", float version = 1.1);
 	HttpRequest(const CString& str);
@@ -65,9 +65,10 @@ public:
 	{
 		cout << "Accept!" << m_tid << endl;
 		CString buff;
+		m_sock.SetRecvFlag(0);
 		while (1)
 		{
-			char * p = m_sock.Read();
+			char * p = m_sock.ReadN(1024);
 			if (!p)
 				break;
 			buff += p;
@@ -83,7 +84,7 @@ public:
 					break;
 				CString strResp = resp();
 				cout << strResp << endl;
-				m_sock.Write(strResp);
+				m_sock.WriteString(strResp);
 				buff = "";
 			}
 		}

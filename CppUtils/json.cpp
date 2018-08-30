@@ -72,9 +72,9 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 				tmp_key = CString(key, value-key-1).Trim();
 				D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
 				//if (tmp_key[0] == '"')
-				//	D[tmp_key.SubStr(1, -1)].SmartInit(CStr(value, p-value).Trim());
+				//	D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
 				//else
-				//	D[atoi((const char*)tmp_key)].SmartInit(CStr(value, p-value).Trim());
+				//	D[atoi((const char*)tmp_key)].SmartInit(CString(value, p-value).Trim());
 			}
 			if (*p == '}')
 				break;

@@ -29,7 +29,7 @@ CConf::~CConf()
 {
 }
 
-DICT(CStr) &CConf::operator [](CString section)
+DICT(CString) &CConf::operator [](CString section)
 {
 	return m_kv[section];
 }

@@ -7,8 +7,6 @@ class CString
 	static char white_char[];
 	static const unsigned INCREAMENT = 1024;
 	char* m_pBuff;
-	unsigned m_nCountInc;
-	int m_nLength;
 public:
 	CString();
 	CString(char c);
@@ -16,11 +14,10 @@ public:
 	CString(const char* str, int n = -1);
 	~CString();
 
-	inline unsigned BuffSize() const;
 	unsigned GetLength() const;
 	bool Empty() const;
 	char* GetBuffer(int n = 0);
-	void ReleaseBuffer();
+	void ReleaseBuffer(int n = -1);
 	operator const char* () const;
 
 	void operator = (char c);
@@ -39,10 +36,10 @@ public:
 	int Replace(char src, char des);
 	int Find(char c, int start = 0) const;
 	int Find(const char *str, int start = 0);
-	int ReverseFind(char c, int start) const;
-	bool StartWith(const char* str);
+	int ReverseFind(char c, int start = -1) const;
+	bool StartsWith(const char* str);
+	CString Mid(int start, int length = -1) const;
 	CString SubStr(int start, int end) const;
-	void Truncate(int n);
 	CString Left(unsigned n) const;
 	CString Right(unsigned n) const;
 	CString& TrimLeft(char c = 0);

@@ -143,7 +143,7 @@ int CUART::SetOpt(int fd, int nSpeed, int nBits, char nEvent, int nStop)
 
 //void CUART::WriteHex(const void *buff, unsigned nSize) const
 //{
-//	CStr str;
+//	CString str;
 //	ToHexStr(str, buff, nSize);
 
 //	for (int i = 0; i < 10; ++i)

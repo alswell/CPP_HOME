@@ -7,8 +7,8 @@ struct _str_hash
 	__gnu_cxx::hash<const char*> _hash;
 	size_t operator () (CString str) const;
 };
-#define DICT(value_type) typename::__gnu_cxx::hash_map<CStr, value_type, _str_hash>
-//#define DICT(value_type) map<CStr, value_type>
+#define DICT(value_type) typename::__gnu_cxx::hash_map<CString, value_type, _str_hash>
+//#define DICT(value_type) map<CString, value_type>
 
 #define FOR_DICT(value_type, obj, it) \
 for (DICT(value_type)::iterator it = obj.begin(); it != obj.end(); ++it)
