@@ -4,8 +4,7 @@
 
 class CString
 {
-	static char white_char[];
-	static const unsigned INCREAMENT = 1024;
+public:
 	char* m_pBuff;
 public:
 	CString();
@@ -45,10 +44,10 @@ public:
 	CString& TrimLeft(char c = 0);
 	CString& TrimRight(char c = 0);
 	CString& Trim(char c = 0);
-	void Split(list<CString>& lsStr, char c = 0, unsigned num = 0) const;
 	list<CString> Split(char c = 0, unsigned num = 0) const;
-	void Split(list<CString>& lsStr, const char *str, unsigned num = 0) const;
+//	vector<CString> Split(char c = 0, unsigned num = 0) const;
 	list<CString> Split(const char *str, unsigned num = 0) const;
+//	vector<CString> Split(const char *str, unsigned num = 0) const;
 };
 
 void ToHexStr(CString& str, const void *buff, unsigned nSize);

@@ -58,3 +58,10 @@ const char *FMT::Fmt(const CSmartType &v)
 	m_buf.ReleaseBuffer();
 	return m_buf;
 }
+
+char __buff[128];
+char* __(float f)
+{
+	sprintf(__buff, "%f", f);
+	return __buff;
+}

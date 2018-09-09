@@ -22,13 +22,14 @@ int CLog::Wirte(const char *str)
 	unsigned len = strlen(str);
 	if (m_filename.Empty())
 	{
-		cout << str;
+		cout << str << " ";
 		return len;
 	}
 	else
 	{
 		FILE* pf = fopen(m_filename, "a");
 		fwrite(str, 1, len, pf);
+		fwrite(" ", 1, 1, pf);
 		fclose(pf);
 	}
 }

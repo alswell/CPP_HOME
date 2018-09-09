@@ -1,5 +1,8 @@
 #include "str.h"
 
+//static char white_char[];
+static const unsigned INCREAMENT = 1024;
+
 #define IS_ONE_OF(obj, arr) in(obj, arr, sizeof(arr)/sizeof(arr[0]))
 #define DEF_IN(cls) \
 bool in(cls c, cls arr[], int n)\
@@ -43,6 +46,10 @@ public:
 	}
 	static CStrMgr* GetMgr(char* p)
 	{
+		if (p == NULL)
+		{
+			return New(1024);
+		}
 		return (CStrMgr*)p - 1;
 	}
 	void Delete()
@@ -94,7 +101,7 @@ public:
 };
 
 
-char CString::white_char[] = " \r\n\t";
+char white_char[] = " \r\n\t";
 CString::CString()
 {
 	m_pBuff = CStrMgr::New(INCREAMENT)->String();
@@ -132,7 +139,7 @@ CString::~CString()
 
 unsigned CString::GetLength() const
 {
-	return CStrMgr::GetMgr(m_pBuff)->GetStrLen();
+	return m_pBuff ? CStrMgr::GetMgr(m_pBuff)->GetStrLen() : 0;
 }
 
 bool CString::Empty() const
@@ -148,7 +155,8 @@ char* CString::GetBuffer(int n /*= 0*/)
 
 void CString::ReleaseBuffer(int n)
 {
-	CStrMgr::GetMgr(m_pBuff)->SetStrLen(n);
+	if (m_pBuff)
+		CStrMgr::GetMgr(m_pBuff)->SetStrLen(n);
 }
 
 void CString::operator =(char c)
@@ -378,9 +386,9 @@ CString& CString::Trim(char c)
 	return TrimLeft(c).TrimRight(c);
 }
 
-void CString::Split(list<CString> &lsStr, char c, unsigned num) const
+list<CString> CString::Split(char c, unsigned num) const
 {
-	lsStr.clear();
+	list<CString> lsStr;
 	int temp_i = 0;
 	for (int i = 0, count = 0; i < GetLength(); ++i)
 	{
@@ -393,19 +401,25 @@ void CString::Split(list<CString> &lsStr, char c, unsigned num) const
 				break;
 		}
 	}
-	lsStr.push_back(SubStr(temp_i, GetLength()));
-}
-
-list<CString> CString::Split(char c, unsigned num) const
-{
-	list<CString> lsStr;
-	Split(lsStr, c, num);
+	if (temp_i < GetLength())
+		lsStr.push_back(SubStr(temp_i, GetLength()));
 	return lsStr;
 }
 
-void CString::Split(list<CString> &lsStr, const char *str, unsigned num) const
+//vector<CString> CString::Split(char c, unsigned num) const
+//{
+//	list<CString> lsStr;
+//	Split(lsStr, c, num);
+//	vector<CString> vStr;
+//	vStr.reserve(lsStr.size());
+//	FOR_LIST(CString, lsStr, it)
+//		vStr.push_back(*it);
+//	return vStr;
+//}
+
+list<CString> CString::Split(const char *str, unsigned num) const
 {
-	lsStr.clear();
+	list<CString> lsStr;
 	int n = 0;
 	int p = 0;
 	while (1)
@@ -419,14 +433,19 @@ void CString::Split(list<CString> &lsStr, const char *str, unsigned num) const
 	}
 	if (m_pBuff[p])
 		lsStr.push_back(CString(&m_pBuff[p]));
-}
-
-list<CString> CString::Split(const char *str, unsigned num) const
-{
-	list<CString> lsStr;
-	Split(lsStr, str, num);
 	return lsStr;
 }
+
+//vector<CString> CString::Split(const char *str, unsigned num) const
+//{
+//	list<CString> lsStr;
+//	Split(lsStr, str, num);
+//	vector<CString> vStr;
+//	vStr.reserve(lsStr.size());
+//	FOR_LIST(CString, lsStr, it)
+//		vStr.push_back(*it);
+//	return vStr;
+//}
 
 void ToHexStr(CString& str, const void *buff, unsigned nSize)
 {

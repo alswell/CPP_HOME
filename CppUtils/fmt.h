@@ -1,5 +1,4 @@
-#ifndef __FMT_H
-#define __FMT_H
+#pragma once
 #include "str.h"
 
 class CSmartType;
@@ -23,5 +22,5 @@ namespace FMT
 }
 #define _(x) FMT::Fmt(x)
 
+char* __(float f);
 
-#endif

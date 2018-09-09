@@ -30,7 +30,7 @@ public:
 	static void* ThreadProc(void* pData)
 	{
 		T* pThis = static_cast<T*>(pData);
-		return pThis->Run();
+		return (void*)pThis->Run();
 	}
 	void* Run()
 	{

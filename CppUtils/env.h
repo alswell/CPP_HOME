@@ -1,6 +1,4 @@
-#ifndef __AFX_H
-#define __AFX_H
-
+#pragma once
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -20,17 +18,32 @@
 
 using namespace std;
 
+#define V2A(v) &(v[0])
+
+
+#ifndef DWORD
+#define DWORD long
+#endif
+
 #define FOR(cls, i, a, b) \
 for (cls i = a; i < b; ++i)
 
 #define FOR_LIST(cls, obj, it) \
-for (list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
+for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
 
 #define FOR_MAP(cls1, cls2, obj, it) \
-for (map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
+for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
 
 #define FOR_I(a, b) \
 for (int i = a; i < b; ++i)
+
+#define FOR_MX(mx, r, c) \
+for (int r = 0; r < (mx).m_uRow; ++r)\
+for (int c = 0; c < (mx).m_uColumn; ++c)
+
+#define FOR_SQUARE(i, i_beg, i_end, j, j_beg, j_end) \
+for (int i = i_beg; i < i_end; ++i)\
+for (int j = j_beg; j < j_end; ++j)
 
 #define DEC_INSTANCE(cls) static cls* Instance()
 
@@ -42,5 +55,3 @@ cls* cls::Instance()\
 		pInstance = new cls(__VA_ARGS__);\
 	return pInstance;\
 }
-
-#endif
