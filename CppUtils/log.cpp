@@ -2,7 +2,7 @@
 
 
 #define WRITE(e) \
-	Wirte(_(e))
+	Wirte(ToStr(e))
 
 CLog::CLog(const char *file)
 {
