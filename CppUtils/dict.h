@@ -5,13 +5,16 @@
 struct _str_hash
 {
 	__gnu_cxx::hash<const char*> _hash;
-	size_t operator () (CString str) const;
+	size_t operator () (const CString& str) const;
 };
 #define DICT(value_type) typename::__gnu_cxx::hash_map<CString, value_type, _str_hash>
 //#define DICT(value_type) map<CString, value_type>
 
 #define FOR_DICT(value_type, obj, it) \
 for (DICT(value_type)::iterator it = obj.begin(); it != obj.end(); ++it)
+
+#define FOR_DICT_CONST(value_type, obj, it) \
+for (DICT(value_type)::const_iterator it = obj.begin(); it != obj.end(); ++it)
 
 #define PRINT_DICT(d) \
 for (DICT(int)::iterator it = d.begin(); it != d.end(); ++it)\

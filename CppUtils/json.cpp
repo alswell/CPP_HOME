@@ -1,13 +1,14 @@
 #include "json.h"
 
-void JSON::Dump(CString& str, DICT(CString) dict)
+CString JSON::Dump(const DICT(CString)& dict)
 {
-	str = "{";
-	FOR_DICT(CString, dict, it)
+	CString str = "{";
+	FOR_DICT_CONST(CString, dict, it)
 	{
 		str.AppendFormat("\"%s\": \"%s\", ", (const char*)it->first, (const char*)it->second);
 	}
 	str.TrimRight()[-1] = '}';
+	return str;
 }
 
 void JSON::LoadFile(CSmartType &json, const char *filename)
