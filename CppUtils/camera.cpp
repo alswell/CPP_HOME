@@ -6,6 +6,7 @@ Camera::Camera(int nDevNum, bool print_detail)
 	m_strDevName.Format("/dev/video%d", nDevNum);
 	m_ioMethod = IO_METHOD_MMAP;//IO_METHOD_READ;//IO_METHOD_MMAP;
 	m_nImageSize = 0;
+	m_nMemCount = 4;
 
 	Identify();
 	m_fd = -1;
@@ -23,6 +24,11 @@ Camera::~Camera()
 	stop_capturing();
 	uninit_device();
 	close_device();
+}
+
+void Camera::SetMemBufCount(unsigned n)
+{
+	m_nMemCount = n;
 }
 
 unsigned Camera::GetImageSize() 
@@ -305,7 +311,7 @@ bool Camera::init_mmap(void)
 {
 	struct v4l2_requestbuffers req;
 	CLEAR(req);
-	req.count = 4;//2;//
+	req.count = m_nMemCount;//4;//2;//
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
@@ -316,8 +322,8 @@ bool Camera::init_mmap(void)
 			errno_exit("VIDIOC_REQBUFS: xxx");
 	}
 	printf("req.count: %d\n", req.count);
-	if (req.count < 2)
-		errno_exit("insufficient buffer memory on dev");
+	//if (req.count < 2)
+	//	errno_exit("insufficient buffer memory on dev");
 
 	m_pBuff = new SBuff[req.count];
 

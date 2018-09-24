@@ -51,6 +51,7 @@ public:
 		~Frame();
 	};
 
+	void SetMemBufCount(unsigned n);
 	bool Init(int w, int h, int nDataType = 0);
 	int GetImage(void* image);
 	Camera *GetFrame();
@@ -68,6 +69,7 @@ private:
 	int m_nWidth;
 	int m_nHeight;
 	int m_nDataType;
+	int m_nMemCount;
 	unsigned m_nImageSize;	//to keep the real image size!
 
 	fd_set m_fds;

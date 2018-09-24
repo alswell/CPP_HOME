@@ -164,6 +164,11 @@ void CString::operator =(char c)
 	Format("%c", c);
 }
 
+void CString::operator =(int i)
+{
+	Format("%d", i);
+}
+
 CString::operator const char*() const
 {
 	return m_pBuff;
@@ -212,6 +217,11 @@ CString & CString::operator +=(char c)
 	return this->AppendFormat("%c", c);
 }
 
+CString &CString::operator +=(int i)
+{
+	return this->AppendFormat("%d", i);
+}
+
 CString & CString::operator +=(const char* str)
 {
 	return this->AppendFormat("%s", str);
@@ -221,6 +231,12 @@ CString CString::operator +(char c)
 {
 	CString new_str(*this);
 	return new_str += c;
+}
+
+CString CString::operator +(int i)
+{
+	CString new_str(*this);
+	return new_str += i;
 }
 
 CString CString::operator +(const char *str)

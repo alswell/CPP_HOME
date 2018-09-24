@@ -20,14 +20,17 @@ public:
 	operator const char* () const;
 
 	void operator = (char c);
+	void operator = (int i);
 	void operator = (const CString& str);
 	bool operator ==(const char *str) const;
 	bool operator !=(const char *str) const;
 	char& operator [] (int i) const;
 	bool operator < (const CString& str) const;
 	CString& operator += (char c);
+	CString& operator += (int i);
 	CString& operator += (const char* str);
-	CString operator +(char c);
+	CString operator + (char c);
+	CString operator + (int i);
 	CString operator + (const char *str);
 
 	CString& Format(const char* fmt, ...);
