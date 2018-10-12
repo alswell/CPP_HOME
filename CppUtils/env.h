@@ -45,6 +45,47 @@ for (int c = 0; c < (mx).m_uColumn; ++c)
 for (int i = i_beg; i < i_end; ++i)\
 for (int j = j_beg; j < j_end; ++j)
 
+#define VA_HELPER(first, func) \
+va_list ap;\
+va_start(ap, first);\
+(func)(ap);\
+va_end(ap)
+
+template<class T>
+struct LS
+{
+	vector<T> v;
+	T* buff;
+	unsigned size;
+	LS(unsigned n, T* l=NULL)
+	{
+		size = n;
+		if (l)
+		{
+			buff = l;
+		}
+		else
+		{
+			v.resize(size);
+			buff = &v[0];
+		}
+	}
+	LS& operator() (...)
+	{
+		VA_HELPER(this, *this);
+		return *this;
+	}
+	void operator() (va_list ap)
+	{
+		for (unsigned i = 0; i < size; ++i)
+			buff[i] = va_arg(ap, T);
+	}
+	operator T*()
+	{
+		return buff;
+	}
+};
+
 #define DEC_INSTANCE(cls) static cls* Instance()
 
 #define DEF_INSTANCE(cls, ...) \
