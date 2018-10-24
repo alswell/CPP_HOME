@@ -10,9 +10,9 @@ class CConf
 	static CConf* m_pStatic;
 
 	CString m_strFileName;
-	list<CString> m_lsSection;
 	DICT(DICT(CString)) m_kv;
 public:
+	list<CString> m_lsSection;
 	CConf(const char *filename);
 	~CConf();
 	static void SetDefault(const char* strFileName);
