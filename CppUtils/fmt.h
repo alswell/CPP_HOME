@@ -3,7 +3,7 @@
 
 class CSmartType;
 
-extern CString m_buf;
+extern CString g_strFmtBuf;
 extern const char* fmt_str;
 extern const char* fmt_char;
 extern const char* fmt_int;
@@ -18,8 +18,10 @@ const char* ToStr(unsigned int u);
 const char* ToStr(float f);
 const char* ToStr(double d);
 const char* ToStr(const CSmartType &v);
+const char* ToStr(const CSmartType* v);
 
 char* __(float f);
 
 #define _(x) ((const char*)CString(ToStr(x)))
+#define SPRINTF(fmt, ...) g_strFmtBuf.Format(fmt, __VA_ARGS__)
 

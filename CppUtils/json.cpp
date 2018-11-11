@@ -13,22 +13,23 @@ CString JSON::Dump(const DICT(CString)& dict)
 
 void JSON::LoadFile(CSmartType &json, const char *filename)
 {
-	FILE* pf = fopen(filename, "r");
-	fseek(pf, 0, SEEK_END);
-	unsigned nSize = ftell(pf);
-	rewind(pf);
-	char* buff = new char[nSize + 1];
-	int r = fread(buff, 1, nSize, pf);
-	fclose(pf);
-	if (r < 0)
-	{
+	char* buff = NULL;
+	do {
+		FILE* pf = fopen(filename, "r");
+		fseek(pf, 0, SEEK_END);
+		unsigned nSize = ftell(pf);
+		rewind(pf);
+		buff = new char[nSize + 1];
+		int r = fread(buff, 1, nSize, pf);
+		fclose(pf);
+		if (r < 0)
+			break;
+		buff[r] = 0;
+		//cout << buff << endl;
+		Load(json, buff);
+	} while (0);
+	if (buff)
 		delete[] buff;
-		return;
-	}
-	buff[r] = 0;
-	cout << buff << endl;
-	Load(json, buff);
-	delete[] buff;
 }
 
 void JSON::Load(CSmartType &json, const char *str)
@@ -54,8 +55,7 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 {
 	char* p = (char*)str + 1;
 	char* key = p;
-	char* value;
-	dict.ToDict();
+	char* value = NULL;
 	map<CString, CSmartType>& D = dict;
 	CString tmp_key;
 
@@ -68,48 +68,36 @@ char* JSON::ParseDict(CSmartType &dict, const char *str)
 			break;
 		case ',':
 		case '}':
-			if (key)
+			if (value)
 			{
 				tmp_key = CString(key, value-key-1).Trim();
 				D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
-				//if (tmp_key[0] == '"')
-				//	D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
-				//else
-				//	D[atoi((const char*)tmp_key)].SmartInit(CString(value, p-value).Trim());
 			}
 			if (*p == '}')
-				break;
+				return p;
 			key = p+1;
 			break;
 		case '{':
 			tmp_key = CString(key, value-key-1).Trim();
 			p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
-			//if (tmp_key[0] == '"')
-			//	p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
-			//else
-			//	p = JSON::ParseDict(D[atoi((const char*)tmp_key)], p);
-			key = NULL;
+			value = NULL;
 			break;
 		case '[':
 			tmp_key = CString(key, value-key-1).Trim();
 			p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
-			//if (tmp_key[0] == '"')
-			//	p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
-			//else
-			//	p = JSON::ParseList(D[atoi((const char*)tmp_key)], p);
-			key = NULL;
+			value = NULL;
 			break;
 		}
 		++p;
 	}
+	cout << "json parse: unexpected end(dict) >> " << str << endl;
 	return p;
 }
 
 char *JSON::ParseList(CSmartType &list, const char *str)
 {
 	char* p = (char*)str + 1;
-	char* key = p;
-	list.ToList();
+	char* beg = p;
 	vector<CSmartType>& L = list;
 
 	while (*p)
@@ -118,27 +106,33 @@ char *JSON::ParseList(CSmartType &list, const char *str)
 		{
 		case ',':
 		case ']':
-			if (key)
+			if (beg)
 			{
-				L.push_back(CSmartType());
-				L.back().SmartInit(CString(key, p-key).Trim());
+				CString item(beg, p-beg);
+				item.Trim();
+				if (!item.Empty())
+				{
+					L.push_back(CSmartType());
+					L.back().SmartInit(item);
+				}
 			}
 			if (*p == ']')
-				break;
-			key = p+1;
+				return p;
+			beg = p+1;
 			break;
 		case '[':
 			L.push_back(CSmartType());
 			p = JSON::ParseList(L.back(), p);
-			key = NULL;
+			beg = NULL;
 			break;
 		case '{':
 			L.push_back(CSmartType());
 			p = JSON::ParseDict(L.back(), p);
-			key = NULL;
+			beg = NULL;
 			break;
 		}
 		++p;
 	}
+	cout << "json parse: unexpected end(list) >> " << str << endl;
 	return p;
 }

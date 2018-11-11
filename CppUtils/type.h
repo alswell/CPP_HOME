@@ -15,6 +15,13 @@ class CSmartType
 	};
 	ISmartType* m_pSmartTypeImpl;
 
+	class CNone : public ISmartType
+	{
+		friend class CSmartType;
+	public:
+		virtual ISmartType* Copy();
+		virtual int ToStr(char* str, int n);
+	};
 	class CBOOL : public ISmartType
 	{
 		friend class CSmartType;
@@ -79,6 +86,7 @@ class CSmartType
 	};
 
 public:
+	CString m_strBuff;
 	CSmartType();
 	CSmartType(bool b);
 	CSmartType(int i);
@@ -88,6 +96,8 @@ public:
 
 	CSmartType(const CSmartType& e);
 	CSmartType& operator = (const CSmartType& e);
+	bool operator ==(const CSmartType& e);
+	bool operator !=(const CSmartType& e);
 
 	CSmartType& SmartInit(const CString &str);
 
@@ -95,13 +105,16 @@ public:
 	operator int ();
 	operator ssize_t ();
 	operator double ();
+	operator char* ();
 	operator const char* ();
 	operator vector<CSmartType>& ();
 	operator map<CString, CSmartType>& ();
 
-	CSmartType& operator [] (const char* key);
+	CSmartType &operator [](const char* key);
+	CSmartType &operator [](int i);
+	CSmartType &operator [](const CSmartType& key);
 
 	int ToStr(char* str, int n) const;
-	CSmartType& ToList();
-	CSmartType& ToDict();
 };
+extern CSmartType NONE;
+

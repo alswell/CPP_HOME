@@ -1,8 +1,18 @@
 #include "type.h"
 
-
+CSmartType NONE;
 CSmartType::ISmartType::~ISmartType()
 {
+}
+
+CSmartType::ISmartType *CSmartType::CNone::Copy()
+{
+	return new CNone;
+}
+
+int CSmartType::CNone::ToStr(char *str, int n)
+{
+	return snprintf(str, n, "none");
 }
 
 CSmartType::CBOOL::CBOOL(bool b)
@@ -76,7 +86,7 @@ CSmartType::ISmartType *CSmartType::CSTRING::Copy()
 
 int CSmartType::CSTRING::ToStr(char *str, int n)
 {
-	return snprintf(str, n, "%s", m_value);
+	return snprintf(str, n, "\"%s\"", m_value);
 }
 
 CSmartType &CSmartType::CLIST::operator [](size_t n)
@@ -93,6 +103,12 @@ CSmartType::ISmartType *CSmartType::CLIST::Copy()
 
 int CSmartType::CLIST::ToStr(char *str, int n)
 {
+	if (m_value.size() == 0)
+	{
+		str[0] = '[';
+		str[1] = ']';
+		return 2;
+	}
 	int size;
 	int count = 0;
 	for (int i = 0; i < m_value.size(); ++i)
@@ -125,6 +141,12 @@ CSmartType::ISmartType *CSmartType::CDICT::Copy()
 
 int CSmartType::CDICT::ToStr(char *str, int n)
 {
+	if (m_value.size() == 0)
+	{
+		str[0] = '{';
+		str[1] = '}';
+		return 2;
+	}
 	int size;
 	int count = 0;
 	for (map<CString, CSmartType>::iterator it = m_value.begin(); it != m_value.end(); ++it)
@@ -169,7 +191,7 @@ CSmartType &CSmartType::CDICT::operator [](const char *key)
 
 CSmartType::CSmartType()
 {
-	m_pSmartTypeImpl = NULL;
+	m_pSmartTypeImpl = new CNone;
 }
 
 CSmartType::CSmartType(bool b)
@@ -214,6 +236,16 @@ CSmartType &CSmartType::operator =(const CSmartType &e)
 	return *this;
 }
 
+bool CSmartType::operator ==(const CSmartType &e)
+{
+	return m_pSmartTypeImpl == e.m_pSmartTypeImpl;
+}
+
+bool CSmartType::operator !=(const CSmartType &e)
+{
+	return m_pSmartTypeImpl != e.m_pSmartTypeImpl;
+}
+
 CSmartType &CSmartType::SmartInit(const CString& str)
 {
 	if (str == "true")
@@ -252,32 +284,77 @@ CSmartType::operator double()
 	return p ? p->m_value : 0;
 }
 
-CSmartType::operator const char *()
+CSmartType::operator char *()
 {
 	CSTRING* p = dynamic_cast<CSTRING*>(m_pSmartTypeImpl);
 	return p ? p->m_value : NULL;
 }
 
-vector<CSmartType> g_vNULL;
+CSmartType::operator const char *()
+{
+	if (m_pSmartTypeImpl)
+	{
+		m_pSmartTypeImpl->ToStr(m_strBuff.GetBuffer(1024), 1024);
+		return m_strBuff;
+	}
+	return NULL;
+}
+
 CSmartType::operator vector<CSmartType> &()
 {
 	CLIST* p = dynamic_cast<CLIST*>(m_pSmartTypeImpl);
-	return p ? p->m_value : g_vNULL;
+	if (p == NULL)
+	{
+		if (m_pSmartTypeImpl)
+			delete m_pSmartTypeImpl;
+		m_pSmartTypeImpl = new CLIST;
+		p = (CLIST*)m_pSmartTypeImpl;
+	}
+	return p->m_value;
 }
 
-map<CString, CSmartType> g_dNULL;
 CSmartType::operator map<CString, CSmartType> &()
 {
 	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);
-	return p ? p->m_value : g_dNULL;
+	if (p == NULL)
+	{
+		if (m_pSmartTypeImpl)
+			delete m_pSmartTypeImpl;
+		m_pSmartTypeImpl = new CDICT;
+		p = (CDICT*)m_pSmartTypeImpl;
+	}
+	return p->m_value;
 }
 
 CSmartType &CSmartType::operator [](const char *key)
 {
 	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);
 	if (p == NULL)
-		return *this;
+		return NONE;
 	return (*p)[key];
+}
+
+CSmartType &CSmartType::operator [](int i)
+{
+	CLIST* p = dynamic_cast<CLIST*>(m_pSmartTypeImpl);
+	if (p == NULL)
+		return NONE;
+	if (i < 0)
+		i += p->m_value.size();
+	if (i >= p->m_value.size() || i < 0)
+		return NONE;
+	return (*p)[i];
+}
+
+CSmartType &CSmartType::operator [](const CSmartType& key)
+{
+	CINT* pInt = dynamic_cast<CINT*>(key.m_pSmartTypeImpl);
+	if (pInt)
+		return (*this)[pInt->m_value];
+	CSTRING* pStr = dynamic_cast<CSTRING*>(key.m_pSmartTypeImpl);
+	if (dynamic_cast<CSTRING*>(key.m_pSmartTypeImpl))
+		return (*this)[pStr->m_value];
+	return NONE;
 }
 
 int CSmartType::ToStr(char *str, int n) const
@@ -285,18 +362,3 @@ int CSmartType::ToStr(char *str, int n) const
 	return m_pSmartTypeImpl ? m_pSmartTypeImpl->ToStr(str, n) : -1;
 }
 
-CSmartType &CSmartType::ToList()
-{
-	if (m_pSmartTypeImpl)
-		delete m_pSmartTypeImpl;
-	m_pSmartTypeImpl = new CLIST;
-	return *this;
-}
-
-CSmartType &CSmartType::ToDict()
-{
-	if (m_pSmartTypeImpl)
-		delete m_pSmartTypeImpl;
-	m_pSmartTypeImpl = new CDICT;
-	return *this;
-}

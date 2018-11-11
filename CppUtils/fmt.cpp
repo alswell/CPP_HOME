@@ -1,7 +1,7 @@
 #include "fmt.h"
 #include "type.h"
 
-CString m_buf;
+CString g_strFmtBuf;
 const char* fmt_str = "%s";
 const char* fmt_char = "%c";
 const char* fmt_int = "%d";
@@ -11,52 +11,59 @@ const char* fmt_float = "%.2f";
 
 const char * ToStr(bool b)
 {
-	m_buf.Format(fmt_str, b ? "TRUE!" : "FALSE!");
-	return m_buf;
+	g_strFmtBuf.Format(fmt_str, b ? "TRUE!" : "FALSE!");
+	return g_strFmtBuf;
 }
 
 const char * ToStr(char c)
 {
-	m_buf.Format(fmt_char, c);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_char, c);
+	return g_strFmtBuf;
 }
 
 const char* ToStr(int i)
 {
-	m_buf.Format(fmt_int, i);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_int, i);
+	return g_strFmtBuf;
 }
 
 const char *ToStr(long l)
 {
-	m_buf.Format(fmt_int, l);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_int, l);
+	return g_strFmtBuf;
 }
 
 const char * ToStr(unsigned int u)
 {
-	m_buf.Format(fmt_uint, u);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_uint, u);
+	return g_strFmtBuf;
 }
 
 const char * ToStr(float f)
 {
-	m_buf.Format(fmt_float, f);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_float, f);
+	return g_strFmtBuf;
 }
 
 const char * ToStr(double d)
 {
-	m_buf.Format(fmt_float, d);
-	return m_buf;
+	g_strFmtBuf.Format(fmt_float, d);
+	return g_strFmtBuf;
 }
 
 
 const char *ToStr(const CSmartType &v)
 {
-	v.ToStr(m_buf.GetBuffer(1024), 1024);
-	m_buf.ReleaseBuffer();
-	return m_buf;
+	v.ToStr(g_strFmtBuf.GetBuffer(1024), 1024);
+	g_strFmtBuf.ReleaseBuffer();
+	return g_strFmtBuf;
+}
+
+const char *ToStr(const CSmartType *v)
+{
+	v->ToStr(g_strFmtBuf.GetBuffer(1024), 1024);
+	g_strFmtBuf.ReleaseBuffer();
+	return g_strFmtBuf;
 }
 
 char __buff[128];
