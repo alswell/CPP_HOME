@@ -1,107 +1,98 @@
 #include "type.h"
 
+
 CSmartType NONE;
 CSmartType::ISmartType::~ISmartType()
 {
 }
 
-CSmartType::ISmartType *CSmartType::CNone::Copy()
-{
-	return new CNone;
-}
-
-int CSmartType::CNone::ToStr(char *str, int n)
-{
-	return snprintf(str, n, "none");
-}
-
-CSmartType::CBOOL::CBOOL(bool b)
+CSmartType::SmtBool::SmtBool(bool b)
 	: m_value(b)
 {
 
 }
 
-CSmartType::ISmartType *CSmartType::CBOOL::Copy()
+CSmartType::ISmartType *CSmartType::SmtBool::Copy()
 {
-	return new CBOOL(m_value);
+	return new SmtBool(m_value);
 }
 
-int CSmartType::CBOOL::ToStr(char *str, int n)
+int CSmartType::SmtBool::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "%s", m_value ? "TRUE" : "FALSE");
 }
 
-CSmartType::CINT::CINT(ssize_t i)
+CSmartType::SmtInt::SmtInt(ssize_t i)
 	: m_value(i)
 {
 }
 
-CSmartType::ISmartType *CSmartType::CINT::Copy()
+CSmartType::ISmartType *CSmartType::SmtInt::Copy()
 {
-	return new CINT(m_value);
+	return new SmtInt(m_value);
 }
 
-int CSmartType::CINT::ToStr(char *str, int n)
+int CSmartType::SmtInt::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "%d", m_value);
 }
 
-CSmartType::CFLOAT::CFLOAT(double d)
+CSmartType::SmtFloat::SmtFloat(double d)
 	: m_value(d)
 {
 }
 
-CSmartType::ISmartType *CSmartType::CFLOAT::Copy()
+CSmartType::ISmartType *CSmartType::SmtFloat::Copy()
 {
-	return new CFLOAT(m_value);
+	return new SmtFloat(m_value);
 }
 
-int CSmartType::CFLOAT::ToStr(char *str, int n)
+int CSmartType::SmtFloat::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "%f", m_value);
 }
 
-CSmartType::CSTRING::CSTRING(const char *str)
+CSmartType::SmtStr::SmtStr(const char *str)
 {
 	m_value = new char[strlen(str) + 1];
 	strcpy(m_value, str);
 }
 
-CSmartType::CSTRING::~CSTRING()
+CSmartType::SmtStr::~SmtStr()
 {
 	delete m_value;
 }
 
-CSmartType::CSTRING &CSmartType::CSTRING::operator =(const CSTRING &str)
+CSmartType::SmtStr &CSmartType::SmtStr::operator =(const SmtStr &str)
 {
 	m_value = new char[strlen(str.m_value) + 1];
 	strcpy(m_value, str.m_value);
 	return *this;
 }
 
-CSmartType::ISmartType *CSmartType::CSTRING::Copy()
+CSmartType::ISmartType *CSmartType::SmtStr::Copy()
 {
-	return new CSTRING(m_value);
+	return new SmtStr(m_value);
 }
 
-int CSmartType::CSTRING::ToStr(char *str, int n)
+int CSmartType::SmtStr::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "\"%s\"", m_value);
 }
 
-CSmartType &CSmartType::CLIST::operator [](size_t n)
+CSmartType &CSmartType::SmtList::operator [](size_t n)
 {
 	return m_value[n];
 }
 
-CSmartType::ISmartType *CSmartType::CLIST::Copy()
+CSmartType::ISmartType *CSmartType::SmtList::Copy()
 {
-	CLIST* p = new CLIST;
+	SmtList* p = new SmtList;
 	p->m_value = m_value;
 	return p;
 }
 
-int CSmartType::CLIST::ToStr(char *str, int n)
+int CSmartType::SmtList::ToStr(char *str, int n)
 {
 	if (m_value.size() == 0)
 	{
@@ -132,14 +123,14 @@ int CSmartType::CLIST::ToStr(char *str, int n)
 	return count;
 }
 
-CSmartType::ISmartType *CSmartType::CDICT::Copy()
+CSmartType::ISmartType *CSmartType::SmtDict::Copy()
 {
-	CDICT* p = new CDICT;
+	SmtDict* p = new SmtDict;
 	p->m_value = m_value;
 	return p;
 }
 
-int CSmartType::CDICT::ToStr(char *str, int n)
+int CSmartType::SmtDict::ToStr(char *str, int n)
 {
 	if (m_value.size() == 0)
 	{
@@ -182,7 +173,7 @@ int CSmartType::CDICT::ToStr(char *str, int n)
 	return count;
 }
 
-CSmartType &CSmartType::CDICT::operator [](const char *key)
+CSmartType &CSmartType::SmtDict::operator [](const char *key)
 {
 	return m_value[key];
 }
@@ -191,27 +182,27 @@ CSmartType &CSmartType::CDICT::operator [](const char *key)
 
 CSmartType::CSmartType()
 {
-	m_pSmartTypeImpl = new CNone;
+	m_pSmartTypeImpl = NULL;
 }
 
 CSmartType::CSmartType(bool b)
 {
-	m_pSmartTypeImpl = new CBOOL(b);
+	m_pSmartTypeImpl = new SmtBool(b);
 }
 
 CSmartType::CSmartType(int i)
 {
-	m_pSmartTypeImpl = new CINT(i);
+	m_pSmartTypeImpl = new SmtInt(i);
 }
 
 CSmartType::CSmartType(double d)
 {
-	m_pSmartTypeImpl = new CFLOAT(d);
+	m_pSmartTypeImpl = new SmtFloat(d);
 }
 
 CSmartType::CSmartType(const char *str)
 {
-	m_pSmartTypeImpl = new CSTRING(str);
+	m_pSmartTypeImpl = new SmtStr(str);
 }
 
 CSmartType::~CSmartType()
@@ -232,7 +223,7 @@ CSmartType &CSmartType::operator =(const CSmartType &e)
 {
 	if (m_pSmartTypeImpl)
 		delete m_pSmartTypeImpl;
-	m_pSmartTypeImpl = e.m_pSmartTypeImpl->Copy();
+	m_pSmartTypeImpl = e.m_pSmartTypeImpl ? e.m_pSmartTypeImpl->Copy() : NULL;
 	return *this;
 }
 
@@ -262,31 +253,31 @@ CSmartType &CSmartType::SmartInit(const CString& str)
 
 CSmartType::operator bool()
 {
-	CBOOL* p = dynamic_cast<CBOOL*>(m_pSmartTypeImpl);
+	SmtBool* p = dynamic_cast<SmtBool*>(m_pSmartTypeImpl);
 	return p ? p->m_value : false;
 }
 
 CSmartType::operator int()
 {
-	CINT* p = dynamic_cast<CINT*>(m_pSmartTypeImpl);
+	SmtInt* p = dynamic_cast<SmtInt*>(m_pSmartTypeImpl);
 	return p ? p->m_value : 0;
 }
 
 CSmartType::operator ssize_t()
 {
-	CINT* p = dynamic_cast<CINT*>(m_pSmartTypeImpl);
+	SmtInt* p = dynamic_cast<SmtInt*>(m_pSmartTypeImpl);
 	return p ? p->m_value : 0;
 }
 
 CSmartType::operator double()
 {
-	CFLOAT* p = dynamic_cast<CFLOAT*>(m_pSmartTypeImpl);
+	SmtFloat* p = dynamic_cast<SmtFloat*>(m_pSmartTypeImpl);
 	return p ? p->m_value : 0;
 }
 
 CSmartType::operator char *()
 {
-	CSTRING* p = dynamic_cast<CSTRING*>(m_pSmartTypeImpl);
+	SmtStr* p = dynamic_cast<SmtStr*>(m_pSmartTypeImpl);
 	return p ? p->m_value : NULL;
 }
 
@@ -297,38 +288,38 @@ CSmartType::operator const char *()
 		m_pSmartTypeImpl->ToStr(m_strBuff.GetBuffer(1024), 1024);
 		return m_strBuff;
 	}
-	return NULL;
+	return "null";
 }
 
 CSmartType::operator vector<CSmartType> &()
 {
-	CLIST* p = dynamic_cast<CLIST*>(m_pSmartTypeImpl);
+	SmtList* p = dynamic_cast<SmtList*>(m_pSmartTypeImpl);
 	if (p == NULL)
 	{
 		if (m_pSmartTypeImpl)
 			delete m_pSmartTypeImpl;
-		m_pSmartTypeImpl = new CLIST;
-		p = (CLIST*)m_pSmartTypeImpl;
+		m_pSmartTypeImpl = new SmtList;
+		p = (SmtList*)m_pSmartTypeImpl;
 	}
 	return p->m_value;
 }
 
 CSmartType::operator map<CString, CSmartType> &()
 {
-	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);
+	SmtDict* p = dynamic_cast<SmtDict*>(m_pSmartTypeImpl);
 	if (p == NULL)
 	{
 		if (m_pSmartTypeImpl)
 			delete m_pSmartTypeImpl;
-		m_pSmartTypeImpl = new CDICT;
-		p = (CDICT*)m_pSmartTypeImpl;
+		m_pSmartTypeImpl = new SmtDict;
+		p = (SmtDict*)m_pSmartTypeImpl;
 	}
 	return p->m_value;
 }
 
 CSmartType &CSmartType::operator [](const char *key)
 {
-	CDICT* p = dynamic_cast<CDICT*>(m_pSmartTypeImpl);
+	SmtDict* p = dynamic_cast<SmtDict*>(m_pSmartTypeImpl);
 	if (p == NULL)
 		return NONE;
 	return (*p)[key];
@@ -336,7 +327,7 @@ CSmartType &CSmartType::operator [](const char *key)
 
 CSmartType &CSmartType::operator [](int i)
 {
-	CLIST* p = dynamic_cast<CLIST*>(m_pSmartTypeImpl);
+	SmtList* p = dynamic_cast<SmtList*>(m_pSmartTypeImpl);
 	if (p == NULL)
 		return NONE;
 	if (i < 0)
@@ -348,17 +339,17 @@ CSmartType &CSmartType::operator [](int i)
 
 CSmartType &CSmartType::operator [](const CSmartType& key)
 {
-	CINT* pInt = dynamic_cast<CINT*>(key.m_pSmartTypeImpl);
+	SmtInt* pInt = dynamic_cast<SmtInt*>(key.m_pSmartTypeImpl);
 	if (pInt)
 		return (*this)[pInt->m_value];
-	CSTRING* pStr = dynamic_cast<CSTRING*>(key.m_pSmartTypeImpl);
-	if (dynamic_cast<CSTRING*>(key.m_pSmartTypeImpl))
+	SmtStr* pStr = dynamic_cast<SmtStr*>(key.m_pSmartTypeImpl);
+	if (dynamic_cast<SmtStr*>(key.m_pSmartTypeImpl))
 		return (*this)[pStr->m_value];
 	return NONE;
 }
 
 int CSmartType::ToStr(char *str, int n) const
 {
-	return m_pSmartTypeImpl ? m_pSmartTypeImpl->ToStr(str, n) : -1;
+	return m_pSmartTypeImpl ? m_pSmartTypeImpl->ToStr(str, n) : snprintf(str, n, "null");
 }
 

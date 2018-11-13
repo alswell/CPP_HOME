@@ -15,56 +15,49 @@ class CSmartType
 	};
 	ISmartType* m_pSmartTypeImpl;
 
-	class CNone : public ISmartType
-	{
-		friend class CSmartType;
-	public:
-		virtual ISmartType* Copy();
-		virtual int ToStr(char* str, int n);
-	};
-	class CBOOL : public ISmartType
+	class SmtBool : public ISmartType
 	{
 		friend class CSmartType;
 		bool m_value;
 	public:
-		CBOOL(bool b);
+		SmtBool(bool b);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
 	};
 
-	class CINT : public ISmartType
+	class SmtInt : public ISmartType
 	{
 		friend class CSmartType;
 		ssize_t m_value;
 	public:
-		CINT(ssize_t i);
+		SmtInt(ssize_t i);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
 	};
 
-	class CFLOAT : public ISmartType
+	class SmtFloat : public ISmartType
 	{
 		friend class CSmartType;
 		double m_value;
 	public:
-		CFLOAT(double d);
+		SmtFloat(double d);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
 	};
 
-	class CSTRING : public ISmartType
+	class SmtStr : public ISmartType
 	{
 		friend class CSmartType;
 		char* m_value;
 	public:
-		CSTRING(const char* str);
-		~CSTRING();
-		CSTRING &operator = (const CSTRING& str);
+		SmtStr(const char* str);
+		~SmtStr();
+		SmtStr &operator = (const SmtStr& str);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
 	};
 
-	class CLIST : public ISmartType
+	class SmtList : public ISmartType
 	{
 		friend class CSmartType;
 		vector<CSmartType> m_value;
@@ -74,7 +67,7 @@ class CSmartType
 		virtual int ToStr(char* str, int n);
 	};
 
-	class CDICT : public ISmartType
+	class SmtDict : public ISmartType
 	{
 		friend class CSmartType;
 		map<CString, CSmartType> m_value;
