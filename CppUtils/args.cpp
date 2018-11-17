@@ -1,227 +1,269 @@
 #include "args.h"
 
+#define PCC const char*
+int CArgParser::m_nArg;
+char** CArgParser::m_pArgs;
+CArgParser::CArgParser(const char *sub_cmd, const char *description, CB cb)
+{
+	m_strName = sub_cmd;
+	m_strDescription = description;
+	AddOption("help", 'h', ARG_TYPE_BOOL, false, false, "show help message");
+	m_pListPosition = NULL;
+	m_pSubParser = NULL;
+	m_cb = cb;
+}
 
-//CArgParser::CArgParser()
-//{
-//	AddOption("help", TYPE_BOOL, "h");
-//	m_iName = 0;
-//	m_pSubParser = NULL;
-//}
+CArgParser::CArgParser(int argc, char *argv[], const char *description)
+	: CArgParser(argv[0], description, NULL)
+{
+	m_nArg = argc;
+	m_pArgs = argv;
+}
 
-//void CArgParser::AddOption(CString op, EValueType type, CString alias)
-//{
-//    if (alias == "")
-//        alias = op;
-//    m_kk[op] = alias;
-//	m_kv[alias].m_type = type;
-//	m_kv[alias].m_value = 0;
-//}
+CSmartType GetInitVal(EArgType type, bool is_list)
+{
+	if (is_list)
+		return L0;
+	switch (type) {
+	case ARG_TYPE_BOOL:
+		return false;
+		break;
+	default:
+		return CSmartType();
+		break;
+	}
+}
+void CArgParser::AddOption(const char *name, char short_name, EArgType type, bool required, bool is_list, const char *help)
+{
+	SArgInfo info = {name, short_name, type, required, is_list, help, GetInitVal(type, is_list)};
+	m_lsArgInfo.push_back(info);
+	m_mapKV[name] = --m_lsArgInfo.end();
+	m_mapKV[short_name] = m_mapKV[name];
+}
 
-//void CArgParser::AddArg(CString name)
-//{
-//	m_vName.push_back(name);
-//	m_kv[name].m_type = TYPE_STRING;
-//	m_kv[name].m_value = 0;
-//}
+void CArgParser::AddPosition(const char *name, EArgType type, bool is_list, const char *help)
+{
+	if (m_pListPosition && is_list)
+	{
+		cout << "Only one positional argument can be defined as list!" << endl;
+		exit(-1);
+	}
+	SArgInfo info = {name, 0, type, true, is_list, help, GetInitVal(type, is_list)};
+	m_lsPositional.push_back(info);
+	if (is_list)
+		m_pListPosition = &m_lsPositional.back();
+}
 
-//CArgParser &CArgParser::AddSub(CString sub)
-//{
-//	m_dictSubParsers[sub] = new CArgParser();
-//	return *(m_dictSubParsers[sub]);
-//}
+CArgParser &CArgParser::AddSub(const char* sub_cmd, CB cb, const char* description)
+{
+	CArgParser* pSub = new CArgParser(sub_cmd, description, cb);
+	m_mapSubParser[sub_cmd] = pSub;
+	return *pSub;
+}
 
-//bool CArgParser::ParseArgs(int argc, char *argv[])
-//{
-//	m_strName = argv[0];
-//	for (int i = 1; i < argc; ++i)
-//    {
-//		CString str(argv[i]);
-//        if (str.StartWith("--"))
-//        {
-//			str = str.Right(2);
-//			if (m_kk.find(str) == m_kk.end())
-//			{
-//				cout << "unknown option: " << str << endl;
-//				return false;
-//			}
-//			CValueType& value = m_kv[m_kk[str]];
-//			ParseValue(value, argv, i);
-//		}
-//        else if (str.StartWith("-"))
-//        {
-//			str = str.Right(1);
-//			if (m_kv.find(str) != m_kv.end())
-//			{
-//				CValueType& value = m_kv[str];
-//				ParseValue(value, argv, i);
-//			}
-//			else
-//			{
-//				for (int j = 0; j < str.GetLength() - 1; ++j)
-//				{
-//					CString alias = str[j];
-//					if (m_kv.find(alias) == m_kv.end())
-//					{
-//						cout << "unknown alias: " << alias << endl;
-//						return false;
-//					}
-//					CValueType& value = m_kv[alias];
-//					if (value.m_type != TYPE_BOOL)
-//					{
-//						cout << "alias should be BOOL: " << alias << endl;
-//						return false;
-//					}
-//					value.m_value = (void*)1;
-//				}
-//				CString alias = str[-1];
-//				if (m_kv.find(alias) == m_kv.end())
-//				{
-//					cout << "unknown alias: " << alias << endl;
-//					return false;
-//				}
-//				CValueType& value = m_kv[alias];
-//				ParseValue(value, argv, i);
-//			}
-//		}
-//        else
-//        {
-//			if (m_iName < m_vName.size())
-//			{
-//				CValueType& value = m_kv[m_vName[m_iName]];
-//				++m_iName;
-//				int j = i - 1;
-//				ParseValue(value, argv, j);
-//			}
-//			else
-//			{
-//				if (m_dictSubParsers.find(str) == m_dictSubParsers.end())
-//				{
-//					cout << "unknown sub command: " << str << endl;
-//					return false;
-//				}
-//				m_pSubParser = m_dictSubParsers[str];
-//				m_pSubParser->ParseArgs(argc - i, &argv[i]);
-//				break;
-//			}
-//		}
-//		if (m_kv['h'].m_value)
-//		{
-//			PrintHelp();
-//			return false;
-//		}
-//	}
-//	return true;
-//}
+void CArgParser::ParseArgs()
+{
+	if (ParseArgs(1) == false)
+		exit(-1);
+}
 
-////CString ArgsParser::Get(const CString &key, const char *strDefault)
-////{
-////	CString& strValue = (*this)[key];
-////	if (strValue != "")
-////		return strValue;
-////	if (strDefault)
-////		return CString(strDefault);
-////	return "";
-////}
+CSmartType &CArgParser::operator [] (const CString& key)
+{
+	map<CString, list<SArgInfo>::iterator>::iterator it = m_mapKV.find(key);
+	if (it == m_mapKV.end())
+		return NONE;
+	return it->second->value;
+}
 
-////CString &ArgsParser::operator [](const CString &key)
-////{
-////	return m_kv[key];
-////}
+void CArgParser::PrintHelp()
+{
+	cout << "usage: " << m_strName;
+	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
+	{
+		if (it->required)
+			printf(" --%s", (PCC)it->name);
+		else
+			printf(" [--%s]", (PCC)it->name);
+	}
+	for (list<SArgInfo>::iterator it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
+		printf(" <%s>", (PCC)it->name);
+	cout << " {";
+	for (map<CString, CArgParser*>::iterator it = m_mapSubParser.begin(); it != m_mapSubParser.end(); ++it)
+		printf("%s,", (PCC)it->first);
+	cout << "}" << endl << endl;
+	if (!m_strDescription.Empty())
+	{
+		cout << "description:" << endl << "\t";
+		cout << m_strDescription << endl << endl;
+	}
 
-//CArgParser &CArgParser::operator ()(const CString &sub)
-//{
-//	return *m_dictSubParsers[sub];
-//}
+	cout << "positional arguments:" << endl;
+	for (list<SArgInfo>::iterator it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
+	{
+		CString str = it->type == ARG_TYPE_INT || it->type == ARG_TYPE_FLOAT ? "digit_" : "string_";
+		str += it->is_list ? "list" : "value";
+		printf("<%s %s>\t%s\n", (PCC)it->name, (PCC)str, (PCC)it->help);
+	}
+	cout << "{";
+	for (map<CString, CArgParser*>::iterator it = m_mapSubParser.begin(); it != m_mapSubParser.end(); ++it)
+		printf("%s,", (PCC)it->first);
+	cout << "} commands" << endl << endl;
+	cout << "optional arguments:" << endl;
+	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
+	{
+		printf("--%s\t-%c ", (PCC)it->name, it->short_name);
+		if (it->type != ARG_TYPE_BOOL)
+		{
+			CString str = it->type == ARG_TYPE_INT || it->type == ARG_TYPE_FLOAT ? "digit_" : "string_";
+			str += it->is_list ? "list" : "value";
+			printf("<%s>", (PCC)str);
+		}
+		printf(" : %s\n", (PCC)it->help);
+	}
+	cout << endl;
+}
 
-//void CArgParser::PrintHelp()
-//{
-//	FOR_DICT(CString, m_kk, it)
-//	{
-//		if (it->first == "help")
-//			continue;
-//		CString& alias = m_kk[it->first];
-//		CValueType& value = m_kv[alias];
-//		cout << "[--" << it->first << "|-" << alias;
-//		switch (value.m_type)
-//		{
-//		case TYPE_BOOL:
-//			break;
-//		case TYPE_INT:
-//			cout << " INT";
-//			break;
-//		case TYPE_STRING:
-//			cout << " STRING";
-//			break;
-//		default:
-//			cout << " UNKNOWN";
-//			break;
-//		}
-//		cout << "] ";
-//	}
-//	for (int i = 0; i < m_vName.size(); ++i)
-//	{
-//		cout << m_vName[i] << " ";
-//	}
-//	cout << "{";
-//	FOR_DICT(CArgParser*, m_dictSubParsers, it)
-//	{
-//		cout << it->first << ", ";
-//	}
-//	cout << "}" << endl;
-//}
+void CArgParser::PrintResult()
+{
+	cout << m_strName << ":" << endl;
+	for (list<SArgInfo>::iterator it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
+	{
+		printf("%s = %s\n", (PCC)it->name, (PCC)it->value);
+	}
+	cout << endl;
+	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
+	{
+		printf("%s = %s\n", (PCC)it->name, (PCC)it->value);
+	}
+	cout << "= = = = = = = = = = = = = = = =" << endl;
+	if (m_pSubParser)
+	{
+		m_pSubParser->PrintResult();
+	}
+}
 
-//void CArgParser::PrintResult()
-//{
-//	cout << m_strName << endl;
-//	FOR_DICT(CString, m_kk, it)
-//	{
-//		if (it->first == "help")
-//			continue;
-//		CString& alias = m_kk[it->first];
-//		CValueType& value = m_kv[alias];
-//		cout << "--" << it->first << ";\t-" << alias << ":\t";
-//		switch (value.m_type)
-//		{
-//		case TYPE_STRING:
-//			cout << value.GetString();
-//			break;
-//		case TYPE_INT:
-//			cout << value.GetInt();
-//			break;
-//		case TYPE_BOOL:
-//			cout << (value.GetBool() ? "True" : "False");
-//			break;
-//		}
-//		cout << endl;
-//	}
-//	for (int i = 0; i < m_vName.size(); ++i)
-//	{
-//		CValueType& value = m_kv[m_vName[i]];
-//		cout << m_vName[i] << ": " << value.GetString() << endl;
-//	}
-//	if (m_pSubParser)
-//	{
-//		m_pSubParser->PrintResult();
-//	}
-//}
+bool CArgParser::ParseArgs(int nBeg)
+{
+	list<const char*> lsPos;
+	for (int i = nBeg; i < m_nArg; ++i)
+	{
+		CString str(m_pArgs[i]);
+		if (str.StartsWith("--"))
+		{
+			int nEq = str.Find('=');
+			map<CString, list<SArgInfo>::iterator>::iterator itKey = nEq == -1 ? m_mapKV.find(&str[2]) : m_mapKV.find(str.SubStr(2, nEq));
 
-//void CArgParser::ParseValue(CValueType &value, char *argv[], int &i)
-//{
-//	if (value.m_type == TYPE_BOOL)
-//	{
-//		value.m_value = (void*)1;
-//	}
-//	else
-//	{
-//		++i;
-//		switch (value.m_type)
-//		{
-//		case TYPE_INT:
-//			value.m_value = (void*)atol(argv[i]);
-//			break;
-//		case TYPE_STRING:
-//			value.SetString(argv[i]);
-//			break;
-//		}
-//	}
-//}
+			if (itKey == m_mapKV.end())
+			{
+				cout << "unknown option: " << str << endl;
+				return false;
+			}
+
+			if (itKey->second->type == ARG_TYPE_BOOL)
+				itKey->second->value = true;
+			else
+				ParseValue(*itKey->second, nEq == -1 ? m_pArgs[++i] : &str[nEq + 1]);
+		}
+		else if (str.StartsWith("-"))
+		{
+			map<CString, list<SArgInfo>::iterator>::iterator itKey;
+			for (int j = 1; j < str.GetLength(); ++j)
+			{
+				itKey = m_mapKV.find(str[j]);
+				if (itKey == m_mapKV.end())
+				{
+					cout << "unknown option: " << str << endl;
+					return false;
+				}
+				if (itKey->second->type != ARG_TYPE_BOOL)
+				{
+					ParseValue(*itKey->second, j < str.GetLength()-1 ? &str[j + 1] : m_pArgs[++i]);
+					break;
+				}
+				itKey->second->value = true;
+			}
+		}
+		else
+		{
+			const char* p = m_pArgs[i];
+			map<CString, CArgParser*>::iterator itSub = m_mapSubParser.find(p);
+			if (itSub == m_mapSubParser.end())
+			{
+				lsPos.push_back(p);
+			}
+			else
+			{
+				m_pSubParser = itSub->second;
+				return m_pSubParser->ParseArgs(++i);
+			}
+		}
+		if ((*this)["help"])
+		{
+			PrintHelp();
+			exit(0);
+		}
+	}
+	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
+	{
+		if (it->required && !it->value)
+		{
+			printf("--%s/-%c is required\n", (PCC)it->name, (PCC)it->short_name);
+			exit(-1);
+		}
+	}
+	list<SArgInfo>::iterator itInfo = m_lsPositional.begin();
+	list<const char*>::iterator itPos = lsPos.begin();
+	int nListPos = (int)lsPos.size() - (int)m_lsPositional.size();
+	if (nListPos < 0)
+	{
+		cout << "no enough positional arguments" << endl;
+		return false;
+	}
+	for (; itInfo != m_lsPositional.end(); ++itInfo, ++itPos)
+	{
+		if (itInfo->is_list)
+			for (int i = 0; i < nListPos; ++i, ++itPos)
+				ParseValue(*itInfo, *itPos);
+
+		ParseValue(*itInfo, *itPos);
+		m_mapKV[itInfo->name] = itInfo;
+	}
+
+	//cout << "Parse Args Finish!" << endl;
+	if (m_cb)
+		exit(m_cb(*this));
+	return true;
+}
+
+void CArgParser::ParseValue(SArgInfo &arg_info, const char * str)
+{
+	if (arg_info.is_list)
+	{
+		REF_LIST ls = arg_info.value;
+		switch (arg_info.type) {
+		case ARG_TYPE_INT:
+			ls.push_back(atoi(str));
+			break;
+		case ARG_TYPE_FLOAT:
+			ls.push_back(atof(str));
+			break;
+		default:
+			ls.push_back(str);
+			break;
+		}
+	}
+	else
+	{
+		switch (arg_info.type) {
+		case ARG_TYPE_INT:
+			arg_info.value = atoi(str);
+			break;
+		case ARG_TYPE_FLOAT:
+			arg_info.value = atof(str);
+			break;
+		default:
+			arg_info.value = str;
+			break;
+		}
+	}
+}

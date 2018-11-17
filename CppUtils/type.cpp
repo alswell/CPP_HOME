@@ -19,7 +19,12 @@ CSmartType::ISmartType *CSmartType::SmtBool::Copy()
 
 int CSmartType::SmtBool::ToStr(char *str, int n)
 {
-	return snprintf(str, n, "%s", m_value ? "TRUE" : "FALSE");
+	return snprintf(str, n, m_value ? "true" : "false");
+}
+
+CSmartType::SmtBool::operator bool()
+{
+	return m_value;
 }
 
 CSmartType::SmtInt::SmtInt(ssize_t i)
@@ -37,6 +42,11 @@ int CSmartType::SmtInt::ToStr(char *str, int n)
 	return snprintf(str, n, "%d", m_value);
 }
 
+CSmartType::SmtInt::operator bool()
+{
+	return m_value;
+}
+
 CSmartType::SmtFloat::SmtFloat(double d)
 	: m_value(d)
 {
@@ -50,6 +60,11 @@ CSmartType::ISmartType *CSmartType::SmtFloat::Copy()
 int CSmartType::SmtFloat::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "%f", m_value);
+}
+
+CSmartType::SmtFloat::operator bool()
+{
+	return m_value;
 }
 
 CSmartType::SmtStr::SmtStr(const char *str)
@@ -78,6 +93,11 @@ CSmartType::ISmartType *CSmartType::SmtStr::Copy()
 int CSmartType::SmtStr::ToStr(char *str, int n)
 {
 	return snprintf(str, n, "\"%s\"", m_value);
+}
+
+CSmartType::SmtStr::operator bool()
+{
+	return strlen(m_value);
 }
 
 CSmartType &CSmartType::SmtList::operator [](size_t n)
@@ -123,6 +143,11 @@ int CSmartType::SmtList::ToStr(char *str, int n)
 	return count;
 }
 
+CSmartType::SmtList::operator bool()
+{
+	return m_value.size();
+}
+
 CSmartType::ISmartType *CSmartType::SmtDict::Copy()
 {
 	SmtDict* p = new SmtDict;
@@ -149,20 +174,7 @@ int CSmartType::SmtDict::ToStr(char *str, int n)
 		size = n - count;
 		if (size <= 1) break;
 		const char* p = it->second;
-		if (p)
-		{
-			str[count++] = '"';
-			size = n - count;
-			if (size <= 1) break;
-		}
 		count += it->second.ToStr(&str[count], size);
-		if (p)
-		{
-			size = n - count;
-			if (size <= 1) break;
-			str[count++] = '"';
-		}
-
 		size = n - count;
 		if (size <= 1) break;
 		str[count++] = ',';
@@ -171,6 +183,11 @@ int CSmartType::SmtDict::ToStr(char *str, int n)
 	str[0] = '{';
 	str[count - 1] = '}';
 	return count;
+}
+
+CSmartType::SmtDict::operator bool()
+{
+	return m_value.size();
 }
 
 CSmartType &CSmartType::SmtDict::operator [](const char *key)
@@ -203,6 +220,28 @@ CSmartType::CSmartType(double d)
 CSmartType::CSmartType(const char *str)
 {
 	m_pSmartTypeImpl = new SmtStr(str);
+}
+
+const CSmartType &CSmartType::GetEmptyList()
+{
+	static CSmartType* p = NULL;
+	if (p == NULL)
+	{
+		p = new CSmartType;
+		p->m_pSmartTypeImpl = new SmtList;
+	}
+	return *p;
+}
+
+const CSmartType &CSmartType::GetEmptyDict()
+{
+	static CSmartType* p = NULL;
+	if (p == NULL)
+	{
+		p = new CSmartType;
+		p->m_pSmartTypeImpl = new SmtDict;
+	}
+	return *p;
 }
 
 CSmartType::~CSmartType()
@@ -253,8 +292,9 @@ CSmartType &CSmartType::SmartInit(const CString& str)
 
 CSmartType::operator bool()
 {
-	SmtBool* p = dynamic_cast<SmtBool*>(m_pSmartTypeImpl);
-	return p ? p->m_value : false;
+	if (m_pSmartTypeImpl == NULL)
+		return false;
+	return (bool)(*m_pSmartTypeImpl);
 }
 
 CSmartType::operator int()

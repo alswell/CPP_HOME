@@ -4,6 +4,9 @@
 //#include "dict.h"
 #include "str.h"
 
+#define REF_LIST vector<CSmartType>&
+#define REF_DICT map<CString, CSmartType>&
+
 class CSmartType
 {
 	class ISmartType
@@ -12,6 +15,7 @@ class CSmartType
 		virtual ~ISmartType();
 		virtual ISmartType* Copy() = 0;
 		virtual int ToStr(char* str, int n) = 0;
+		virtual operator bool () = 0;
 	};
 	ISmartType* m_pSmartTypeImpl;
 
@@ -23,6 +27,7 @@ class CSmartType
 		SmtBool(bool b);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 	};
 
 	class SmtInt : public ISmartType
@@ -33,6 +38,7 @@ class CSmartType
 		SmtInt(ssize_t i);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 	};
 
 	class SmtFloat : public ISmartType
@@ -43,6 +49,7 @@ class CSmartType
 		SmtFloat(double d);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 	};
 
 	class SmtStr : public ISmartType
@@ -55,6 +62,7 @@ class CSmartType
 		SmtStr &operator = (const SmtStr& str);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 	};
 
 	class SmtList : public ISmartType
@@ -65,6 +73,7 @@ class CSmartType
 		CSmartType& operator [] (size_t n);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 	};
 
 	class SmtDict : public ISmartType
@@ -74,6 +83,7 @@ class CSmartType
 	public:
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator bool ();
 
 		CSmartType& operator [] (const char* key);
 	};
@@ -85,6 +95,8 @@ public:
 	CSmartType(int i);
 	CSmartType(double d);
 	CSmartType(const char* str);
+	static const CSmartType& GetEmptyList();
+	static const CSmartType& GetEmptyDict();
 	~CSmartType();
 
 	CSmartType(const CSmartType& e);
@@ -100,8 +112,9 @@ public:
 	operator double ();
 	operator char* ();
 	operator const char* ();
-	operator vector<CSmartType>& ();
-	operator map<CString, CSmartType>& ();
+
+	operator REF_LIST ();
+	operator REF_DICT ();
 
 	CSmartType &operator [](const char* key);
 	CSmartType &operator [](int i);
@@ -110,4 +123,7 @@ public:
 	int ToStr(char* str, int n) const;
 };
 extern CSmartType NONE;
+#define L0 CSmartType::GetEmptyList()
+#define D0 CSmartType::GetEmptyDict()
+
 

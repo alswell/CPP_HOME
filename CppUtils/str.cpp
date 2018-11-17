@@ -111,6 +111,7 @@ CString::CString(char c)
 {
 	m_pBuff = CStrMgr::New(INCREAMENT)->String();
 	m_pBuff[0] = c;
+	ReleaseBuffer();
 }
 
 CString::CString(const CString & str)
@@ -123,9 +124,17 @@ CString::CString(const CString & str)
 
 CString::CString(const char *str, int n)
 {
-	int len = strlen(str);
-	if (n == -1 || n > len)
-		n = len;
+	if (str)
+	{
+		int len = strlen(str);
+		if (n == -1 || n > len)
+			n = len;
+	}
+	else
+	{
+		str = "";
+		n = 0;
+	}
 	m_pBuff = CStrMgr::New(n + 1)->String();
 	if (str)
 		memcpy(m_pBuff, str, n);
