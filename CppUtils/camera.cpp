@@ -1,9 +1,8 @@
 #include "camera.h"
 
 
-Camera::Camera(int nDevNum, bool print_detail)
+void Camera::CheckDev()
 {
-	m_strDevName.Format("/dev/video%d", nDevNum);
 	m_ioMethod = IO_METHOD_MMAP;//IO_METHOD_READ;//IO_METHOD_MMAP;
 	m_nImageSize = 0;
 	m_nMemCount = 4;
@@ -14,16 +13,42 @@ Camera::Camera(int nDevNum, bool print_detail)
 		errno_exit("open failed");
 	printf("open success\n");
 	check_device();
-	list_info(print_detail);
+	RetrievePixFmt();
 
 	m_fdMax = m_fd + 1;
+	m_bInited = false;
+	m_bStarted = false;
+}
+
+Camera::Camera(int nDevNum)
+{
+	m_strDevName.Format("/dev/video%d", nDevNum);
+	CheckDev();
+}
+
+Camera::Camera(const char *dev)
+{
+	m_strDevName = dev;
+	CheckDev();
 }
 
 Camera::~Camera()
 {
-	stop_capturing();
-	uninit_device();
+	if (m_bStarted)
+		stop_capturing();
+	if (m_bInited)
+		uninit_device();
 	close_device();
+}
+
+void Camera::PrintDevInfo()
+{
+	printf("Support format:\n");
+	for (int i = 0; i < m_vFmts.size(); ++i)
+	{
+		printf("\t%d. %s\n", i, m_vFmts[i].name);
+		enum_frame_sizes(m_fd, m_vFmts[i].fmt);
+	}
 }
 
 void Camera::SetMemBufCount(unsigned n)
@@ -46,6 +71,7 @@ bool Camera::Init(int w, int h, int nDataType)
 		printf("init failed\n");
 		return false;
 	}
+	m_bInited = true;
 	printf("init success\n");
 
 	if (!start_capturing())
@@ -53,6 +79,7 @@ bool Camera::Init(int w, int h, int nDataType)
 		printf("start_capturing failed\n");
 		return false;
 	}
+	m_bStarted = true;
 	printf("start_capturing success\n");
 
 	return true;
@@ -82,6 +109,14 @@ void Camera::Identify()
 		errno_exit("not char dev!!!");
 }
 
+void Camera::RetrievePixFmt()
+{
+	struct v4l2_fmtdesc fmtdesc;
+	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	for (fmtdesc.index = 0; ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1; ++fmtdesc.index)
+		m_vFmts.push_back(SFmtInfo(fmtdesc.pixelformat, (char*)fmtdesc.description));
+}
+
 bool Camera::open_device(void)
 {
 	m_fd = open(m_strDevName, O_RDWR /* required */ | O_NONBLOCK, 0);
@@ -96,25 +131,6 @@ void Camera::close_device(void)
 	if (-1 == close(m_fd))
 		errno_exit("close dev failed");
 	m_fd = -1;
-}
-
-void Camera::list_info(bool print_detail)
-{
-	struct v4l2_fmtdesc fmtdesc;
-	fmtdesc.index = 0;
-	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	if (print_detail)
-		printf("Support format:\n");
-	while (ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1)
-	{
-		m_vFmts.push_back(SFmtInfo(fmtdesc.pixelformat, (char*)fmtdesc.description));
-		if (print_detail)
-		{
-			printf("\t%d. %s\n", fmtdesc.index, fmtdesc.description);
-			enum_frame_sizes(m_fd, fmtdesc.pixelformat);
-		}
-		++fmtdesc.index;
-	}
 }
 
 int Camera::AutoFocus(int bOn)

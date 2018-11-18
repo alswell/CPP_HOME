@@ -36,9 +36,12 @@ class Camera
 		char name[32];
 		SFmtInfo(__u32 _fmt, char _name[]);
 	};
+	void CheckDev();
 public:
-	Camera(int nDevNum, bool print_detail = true);
+	Camera(int nDevNum);
+	Camera(const char* dev);
 	~Camera();
+	void PrintDevInfo();
 
 	class Frame
 	{
@@ -58,7 +61,7 @@ public:
 
 	unsigned GetImageSize();
 	void Identify();
-	void list_info(bool print_detail);
+	void RetrievePixFmt();
 
 	int AutoFocus(int bOn);
 	int SetFocus(int nValue);
@@ -77,7 +80,7 @@ private:
 	struct timeval m_tmSelect; 	// timeout for select
 
 	io_method m_ioMethod;
-    vector<SFmtInfo> m_vFmts;
+	vector<SFmtInfo> m_vFmts;
 	SBuff * m_pBuff;
 	unsigned m_nBuff;
 
@@ -90,9 +93,11 @@ private:
 	bool init_device(void);
 	bool init_mmap(void);
 	void uninit_device(void);
+	bool m_bInited;
 
 	bool start_capturing(void);
 	void stop_capturing(void);
+	bool m_bStarted;
 
 	bool wait_frame();
 	int read_frame(void* image);

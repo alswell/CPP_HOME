@@ -168,6 +168,11 @@ void CString::ReleaseBuffer(int n)
 		CStrMgr::GetMgr(m_pBuff)->SetStrLen(n);
 }
 
+CString::operator const char*() const
+{
+	return m_pBuff;
+}
+
 void CString::operator =(char c)
 {
 	Format("%c", c);
@@ -176,11 +181,6 @@ void CString::operator =(char c)
 void CString::operator =(int i)
 {
 	Format("%d", i);
-}
-
-CString::operator const char*() const
-{
-	return m_pBuff;
 }
 
 void CString::operator=(const CString & str)
