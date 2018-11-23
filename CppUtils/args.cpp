@@ -37,6 +37,19 @@ void CArgParser::AddOption(const char *name, char short_name, EArgType type, boo
 {
 	SArgInfo info = {name, short_name, type, required, is_list, help, GetInitVal(type, is_list)};
 	m_lsArgInfo.push_back(info);
+	map<CString, list<SArgInfo>::iterator>::iterator it;
+	it = m_mapKV.find(name);
+	if (it != m_mapKV.end())
+	{
+		cout << "CArgParser:: duplicate key: " << name << endl;
+		exit(-1);
+	}
+	it = m_mapKV.find(short_name);
+	if (it != m_mapKV.end())
+	{
+		cout << "CArgParser:: duplicate key: " << short_name << endl;
+		exit(-1);
+	}
 	m_mapKV[name] = --m_lsArgInfo.end();
 	m_mapKV[short_name] = m_mapKV[name];
 }
@@ -128,12 +141,12 @@ void CArgParser::PrintResult()
 	cout << m_strName << ":" << endl;
 	for (list<SArgInfo>::iterator it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
 	{
-		printf("%s = %s\n", (PCC)it->name, (PCC)it->value);
+		printf("%s = %s\n", (PCC)it->name, it->value.ToStr());
 	}
 	cout << endl;
 	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
-		printf("%s = %s\n", (PCC)it->name, (PCC)it->value);
+		printf("%s = %s\n", (PCC)it->name, it->value.ToStr());
 	}
 	cout << "= = = = = = = = = = = = = = = =" << endl;
 	if (m_pSubParser)
@@ -205,7 +218,7 @@ bool CArgParser::ParseArgs(int nBeg)
 	}
 	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
-		if (it->required && !it->value)
+		if (it->required && it->value == NONE)
 		{
 			printf("--%s/-%c is required\n", (PCC)it->name, (PCC)it->short_name);
 			exit(-1);
