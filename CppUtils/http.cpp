@@ -70,9 +70,8 @@ HttpResponse &HttpResponse::operator ()(const CString &strBody)
 
 HttpRequest::HttpRequest(const char *host, int port, const char *url, const char *method, float version)
 	: m_fVersion(version)
-	, m_sock(host, port)
-
 {
+	m_sock.Connect(host, port);
 	m_dHead["Host"].Format("%s:%d", host, port);
 	m_strMethod = method;
 	m_strUrl = url;

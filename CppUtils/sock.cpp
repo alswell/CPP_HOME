@@ -9,22 +9,18 @@ struct InitSock {
 };
 InitSock init_sock;
 
-CSock::CSock(int fd)
+CSock::CSock()
 {
-	m_fd = fd;
-	m_nRecvFlag = 0;
-}
-
-CSock::CSock(const char * net_addr, short port)
-{	
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 	m_nRecvFlag = 0;
 
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr(net_addr);
+}
 
-	Connect();
+CSock::CSock(int fd)
+{
+	m_fd = fd;
+	m_nRecvFlag = 0;
 }
 
 CSock::operator bool()
@@ -32,9 +28,17 @@ CSock::operator bool()
 	return m_fd != -1;
 }
 
-int CSock::Connect()
+int CSock::Connect(const char * net_addr, short port)
 {
-	return connect(m_fd, (struct sockaddr*)&addr, sizeof(addr));
+	if (net_addr)
+		addr.sin_addr.s_addr = inet_addr(net_addr);
+	if (port)
+		addr.sin_port = htons(port);
+
+	int r = connect(m_fd, (struct sockaddr*)&addr, sizeof(addr));
+	if (r)
+		perror("Connect Failed:");
+	return r;
 }
 
 void CSock::PrintReadErr(int r)

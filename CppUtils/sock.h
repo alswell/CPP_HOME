@@ -15,11 +15,11 @@ class CSock : public IStream
 	int m_nRecvFlag;
 
 public:
-	CSock(int fd = -1);
-	CSock(const char* net_addr, short port);
+	CSock();
+	CSock(int fd);
 
 	operator bool();
-	int Connect();
+	int Connect(const char *net_addr = NULL, short port = 0);
 	void PrintReadErr(int r);
 	void SetTimeout(int nSecond);
 	void SetRecvFlag(int flag);
