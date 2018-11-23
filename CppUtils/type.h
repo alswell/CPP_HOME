@@ -16,6 +16,8 @@ class CSmartType
 		virtual ISmartType* Copy() = 0;
 		virtual int ToStr(char* str, int n) = 0;
 		virtual operator bool () = 0;
+		virtual operator int () = 0;
+		virtual operator double () = 0;
 	};
 	ISmartType* m_pSmartTypeImpl;
 
@@ -27,6 +29,8 @@ class CSmartType
 		SmtBool(bool b);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 	};
 
@@ -38,6 +42,8 @@ class CSmartType
 		SmtInt(ssize_t i);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 	};
 
@@ -49,6 +55,8 @@ class CSmartType
 		SmtFloat(double d);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 	};
 
@@ -62,6 +70,8 @@ class CSmartType
 		SmtStr &operator = (const SmtStr& str);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 	};
 
@@ -73,6 +83,8 @@ class CSmartType
 		CSmartType& operator [] (size_t n);
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 	};
 
@@ -83,6 +95,8 @@ class CSmartType
 	public:
 		virtual ISmartType* Copy();
 		virtual int ToStr(char* str, int n);
+		virtual operator double ();
+		virtual operator int ();
 		virtual operator bool ();
 
 		CSmartType& operator [] (const char* key);
@@ -102,6 +116,7 @@ public:
 	CSmartType(const CSmartType& e);
 	CSmartType& operator = (const CSmartType& e);
 	bool operator ==(const CSmartType& e);
+	bool operator ==(const char* str);
 	bool operator !=(const CSmartType& e);
 
 	CSmartType& SmartInit(const CString &str);
@@ -109,9 +124,10 @@ public:
 	operator bool ();
 	operator int ();
 	operator ssize_t ();
+	operator unsigned ();
+	operator float ();
 	operator double ();
 	operator char* ();
-	operator const char* ();
 
 	operator REF_LIST ();
 	operator REF_DICT ();
@@ -121,6 +137,7 @@ public:
 	CSmartType &operator [](const CSmartType& key);
 
 	int ToStr(char* str, int n) const;
+	const char *ToStr();
 };
 extern CSmartType NONE;
 #define L0 CSmartType::GetEmptyList()
