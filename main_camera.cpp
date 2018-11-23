@@ -1,61 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
-#include <time.h>
+#include "args.h"
+#include "file.h"
 #include "camera.h"
-#include "tick.h"
 
-#define NUM_FRAM		100
+#define NUM_FRAME		10
 
 int main(int argc, char ** argv) {
-	if (argc == 1)
+	CArgParser arg_parse(argc, argv, "A program to test UVC camera");
+	arg_parse.AddOption("dev_id", 'd', ARG_TYPE_INT, true, false, "/dev/video<dev_id>");
+	arg_parse.AddOption("print_info", 'p', ARG_TYPE_BOOL, true, false, "print supported format and image size");
+	arg_parse.AddOption("format_index", 'f', ARG_TYPE_INT, false, false, "specify which format of image to snap");
+	arg_parse.AddOption("width", 'W', ARG_TYPE_INT, false, false, "specify image width");
+	arg_parse.AddOption("height", 'H', ARG_TYPE_INT, false, false, "specify image height");
+	arg_parse.ParseArgs();
+	arg_parse.PrintResult();
+	Camera cam((int)arg_parse["dev_id"]);
+	if (arg_parse["print_info"])
 	{
-		printf("usage: ./camera /dev/video? [w h] [nFmt]\n");
-		return 0;
+		cam.PrintDevInfo();
+		exit(0);
 	}
-	Camera *camera = new Camera(atoi(argv[1]), argc==2);
-
-	if (argc == 2)
-		return 0;
-
-	int width = atoi(argv[2]);
-	int height = atoi(argv[3]);
-	int nFmt = 0;
-	if (argc >= 5)
-		nFmt = atoi(argv[4]);
-	printf("capture frame size: %d * %d\n", width, height);
-	camera->Init(width, height, nFmt);
-
-	unsigned image_size = camera->GetImageSize();
-	char* image = new char[image_size];
-	printf("image_size: %d\n", image_size);
-	
-	unsigned int writesize = 0;
-	GetTickCount();
-	for (int i = 0; i < NUM_FRAM; i++) 
+	if (arg_parse["width"] == NONE || arg_parse["height"] == NONE || arg_parse["format_index"] == NONE)
 	{
-		//image_size = camera->GetBuffer(image);
-		//if (image_size == 0)
-		//	break;
-		CBuff* pBuff;
-		pBuff = camera->GetBuffer();
-		char fname[128];
-		sprintf(fname, "img/camera-image%03d", i);
-		FILE * outf = fopen(fname, "wb");
-		//writesize = fwrite(image, 1, image_size, outf);
-		writesize = fwrite(pBuff->start, 1, pBuff->len, outf);
-		fflush(outf);
-		fclose(outf);
-
-		delete pBuff;
-		printf("frame: %d, write size: %d\n", i, writesize);
-		usleep(10000);
+		cout << "please specify --width, --height and --format_index" << endl;
+		exit(-1);
 	}
-
-	float totaltime2 = GetTickCount();
-	totaltime2 /= 1000000;
-	printf("time: %f, rate: %f\n", totaltime2, NUM_FRAM / totaltime2);
+	cam.SetMemBufCount(4);
+	cam.Init(arg_parse["width"], arg_parse["height"], arg_parse["format_index"]);
+	for (int i = 0; i < NUM_FRAME; ++i)
+	{
+		Camera::Frame frame = cam.GetFrame();
+		CString strFileName;
+		strFileName.Format("photo%03d.jpeg", i);
+		CFile file(strFileName, "w");
+		file.Write(frame.start, frame.len);
+	}
 	return 0;
 }
 

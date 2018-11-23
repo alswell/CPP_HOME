@@ -35,6 +35,8 @@ CSmartType GetInitVal(EArgType type, bool is_list)
 }
 void CArgParser::AddOption(const char *name, char short_name, EArgType type, bool required, bool is_list, const char *help)
 {
+	if (type == ARG_TYPE_BOOL)
+		required = false;
 	SArgInfo info = {name, short_name, type, required, is_list, help, GetInitVal(type, is_list)};
 	m_lsArgInfo.push_back(info);
 	map<CString, list<SArgInfo>::iterator>::iterator it;

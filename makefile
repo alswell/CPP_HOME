@@ -2,5 +2,5 @@ ser : main_ser.cpp CppUtils/stream.* CppUtils/sock.* CppUtils/tick.* CppUtils/th
 	g++ $^ -I ./CppUtils/ -l pthread -o ser.out -g
 cli : main_cli.cpp CppUtils/stream.* CppUtils/sock.*
 	g++ $^ -I ./CppUtils/ -o cli.out
-cam : main_camera.cpp CppUtils/camera.* CppUtils/str.* CppUtils/tick.*
+cam : main_camera.cpp CppUtils/camera.* CppUtils/stream.* CppUtils/file.* CppUtils/str.* CppUtils/tick.* CppUtils/type.* CppUtils/args.*
 	g++ $^ -I ./CppUtils/ -o camera.out
