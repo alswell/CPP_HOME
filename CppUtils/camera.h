@@ -64,6 +64,7 @@ public:
 	void RetrievePixFmt();
 
 	int AutoFocus(int bOn);
+	int IsAutoFocus();
 	int SetFocus(int nValue);
 	int GetFocus();
 private:

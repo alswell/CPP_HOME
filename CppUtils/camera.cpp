@@ -141,6 +141,15 @@ int Camera::AutoFocus(int bOn)
 	return ioctl(m_fd, VIDIOC_S_CTRL, &control);
 }
 
+int Camera::IsAutoFocus()
+{
+	struct v4l2_control control;
+	control.id = V4L2_CID_FOCUS_AUTO;
+	control.value = 0;
+	int r = ioctl(m_fd, VIDIOC_G_CTRL, &control);
+	return (r == -1) ? -1 : control.value;
+}
+
 int Camera::SetFocus(int nValue)
 {
 	struct v4l2_control control;
