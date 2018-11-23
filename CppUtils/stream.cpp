@@ -74,6 +74,14 @@ int IStream::WriteString(const char *str)
 
 int IStream::WriteLine(const char *str)
 {
-	int r = Write(str, strlen(str));
-	return WriteString(CRLF) == strlen(CRLF) ? r : -1;
+	int nString = strlen(str);
+	int nLine = nString + strlen(CRLF);
+	char* buff = new char[nLine + 1];
+	strcpy(buff, str);
+	strcpy(&buff[nString], CRLF);
+	int r = Write(buff, nLine);
+	delete[] buff;
+	return r;
+//	int r = Write(str, strlen(str));
+//	return WriteString(CRLF) == strlen(CRLF) ? r : -1;
 }
