@@ -356,40 +356,51 @@ CSmartType &CSmartType::SmartInit(const CString& str)
 		*this = atoi((const char*)str);
 }
 
-CSmartType::operator bool()
+CSmartType::operator bool() const
 {
 	return m_pSmartTypeImpl ? *m_pSmartTypeImpl : false;
 }
 
-CSmartType::operator int()
+CSmartType::operator int() const
 {
 	return m_pSmartTypeImpl ? *m_pSmartTypeImpl : 0;
 }
 
-CSmartType::operator ssize_t()
+CSmartType::operator ssize_t() const
 {
 	return m_pSmartTypeImpl ? (int)*m_pSmartTypeImpl : 0;
 }
 
-CSmartType::operator unsigned()
+CSmartType::operator unsigned() const
 {
 	return m_pSmartTypeImpl ? (int)*m_pSmartTypeImpl : 0;
 }
 
-CSmartType::operator float()
+CSmartType::operator float() const
 {
 	return m_pSmartTypeImpl ? (double)*m_pSmartTypeImpl : 0;
 }
 
-CSmartType::operator double()
+CSmartType::operator double() const
 {
 	return m_pSmartTypeImpl ? *m_pSmartTypeImpl : 0;
 }
 
-CSmartType::operator char *()
+CSmartType::operator char *() const
 {
 	SmtStr* p = dynamic_cast<SmtStr*>(m_pSmartTypeImpl);
 	return p ? p->m_value : NULL;
+}
+
+CSmartType::operator CString () const
+{
+	CString strBuff = "null";
+	if (m_pSmartTypeImpl)
+	{
+		m_pSmartTypeImpl->ToStr(strBuff.GetBuffer(1024), 1024);
+		strBuff.ReleaseBuffer();
+	}
+	return strBuff;
 }
 
 CSmartType::operator vector<CSmartType> &()
@@ -454,13 +465,8 @@ int CSmartType::ToStr(char *str, int n) const
 	return m_pSmartTypeImpl ? m_pSmartTypeImpl->ToStr(str, n) : snprintf(str, n, "null");
 }
 
-const char *CSmartType::ToStr()
+CString CSmartType::ToStr() const
 {
-	if (m_pSmartTypeImpl)
-	{
-		m_pSmartTypeImpl->ToStr(m_strBuff.GetBuffer(1024), 1024);
-		return m_strBuff;
-	}
-	return "null";
+	return *this;
 }
 

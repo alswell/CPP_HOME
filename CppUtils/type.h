@@ -103,7 +103,6 @@ class CSmartType
 	};
 
 public:
-	CString m_strBuff;
 	CSmartType();
 	CSmartType(bool b);
 	CSmartType(int i);
@@ -121,13 +120,14 @@ public:
 
 	CSmartType& SmartInit(const CString &str);
 
-	operator bool ();
-	operator int ();
-	operator ssize_t ();
-	operator unsigned ();
-	operator float ();
-	operator double ();
-	operator char* ();
+	operator bool () const;
+	operator int () const;
+	operator ssize_t () const;
+	operator unsigned () const;
+	operator float () const;
+	operator double () const;
+	operator char* () const;
+	operator CString () const;
 
 	operator REF_LIST ();
 	operator REF_DICT ();
@@ -137,7 +137,7 @@ public:
 	CSmartType &operator [](const CSmartType& key);
 
 	int ToStr(char* str, int n) const;
-	const char *ToStr();
+	CString ToStr() const;
 };
 extern CSmartType NONE;
 #define L0 CSmartType::GetEmptyList()

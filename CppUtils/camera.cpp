@@ -99,6 +99,16 @@ Camera * Camera::GetFrame()
 	return NULL;
 }
 
+int Camera::GetW()
+{
+	return m_nWidth;
+}
+
+int Camera::GetH()
+{
+	return m_nHeight;
+}
+
 void Camera::Identify()
 {
 	struct stat st;

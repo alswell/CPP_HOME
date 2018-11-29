@@ -58,6 +58,8 @@ public:
 	bool Init(int w, int h, int nDataType = 0);
 	int GetImage(void* image);
 	Camera *GetFrame();
+	int GetW();
+	int GetH();
 
 	unsigned GetImageSize();
 	void Identify();
