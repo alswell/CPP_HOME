@@ -1,12 +1,17 @@
 #pragma once
 #include <sys/time.h>
+#include <time.h>
+#include "str.h"
 
-class CTickCount
+class CDateTime
 {
-	struct timeval m_tInit;
+	struct tm m_t;
+	struct timeval m_tStamp;
 public:
-	CTickCount();
+	CDateTime();
 	int TickCount();
+	CString StrYmdHMS();
+	CString StrDateTime();
 };
 
 int GetTickCount();
