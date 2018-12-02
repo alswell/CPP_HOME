@@ -15,20 +15,30 @@ int CDateTime::TickCount()
 	return sec * 1000000 + usec;
 }
 
+#define FMT_TIME(fmt) \
+	CString str;\
+	strftime(str.GetBuffer(64), 64, fmt, &m_t);\
+	str.ReleaseBuffer();\
+	return str
+
+CString CDateTime::StrYmd()
+{
+	FMT_TIME("%Y%m%d");
+}
+
+CString CDateTime::StrHMS()
+{
+	FMT_TIME("%H%M%S");
+}
+
 CString CDateTime::StrYmdHMS()
 {
-	CString str;
-	strftime(str.GetBuffer(64), 64, "%Y%m%d%H%M%S", &m_t);
-	str.ReleaseBuffer();
-	return str;
+	FMT_TIME("%Y%m%d%H%M%S");
 }
 
 CString CDateTime::StrDateTime()
 {
-	CString str;
-	strftime(str.GetBuffer(64), 64, "%Y-%m-%d %H:%M:%S", &m_t);
-	str.ReleaseBuffer();
-	return str;
+	FMT_TIME("%Y-%m-%d %H:%M:%S");
 }
 
 int GetTickCount()

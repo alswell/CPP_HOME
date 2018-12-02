@@ -10,6 +10,8 @@ class CDateTime
 public:
 	CDateTime();
 	int TickCount();
+	CString StrYmd();
+	CString StrHMS();
 	CString StrYmdHMS();
 	CString StrDateTime();
 };
