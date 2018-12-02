@@ -1,6 +1,12 @@
 #include "path.h"
 #include <sys/stat.h>
+#include <dirent.h>
 
+
+CString PATH::Prefix(const CString &strFileName)
+{
+	return strFileName.Left(strFileName.ReverseFind('.'));
+}
 
 CString PATH::Suffix(const CString &strFileName)
 {
@@ -22,4 +28,22 @@ int PATH::MkDir(const char *strDirName, unsigned nMode)
 	mkdir(strDirName, nMode);
 }
 
-
+list<CString> PATH::FileInDir(const char *strDirName)
+{
+	list<CString> lsFile;
+	DIR* pDir = opendir(strDirName);
+	if (pDir)
+	{
+		struct dirent *dp;
+		while ((dp = readdir(pDir)) != NULL)
+		{
+			if (dp->d_name[0] == '.')
+				continue;
+			cout << dp->d_name << endl;
+			lsFile.push_back(dp->d_name);
+		}
+		closedir(pDir);
+		lsFile.sort();
+	}
+	return lsFile;
+}
