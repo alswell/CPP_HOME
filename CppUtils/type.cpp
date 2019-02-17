@@ -394,13 +394,8 @@ CSmartType::operator char *() const
 
 CSmartType::operator CString () const
 {
-	CString strBuff = "null";
-	if (m_pSmartTypeImpl)
-	{
-		m_pSmartTypeImpl->ToStr(strBuff.GetBuffer(1024), 1024);
-		strBuff.ReleaseBuffer();
-	}
-	return strBuff;
+	SmtStr* p = dynamic_cast<SmtStr*>(m_pSmartTypeImpl);
+	return p ? p->m_value : NULL;
 }
 
 CSmartType::operator vector<CSmartType> &()
@@ -467,6 +462,12 @@ int CSmartType::ToStr(char *str, int n) const
 
 CString CSmartType::ToStr() const
 {
-	return *this;
+	CString strBuff = "null";
+	if (m_pSmartTypeImpl)
+	{
+		m_pSmartTypeImpl->ToStr(strBuff.GetBuffer(1024), 1024);
+		strBuff.ReleaseBuffer();
+	}
+	return strBuff;
 }
 
