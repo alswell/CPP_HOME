@@ -15,7 +15,7 @@ public:
 	class iterator
 	{
 		friend class cycl<T>;
-
+	protected:
 		CNode* m_pListNode;
 		//CycleListValue<T>* GetP() { return m_pCycleListValue; }
 	public:
@@ -97,7 +97,23 @@ public:
 		{
 			return m_pListNode;
 		}
-
+	};
+	class iterator_ex : public iterator
+	{
+		unsigned m_nListSize;
+		unsigned m_nCount;
+	public:
+		iterator_ex(cycl<T>& pList) : iterator(pList.begin()), m_nListSize(pList.size()), m_nCount(0) {}
+		iterator& operator++ ()
+		{
+			++m_nCount;
+			iterator::m_pListNode = iterator::m_pListNode->m_pNext;
+			return *this;
+		}
+		operator bool()
+		{
+			return m_nCount < m_nListSize;
+		}
 	};
 
 	cycl(const cycl<T>& cl): m_pNode(0), m_uCount(0)
