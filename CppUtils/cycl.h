@@ -2,28 +2,13 @@
 
 
 template <class T>
-class cycl;
-
-template <class T>
-class CycleListValue
-{
-	friend class cycl<T>;
-	friend class cycl<T>::iterator;
-
-	T m_Data;
-	CycleListValue* m_pNext;
-	CycleListValue* m_pPrior;
-public:
-	CycleListValue(): m_pNext(0), m_pPrior(0) {}
-};
-
-template <class T>
 class cycl
 {
-	CycleListValue<T>* m_pStake;
+	class CNode;
+	CNode* m_pNode;
 	unsigned int m_uCount;
 public:
-	cycl(): m_pStake(0), m_uCount(0) {}
+	cycl(): m_pNode(0), m_uCount(0) {}
 	~cycl() {
 		clear(); 
 	}
@@ -31,31 +16,31 @@ public:
 	{
 		friend class cycl<T>;
 
-		CycleListValue<T>* m_pCycleListValue;
+		CNode* m_pListNode;
 		//CycleListValue<T>* GetP() { return m_pCycleListValue; }
 	public:
-		iterator() : m_pCycleListValue(0) {}
-		iterator(CycleListValue<T>* pCycleListValue) : m_pCycleListValue(pCycleListValue) {}
+		iterator() : m_pListNode(0) {}
+		iterator(CNode* pListNode) : m_pListNode(pListNode) {}
 
 		bool operator== (iterator it)
 		{
-			return m_pCycleListValue == it.m_pCycleListValue;
+			return m_pListNode == it.m_pListNode;
 		}
 		bool operator!= (iterator it)
 		{
-			return m_pCycleListValue != it.m_pCycleListValue;
+			return m_pListNode != it.m_pListNode;
 		}
 		T& operator* ()
 		{
-			return m_pCycleListValue->m_Data;
+			return m_pListNode->m_Data;
 		}
 		const T& operator* () const
 		{
-			return m_pCycleListValue->m_Data;
+			return m_pListNode->m_Data;
 		}
 		T* operator-> ()
 		{
-			return &(m_pCycleListValue->m_Data);
+			return &(m_pListNode->m_Data);
 		}
 		iterator operator+ (int n)
 		{
@@ -72,49 +57,50 @@ public:
 			if (n < 0)
 				n = 0;
 			for (int i = 0; i < n; i++)
-				m_pCycleListValue = m_pCycleListValue->m_pNext;
+				m_pListNode = m_pListNode->m_pNext;
 
 			return *this;
 		}
 		iterator& operator++ ()
 		{
-			m_pCycleListValue = m_pCycleListValue->m_pNext;
+			m_pListNode = m_pListNode->m_pNext;
 			return *this;
 		}
 		iterator operator++ (int)
 		{
 			iterator _old_it = *this;
-			m_pCycleListValue = m_pCycleListValue->m_pNext;
+			m_pListNode = m_pListNode->m_pNext;
 			return _old_it;
 		}
 		iterator& operator-- ()
 		{
-			m_pCycleListValue = m_pCycleListValue->m_pPrior;
+			m_pListNode = m_pListNode->m_pPrior;
 			return *this;
 		}
 		iterator operator-- (int)
 		{
 			iterator _old_it = *this;
-			m_pCycleListValue = m_pCycleListValue->m_pPrior;
+			m_pListNode = m_pListNode->m_pPrior;
 			return _old_it;
 		}
 
 		iterator operator+ ()
 		{
-			return iterator(m_pCycleListValue->m_pNext);
+			return iterator(m_pListNode->m_pNext);
 		}
 		iterator operator- ()
 		{
-			return iterator(m_pCycleListValue->m_pPrior);
+			return iterator(m_pListNode->m_pPrior);
 		}
 
 		operator bool()
 		{
-			return m_pCycleListValue;
+			return m_pListNode;
 		}
 
 	};
-	cycl(const cycl<T>& cl): m_pStake(0), m_uCount(0)
+
+	cycl(const cycl<T>& cl): m_pNode(0), m_uCount(0)
 	{
 		if (cl.size() == 0)
 			return;
@@ -141,11 +127,11 @@ public:
 
 	iterator begin() const
 	{
-		return iterator(m_pStake);
+		return iterator(m_pNode);
 	}
 	iterator set_begin(iterator it)
 	{
-		m_pStake = it.m_pCycleListValue;
+		m_pNode = it.m_pListNode;
 		return it;
 	}
 
@@ -156,31 +142,31 @@ public:
 
 	bool empty() const
 	{
-		return m_uCount == 0 || m_pStake == 0;
+		return m_uCount == 0 || m_pNode == 0;
 	}
 
 	iterator insert_next(const T& t)
 	{
 		m_uCount++;
 
-		CycleListValue<T>* pNode = new CycleListValue<T>;
-		CycleListValue<T>* pNext = pNode;
-		CycleListValue<T>* pPrior = pNode;
-		if (m_pStake)
+		CNode* pNode = new CNode;
+		CNode* pNext = pNode;
+		CNode* pPrior = pNode;
+		if (m_pNode)
 		{
-			pNext = m_pStake->m_pNext;
-			pPrior = m_pStake;
+			pNext = m_pNode->m_pNext;
+			pPrior = m_pNode;
 		}
-		m_pStake = pNode;
+		m_pNode = pNode;
 
-		m_pStake->m_Data = t;
-		m_pStake->m_pNext = pNext;
-		m_pStake->m_pPrior = pPrior;
+		m_pNode->m_Data = t;
+		m_pNode->m_pNext = pNext;
+		m_pNode->m_pPrior = pPrior;
 
 		pNext->m_pPrior = pNode;
 		pPrior->m_pNext = pNode;
 		
-		return iterator(m_pStake);
+		return iterator(m_pNode);
 	}
 
 	iterator insert_next(const T& t, iterator it)
@@ -190,9 +176,9 @@ public:
 
 		m_uCount++;
 
-		CycleListValue<T>* pNode = new CycleListValue<T>;
-		CycleListValue<T>* pNext = it.m_pCycleListValue->m_pNext;
-		CycleListValue<T>* pPrior = it.m_pCycleListValue;
+		CNode* pNode = new CNode;
+		CNode* pNext = it.m_pListNode->m_pNext;
+		CNode* pPrior = it.m_pListNode;
 
 		pNode->m_Data = t;
 		pNode->m_pNext = pNext;
@@ -208,33 +194,33 @@ public:
 	{
 		m_uCount++;
 
-		CycleListValue<T>* pNode = new CycleListValue<T>;
-		CycleListValue<T>* pNext = pNode;
-		CycleListValue<T>* pPrior = pNode;
-		if (m_pStake)
+		CNode* pNode = new CNode;
+		CNode* pNext = pNode;
+		CNode* pPrior = pNode;
+		if (m_pNode)
 		{
-			pNext = m_pStake;
-			pPrior = m_pStake->m_pPrior;
+			pNext = m_pNode;
+			pPrior = m_pNode->m_pPrior;
 		}
-		m_pStake = pNode;
+		m_pNode = pNode;
 
-		m_pStake->m_Data = t;
-		m_pStake->m_pNext = pNext;
-		m_pStake->m_pPrior = pPrior;
+		m_pNode->m_Data = t;
+		m_pNode->m_pNext = pNext;
+		m_pNode->m_pPrior = pPrior;
 
 		pNext->m_pPrior = pNode;
 		pPrior->m_pNext = pNode;
 
-		return iterator(m_pStake);
+		return iterator(m_pNode);
 	}
 
 	iterator insert_prior(const T& t, iterator it)
 	{
 		m_uCount++;
 
-		CycleListValue<T>* pNode = new CycleListValue<T>;
-		CycleListValue<T>* pNext = it.m_pCycleListValue;
-		CycleListValue<T>* pPrior = it.m_pCycleListValue->m_pPrior;
+		CNode* pNode = new CNode;
+		CNode* pNext = it.m_pListNode;
+		CNode* pPrior = it.m_pListNode->m_pPrior;
 
 		pNode->m_Data = t;
 		pNode->m_pNext = pNext;
@@ -250,15 +236,15 @@ public:
 	{
 		if (cyclist.empty())
 			return false;
-		CycleListValue<T>* _this_pStake_prior = m_pStake->m_pPrior;
-		CycleListValue<T>* _that_pStake_prior = cyclist.m_pStake->m_pPrior;
-		_this_pStake_prior->m_pNext = cyclist.m_pStake;
-		m_pStake->m_pPrior = _that_pStake_prior;
-		_that_pStake_prior->m_pNext = m_pStake;
-		cyclist.m_pStake->m_pPrior = _this_pStake_prior;
+		CNode* _this_pStake_prior = m_pNode->m_pPrior;
+		CNode* _that_pStake_prior = cyclist.m_pNode->m_pPrior;
+		_this_pStake_prior->m_pNext = cyclist.m_pNode;
+		m_pNode->m_pPrior = _that_pStake_prior;
+		_that_pStake_prior->m_pNext = m_pNode;
+		cyclist.m_pNode->m_pPrior = _this_pStake_prior;
 		m_uCount += cyclist.m_uCount;
 
-		cyclist.m_pStake = 0;
+		cyclist.m_pNode = 0;
 		cyclist.m_uCount = 0;
 		return true;
 	}
@@ -266,24 +252,24 @@ public:
 	iterator merge_back(cycl<T>& cyclist)
 	{
 		merge(cyclist);
-		return iterator(m_pStake);
+		return iterator(m_pNode);
 	}
 
 	iterator merge_front(cycl<T>& cyclist)
 	{
-		CycleListValue<T>* tempStake = cyclist.m_pStake;
+		CNode* tempStake = cyclist.m_pNode;
 		if (merge(cyclist))
-			m_pStake = tempStake;
-		return iterator(m_pStake);
+			m_pNode = tempStake;
+		return iterator(m_pNode);
 	}
 
 	iterator erase(iterator it)
 	{
-		CycleListValue<T>* pNext = it.m_pCycleListValue->m_pNext;
-		CycleListValue<T>* pPrior = it.m_pCycleListValue->m_pPrior;
-		delete it.m_pCycleListValue;
-		if (m_pStake == it.m_pCycleListValue)
-			m_pStake = pNext;
+		CNode* pNext = it.m_pListNode->m_pNext;
+		CNode* pPrior = it.m_pListNode->m_pPrior;
+		delete it.m_pListNode;
+		if (m_pNode == it.m_pListNode)
+			m_pNode = pNext;
 		m_uCount--;
 		if (m_uCount > 0)
 		{
@@ -292,25 +278,37 @@ public:
 		}
 		else
 		{
-			m_pStake = 0;
+			m_pNode = 0;
 		}
 		return iterator(pNext);
 	}
 
 	void clear()
 	{
-		if (m_pStake)
+		if (m_pNode)
 		{
 			m_uCount = 0;
-			CycleListValue<T>* pNext = m_pStake->m_pNext;
-			while (pNext != m_pStake)
+			CNode* pNext = m_pNode->m_pNext;
+			while (pNext != m_pNode)
 			{
-				m_pStake->m_pNext = pNext->m_pNext;
+				m_pNode->m_pNext = pNext->m_pNext;
 				delete pNext;
-				pNext = m_pStake->m_pNext;
+				pNext = m_pNode->m_pNext;
 			}
-			delete m_pStake;
-			m_pStake = 0;
+			delete m_pNode;
+			m_pNode = 0;
 		}
 	}
+private:
+	class CNode
+	{
+		friend class cycl<T>;
+		friend class cycl<T>::iterator;
+
+		T m_Data;
+		CNode* m_pNext;
+		CNode* m_pPrior;
+	public:
+		CNode(): m_pNext(0), m_pPrior(0) {}
+	};
 };
