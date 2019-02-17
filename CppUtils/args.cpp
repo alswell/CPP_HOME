@@ -143,14 +143,12 @@ void CArgParser::PrintResult()
 	cout << m_strName << ":" << endl;
 	for (list<SArgInfo>::iterator it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
 	{
-		CString value = it->value;
-		printf("%s = %s\n", (PCC)it->name, (const char*)value);
+		printf("%s = %s\n", (PCC)it->name, (PCC)it->value.ToStr());
 	}
 	cout << endl;
 	for (list<SArgInfo>::iterator it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
-		CString value = it->value;
-		printf("%s = %s\n", (PCC)it->name, (const char*)value);
+		printf("%s = %s\n", (PCC)it->name, (PCC)it->value.ToStr());
 	}
 	cout << "= = = = = = = = = = = = = = = =" << endl;
 	if (m_pSubParser)
