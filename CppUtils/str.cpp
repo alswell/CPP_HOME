@@ -173,12 +173,12 @@ CString::operator const char*() const
 	return m_pBuff;
 }
 
-void CString::operator =(char c)
+void CString::Serialize(char c)
 {
 	Format("%c", c);
 }
 
-void CString::operator =(int i)
+void CString::Serialize(int i)
 {
 	Format("%d", i);
 }

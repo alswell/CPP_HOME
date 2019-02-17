@@ -19,8 +19,8 @@ public:
 	void ReleaseBuffer(int n = -1);
 	operator const char* () const;
 
-	void operator = (char c);
-	void operator = (int i);
+	void Serialize(char c);
+	void Serialize(int i);
 	void operator = (const CString& str);
 	bool operator ==(const char *str) const;
 	bool operator !=(const char *str) const;
