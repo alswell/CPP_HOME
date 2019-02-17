@@ -20,7 +20,7 @@ using namespace std;
 
 #define V2A(v) (&(v[0]))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
+#define PTXY(pt) pt.x, pt.y
 
 #ifndef DWORD
 #define DWORD long
