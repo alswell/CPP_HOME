@@ -11,7 +11,7 @@ public:
 	unsigned m_nSize;
 	unsigned m_nMax;
 
-	cycq(unsigned nSize = 1000): m_nSize(nSize), m_qf(0), m_qr(0), m_nMax(0) 
+	cycq(unsigned nSize = 4096): m_nSize(nSize), m_qf(0), m_qr(0), m_nMax(0)
 	{
 		m_pQ = new T[m_nSize];
 	}
@@ -45,6 +45,7 @@ public:
 
 	bool push_back(const T& e)
 	{
+		assert(!full());
 #ifdef DEBUG_CYCQ
 		if (size() > m_nMax) m_nMax = size();
 #endif

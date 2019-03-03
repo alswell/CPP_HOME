@@ -22,6 +22,6 @@ const char* ToStr(const CSmartType* v);
 
 char* __(float f);
 
-#define _(x) ((const char*)CString(ToStr(x)))
+#define _(x) (static_cast<const char*>(CString(ToStr(x))))
 #define SPRINTF(fmt, ...) g_strFmtBuf.Format(fmt, __VA_ARGS__)
 

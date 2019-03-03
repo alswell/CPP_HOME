@@ -25,7 +25,7 @@ CString PATH::PathName(const CString &strFullPath)
 
 int PATH::MkDir(const char *strDirName, unsigned nMode)
 {
-	mkdir(strDirName, nMode);
+	return mkdir(strDirName, nMode);
 }
 
 list<CString> PATH::FileInDir(const char *strDirName)

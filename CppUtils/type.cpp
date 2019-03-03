@@ -389,24 +389,24 @@ CSmartType::operator double() const
 CSmartType::operator char *() const
 {
 	SmtStr* p = dynamic_cast<SmtStr*>(m_pSmartTypeImpl);
-	return p ? p->m_value : NULL;
+	return p ? p->m_value : nullptr;
 }
 
 CSmartType::operator CString () const
 {
 	SmtStr* p = dynamic_cast<SmtStr*>(m_pSmartTypeImpl);
-	return p ? p->m_value : NULL;
+	return p ? p->m_value : nullptr;
 }
 
 CSmartType::operator vector<CSmartType> &()
 {
 	SmtList* p = dynamic_cast<SmtList*>(m_pSmartTypeImpl);
-	if (p == NULL)
+	if (p == nullptr)
 	{
 		if (m_pSmartTypeImpl)
 			delete m_pSmartTypeImpl;
 		m_pSmartTypeImpl = new SmtList;
-		p = (SmtList*)m_pSmartTypeImpl;
+		p = reinterpret_cast<SmtList*>(m_pSmartTypeImpl);
 	}
 	return p->m_value;
 }
@@ -414,12 +414,12 @@ CSmartType::operator vector<CSmartType> &()
 CSmartType::operator map<CString, CSmartType> &()
 {
 	SmtDict* p = dynamic_cast<SmtDict*>(m_pSmartTypeImpl);
-	if (p == NULL)
+	if (p == nullptr)
 	{
 		if (m_pSmartTypeImpl)
 			delete m_pSmartTypeImpl;
 		m_pSmartTypeImpl = new SmtDict;
-		p = (SmtDict*)m_pSmartTypeImpl;
+		p = reinterpret_cast<SmtDict*>(m_pSmartTypeImpl);
 	}
 	return p->m_value;
 }
@@ -427,7 +427,7 @@ CSmartType::operator map<CString, CSmartType> &()
 CSmartType &CSmartType::operator [](const char *key)
 {
 	SmtDict* p = dynamic_cast<SmtDict*>(m_pSmartTypeImpl);
-	if (p == NULL)
+	if (p == nullptr)
 		return NONE;
 	return (*p)[key];
 }
@@ -435,7 +435,7 @@ CSmartType &CSmartType::operator [](const char *key)
 CSmartType &CSmartType::operator [](int i)
 {
 	SmtList* p = dynamic_cast<SmtList*>(m_pSmartTypeImpl);
-	if (p == NULL)
+	if (p == nullptr)
 		return NONE;
 	if (i < 0)
 		i += p->m_value.size();
