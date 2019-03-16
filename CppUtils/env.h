@@ -21,32 +21,41 @@ using namespace std;
 #define V2A(v) (&(v[0]))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define PTXY(pt) pt.x, pt.y
+#define PTYX(pt) pt.y, pt.x
 
 #ifndef DWORD
 #define DWORD long
 #endif
 
 #define FOR(cls, i, a, b) \
-for (cls i = a; i < b; ++i)
+	for (cls i = a; i < b; ++i)
 
-#define FOR_EACH(it, obj) for (auto it = obj.begin(); it != obj.end(); ++it)
+#define FOR_EACH(it, obj) \
+	for (auto it = obj.begin(); it != obj.end(); ++it)
 
 #define FOR_LIST(cls, obj, it) \
-for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
+	for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
 
 #define FOR_MAP(cls1, cls2, obj, it) \
-for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
+	for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
 
-#define FOR_I(a, b) \
-for (int i = a; i < b; ++i)
+#define FOR_I(a, i, b) \
+	for (int i = a; i < b; ++i)
+
+#define FOR_IJ(i_beg, i, i_end, j_beg, j, j_end) \
+	for (int i = i_beg; i < i_end; ++i)\
+	for (int j = j_beg; j < j_end; ++j)
+
+#define FOR_U(a, i, b) \
+	for (unsigned i = a; i < b; ++i)
 
 #define FOR_MX(mx, r, c) \
-for (int r = 0; r < (mx).m_uRow; ++r)\
-for (int c = 0; c < (mx).m_uColumn; ++c)
+	for (int r = 0; r < int((mx).m_uRow); ++r)\
+	for (int c = 0; c < int((mx).m_uColumn); ++c)
 
-#define FOR_SQUARE(i, i_beg, i_end, j, j_beg, j_end) \
-for (int i = i_beg; i < i_end; ++i)\
-for (int j = j_beg; j < j_end; ++j)
+#define FOR_SQUARE(i_beg, i, i_end, j_beg, j, j_end) \
+	for (int i = i_beg; i <= i_end; ++i)\
+	for (int j = j_beg; j <= j_end; ++j)
 
 #define VA_HELPER(first, func) \
 va_list ap;\
@@ -88,6 +97,30 @@ struct LS
 		return buff;
 	}
 };
+
+//template <class T>
+//struct SVectorP
+//{
+//	vector<T*> v;
+//	~SVectorP()	{ FOR_EACH(it, v) delete *it; }
+//	void Detach(vector<T*>& x) { x.clear(); x = v; v.clear(); }
+//};
+//template <class T>
+//struct SListP
+//{
+//	list<T*> l;
+//	~SListP()	{ FOR_EACH(it, l) delete *it; }
+//	void Detach(list<T*>& x) { x.clear(); x = l; l.clear(); }
+//};
+//template <class T>
+//struct SPointer
+//{
+//	T* p;
+//	SPointer(T* x = nullptr) : p(x) {}
+//	~SPointer()	{ if (p) delete p; }
+//	T* Detach() { T* x = p; p = nullptr; return x; }
+//};
+
 
 #define DEC_INSTANCE(cls) static cls* Instance()
 
