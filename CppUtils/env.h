@@ -11,6 +11,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <math.h>
 
 #include <vector>
 #include <list>
@@ -18,7 +19,11 @@
 
 using namespace std;
 
-#define V2A(v) (&(v[0]))
+#ifndef CONF_THIS_CLS
+#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
+#endif
+
+#define V2A(v) v.data()
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define PTXY(pt) pt.x, pt.y
 #define PTYX(pt) pt.y, pt.x
@@ -39,8 +44,10 @@ using namespace std;
 #define FOR_MAP(cls1, cls2, obj, it) \
 	for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
 
-#define FOR_I(a, i, b) \
+#define FOR_(a, b) \
 	for (int i = a; i < b; ++i)
+#define FOR_I(a, i, b) \
+	for (int i = int(a); i < int(b); ++i)
 
 #define FOR_IJ(i_beg, i, i_end, j_beg, j, j_end) \
 	for (int i = i_beg; i < i_end; ++i)\
@@ -121,6 +128,22 @@ struct LS
 //	T* Detach() { T* x = p; p = nullptr; return x; }
 //};
 
+template <class T>
+list<T> VectorToList(vector<T> v)
+{
+	list<T> l;
+	FOR_EACH(it, v)
+		l.push_back(*it);
+	return l;
+}
+template <class T>
+vector<T> ListToVector(list<T> l)
+{
+	vector<T> v;
+	FOR_EACH(it, l)
+		v.push_back(*it);
+	return v;
+}
 
 #define DEC_INSTANCE(cls) static cls* Instance()
 

@@ -39,7 +39,7 @@ list<CString> PATH::FileInDir(const char *strDirName)
 		{
 			if (dp->d_name[0] == '.')
 				continue;
-			cout << dp->d_name << endl;
+			//cout << dp->d_name << endl;
 			lsFile.push_back(dp->d_name);
 		}
 		closedir(pDir);
