@@ -23,7 +23,6 @@ using namespace std;
 #define CONF_THIS_CLS(cls) typedef cls THIS_CLS
 #endif
 
-#define V2A(v) v.data()
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define PTXY(pt) pt.x, pt.y
 #define PTYX(pt) pt.y, pt.x
@@ -55,6 +54,8 @@ using namespace std;
 
 #define FOR_U(a, i, b) \
 	for (unsigned i = a; i < b; ++i)
+#define FOR_SIZE(a, i, b) \
+	for (size_t i = a; i < b; ++i)
 
 #define FOR_MX(mx, r, c) \
 	for (int r = 0; r < int((mx).m_uRow); ++r)\

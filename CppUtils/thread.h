@@ -1,5 +1,4 @@
-#ifndef __THREAD_H
-#define __THREAD_H
+#pragma once
 #include <pthread.h>
 //#include <signal.h>
 
@@ -16,12 +15,12 @@ public:
 		m_tid = 0;
 		m_bStopped = false;
 	}
-	virtual int Start()
+	int Start()
 	{
 		m_bStopped = false;
-		return pthread_create(&m_tid, 0, ThreadProc, (void*)this);
+		return pthread_create(&m_tid, 0, ThreadProc, static_cast<void*>(this));
 	}
-	virtual int Stop()
+	int Stop()
 	{
 		int r = pthread_cancel(m_tid);
 		m_tid = 0;
@@ -30,18 +29,17 @@ public:
 	static void* ThreadProc(void* pData)
 	{
 		T* pThis = static_cast<T*>(pData);
-		return (void*)pThis->Run();
+		return pThis->Run();
 	}
 	void* Run()
 	{
-		return 0;
+		return nullptr;
 	}
 	void* WaitForThread()
 	{
-		void* p_ret = 0;
+		void* p_ret = nullptr;
 		pthread_join(m_tid, &p_ret);
 		return p_ret;
 	}
 };
 
-#endif
