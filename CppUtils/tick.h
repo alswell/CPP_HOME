@@ -9,12 +9,21 @@ class CDateTime
 	struct timeval m_tStamp;
 public:
 	CDateTime();
-	int TickCount();
+	long TickCount(const CDateTime &dt);
 	CString StrYmd();
 	CString StrHMS();
 	CString StrYmdHMS();
 	CString StrDateTime();
 };
 
-int GetTickCount();
+long GetTickCount();
 
+#define TICK_HELPER(info) CTickHelper tmp_tick_helper(info)
+class CTickHelper
+{
+	CDateTime m_tick;
+	const char* m_info;
+public:
+	CTickHelper(const char* info);
+	~CTickHelper();
+};

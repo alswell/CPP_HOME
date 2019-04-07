@@ -2,16 +2,14 @@
 
 CDateTime::CDateTime()
 {
-	gettimeofday(&m_tStamp, 0);
+	gettimeofday(&m_tStamp, nullptr);
 	localtime_r(&m_tStamp.tv_sec, &m_t);
 }
 
-int CDateTime::TickCount()
+long CDateTime::TickCount(const CDateTime& dt)
 {
-	struct timeval t;
-	gettimeofday(&t, 0);
-	int sec = t.tv_sec - m_tStamp.tv_sec;
-	int usec = t.tv_usec - m_tStamp.tv_usec;
+	long sec = dt.m_tStamp.tv_sec - m_tStamp.tv_sec;
+	long usec = dt.m_tStamp.tv_usec - m_tStamp.tv_usec;
 	return sec * 1000000 + usec;
 }
 
@@ -41,8 +39,22 @@ CString CDateTime::StrDateTime()
 	FMT_TIME("%Y-%m-%d %H:%M:%S");
 }
 
-int GetTickCount()
+long GetTickCount()
 {
 	static CDateTime g_tick;
-	return g_tick.TickCount();
+	CDateTime dt;
+	return g_tick.TickCount(dt);
+}
+
+CTickHelper::CTickHelper(const char *info)
+	: m_info(info)
+{
+
+}
+
+CTickHelper::~CTickHelper()
+{
+	CDateTime dt;
+	long us = m_tick.TickCount(dt);
+	cout << m_info << "{time cost}: " << us << endl;
 }
