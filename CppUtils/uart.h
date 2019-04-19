@@ -9,7 +9,7 @@
 //  uart.Write("hello uart!");
 class CUART : public IStream
 {
-    int m_fd;
+	int m_fd;
 public:
 	CUART();
 	CUART(CString dev, int nSpeed, int nBits, char nEvent, int nStop);
@@ -22,6 +22,6 @@ public:
 
 	char ReadChar();
 private:
-    int SetOpt(int fd,int nSpeed, int nBits, char nEvent, int nStop);
+	int SetOpt(int fd,int nSpeed, int nBits, char nEvent, int nStop);
 };
 

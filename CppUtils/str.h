@@ -15,7 +15,8 @@ public:
 
 	unsigned GetLength() const;
 	bool Empty() const;
-    char* GetBuffer(unsigned n = 0);
+	char* GetBuffer(unsigned n = 0);
+	const char* GetString() const;
 	void ReleaseBuffer(int n = -1);
 	operator const char* () const;
 
@@ -25,8 +26,8 @@ public:
 	bool operator ==(const char *str) const;
 	bool operator !=(const char *str) const;
 	char& operator [] (int i) const;
-    char& operator [] (unsigned i) const;
-    bool operator < (const CString& str) const;
+	char& operator [] (unsigned i) const;
+	bool operator < (const CString& str) const;
 	CString& operator += (char c);
 	CString& operator += (int i);
 	CString& operator += (const char* str);
