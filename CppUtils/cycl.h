@@ -103,7 +103,7 @@ public:
 		unsigned m_nListSize;
 		unsigned m_nCount;
 	public:
-		iterator_ex(cycl<T>& pList) : iterator(pList.begin()), m_nListSize(pList.size()), m_nCount(0) {}
+		iterator_ex(cycl<T>& pList) : iterator(pList.entry()), m_nListSize(pList.size()), m_nCount(0) {}
 		iterator& operator++ ()
 		{
 			++m_nCount;
@@ -120,35 +120,40 @@ public:
 	{
 		if (cl.size() == 0)
 			return;
-		cycl<T>::iterator it = cl.begin();
-		do 
+		cycl<T>::iterator it = cl.entry();
+		do
 		{
 			insert_next(*it);
 			it++;
-		} while (it != cl.begin());
+		} while (it != cl.entry());
 	}
 	cycl<T>& operator= (const cycl<T>& cl)
 	{
 		if (cl.size() == 0)
 			return *this;
 		clear();
-		cycl<T>::iterator it = cl.begin();
-		do 
+		cycl<T>::iterator it = cl.entry();
+		do
 		{
 			insert_next(*it);
 			it++;
-		} while (it != cl.begin());
+		} while (it != cl.entry());
 		return *this;
 	}
 
-	iterator begin() const
+	T& current()
+	{
+		return m_pNode->m_Data;
+	}
+	iterator entry() const
 	{
 		return iterator(m_pNode);
 	}
-	iterator set_begin(iterator it)
+	iterator set_entry(iterator it)
 	{
+		CNode* old_node = m_pNode;
 		m_pNode = it.m_pListNode;
-		return it;
+		return iterator(old_node);
 	}
 
 	unsigned int size() const
@@ -314,6 +319,22 @@ public:
 			delete m_pNode;
 			m_pNode = 0;
 		}
+	}
+
+	iterator find(const T& t)
+	{
+		for (iterator_ex it = *this; it; ++it)
+			if (t == *it)
+				return it;
+		return iterator();
+	}
+	template<class T_KEY, class CMP>
+	iterator find(const T_KEY& key, CMP cmp)
+	{
+		for (iterator_ex it = *this; it; ++it)
+			if (cmp(key, *it))
+				return it;
+		return iterator();
 	}
 private:
 	class CNode
