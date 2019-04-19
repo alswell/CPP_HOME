@@ -25,7 +25,11 @@ using namespace std;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define PTXY(pt) pt.x, pt.y
+#define PTXY_INT(pt) int(pt.x), int(pt.y)
+#define PTXYFLOAT(pt) float(pt.x), float(pt.y)
 #define PTYX(pt) pt.y, pt.x
+#define PTYX_INT(pt) int(pt.y), int(pt.x)
+#define PTYX_FLOAT(pt) float(pt.y), float(pt.x)
 
 #ifndef DWORD
 #define DWORD long
