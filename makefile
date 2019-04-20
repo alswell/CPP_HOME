@@ -1,6 +1,6 @@
-ser : main_ser.cpp CppUtils/stream.* CppUtils/sock.* CppUtils/tick.* CppUtils/thread.h
-	g++ $^ -I ./CppUtils/ -l pthread -o ser.out -g
-cli : main_cli.cpp CppUtils/stream.* CppUtils/sock.*
-	g++ $^ -I ./CppUtils/ -o cli.out
-cam : main_camera.cpp CppUtils/camera.* CppUtils/stream.* CppUtils/file.* CppUtils/str.* CppUtils/tick.* CppUtils/type.* CppUtils/args.*
-	g++ $^ -I ./CppUtils/ -o camera.out
+ser : main_ser.cpp basic/stream.* basic/sock.* basic/tick.* basic/thread.h
+	g++ $^ -I ./basic/ -l pthread -o ser.out -g
+cli : main_cli.cpp basic/stream.* basic/sock.*
+	g++ $^ -I ./basic/ -o cli.out
+cam : main_camera.cpp basic/camera.* basic/stream.* basic/file.* basic/str.* basic/tick.* basic/type.* basic/args.*
+	g++ $^ -I ./basic/ -o camera.out

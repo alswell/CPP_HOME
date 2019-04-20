@@ -1,4 +1,10 @@
 # C++ Utilities
+## basic
+used for command line program
+## ui
+cross-platform UI
+## geometry
+computation geometry
 ## Examples:
 ### UVC camera
 ```
