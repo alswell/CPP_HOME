@@ -160,3 +160,14 @@ cls* cls::Instance()\
 		pInstance = new cls(__VA_ARGS__);\
 	return pInstance;\
 }
+
+// math macro
+#define PI       3.14159265358979323846
+#define PI_2     1.57079632679489661923
+#define PI_3     1.047197551196597746153
+#define PI_4     0.785398163397448309616
+#define PI_8     0.3926990816987241
+#define PI_D     6.28318530717958647692
+#define SQRT_2   1.414213562373095048802
+#define CUBIC(x) ((x) * (x) * (x))
+#define SQUARE(x) ((x) * (x))
