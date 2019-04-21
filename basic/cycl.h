@@ -1,5 +1,5 @@
 #pragma once
-
+#include "assert.h"
 
 template <class T>
 class cycl
@@ -115,6 +115,15 @@ public:
 			return m_nCount < m_nListSize;
 		}
 	};
+//	class const_iterator_ex : public iterator_ex
+//	{
+//	public:
+//		const_iterator_ex(cycl<T>& pList) : iterator_ex(pList) {}
+//		const T& operator* ()
+//		{
+//			return iterator::m_pListNode->m_Data;
+//		}
+//	};
 
 	cycl(const cycl<T>& cl): m_pNode(0), m_uCount(0)
 	{
@@ -149,11 +158,32 @@ public:
 	{
 		return iterator(m_pNode);
 	}
-	iterator set_entry(iterator it)
+	iterator set_entry(iterator it, bool check = true)
 	{
+		if (check)
+		{
+			iterator_ex _it = *this;
+			for (; _it; ++_it)
+				if (_it == it)
+					break;
+			assert(_it);
+		}
 		CNode* old_node = m_pNode;
 		m_pNode = it.m_pListNode;
 		return iterator(old_node);
+	}
+	iterator set_entry(const T& t, bool check = true)
+	{
+		iterator it = find(t);
+		if (check)
+			assert(it);
+		if (it)
+		{
+			CNode* old_node = m_pNode;
+			m_pNode = it.m_pListNode;
+			it.m_pListNode = old_node;
+		}
+		return it;
 	}
 
 	unsigned int size() const
