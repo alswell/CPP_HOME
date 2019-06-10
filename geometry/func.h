@@ -13,7 +13,7 @@ T Distance(const CVector2<T>& pt1, const CVector2<T>& pt2)
 {
 	T delta_x = pt1.x - pt2.x;
 	T delta_y = pt1.y - pt2.y;
-	return sqrt((T)(SQUARE(delta_x) + SQUARE(delta_y)));
+	return sqrt(T(SQUARE(delta_x) + SQUARE(delta_y)));
 	//return sqrt((T)(SQUARE(pt1.x - pt2.x) + SQUARE(pt1.y - pt2.y)));
 }
 
@@ -23,7 +23,7 @@ T Distance(const CVector3<T>& pt1, const CVector3<T>& pt2)
 	T delta_x = pt1.x - pt2.x;
 	T delta_y = pt1.y - pt2.y;
 	T delta_z = pt1.z - pt2.z;
-	return sqrt((T)(SQUARE(delta_x) + SQUARE(delta_y) + SQUARE(delta_z)));
+	return sqrt(T(SQUARE(delta_x) + SQUARE(delta_y) + SQUARE(delta_z)));
 	//return sqrt((T)(SQUARE(pt1.x - pt2.x) + SQUARE(pt1.y - pt2.y) + SQUARE(pt1.z - pt2.z)));
 }
 
@@ -33,7 +33,7 @@ T Distance(const CVector2<T>& pt1, T z1, const CVector2<T>& pt2, T z2)
 	T delta_x = pt1.x - pt2.x;
 	T delta_y = pt1.y - pt2.y;
 	T delta_z = z1 - z2;
-	return sqrt((T)(SQUARE(delta_x) + SQUARE(delta_y) + SQUARE(delta_z)));
+	return sqrt(T(SQUARE(delta_x) + SQUARE(delta_y) + SQUARE(delta_z)));
 	//return sqrt((T)(SQUARE(pt1.x - pt2.x) + SQUARE(pt1.y - pt2.y) + SQUARE(z1 - z2)));
 }
 
