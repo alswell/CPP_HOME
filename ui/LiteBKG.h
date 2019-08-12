@@ -2,10 +2,12 @@
 #include "LiteCtrlStatic.h"
 #include "LiteBtn.h"
 
-class CLiteInterface
+
+class ILiteContext
 {
 public:
-	virtual ~CLiteInterface();
+	virtual ~ILiteContext();
+	virtual ILiteDC* GetDC() = 0;
 	virtual void Refresh(RECT& rc) = 0;
 	virtual void OnClose() = 0;
 };
@@ -23,12 +25,13 @@ protected:
 	//static CBJICtrlBase* m_pDownActiveCtrl;
 	//static map<CBJICtrlBase*, BOOL> m_pActiveMenu;
 
-	CLiteInterface& m_wnd;
+	ILiteContext* m_wnd;
 	RECT m_rcPaintRgn;
 public:
 	int m_nWidth;
 	int m_nHeight;
-	CLiteBKG(CLiteInterface& wnd, CLiteDCInterface& dcImpl, int W, int H);
+	CLiteBKG(int W, int H);
+	ILiteDC* Init(int W, int H);
 	virtual ~CLiteBKG();
 
 private:
@@ -43,4 +46,15 @@ public:
 	void OnMouseWhell(int zDelta);
 	void OnRBtnDown(POINT pt);
 };
+
+class ILiteGlobal
+{
+public:
+	virtual ~ILiteGlobal();
+	virtual void Start() = 0;
+	virtual ILiteContext* GetContext(CLiteBKG* pBKG) = 0;
+	virtual int ScreenWidth() = 0;
+	virtual int ScreenHeight() = 0;
+};
+extern ILiteGlobal* gui;
 

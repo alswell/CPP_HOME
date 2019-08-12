@@ -2,8 +2,8 @@
 #include <X11/Xlib.h>
 #include "LiteCtrlBase.h"
 
-class CWnd;
-class CDC : public CLiteDCInterface
+class CX11Context;
+class CX11DC : public ILiteDC
 {
 	Pixmap m_hPixmap;
 	unsigned m_nWidth;
@@ -17,11 +17,11 @@ class CDC : public CLiteDCInterface
 	unsigned m_nImgBuffW;
 	unsigned m_nImgBuffH;
 public:
-	CDC();
-	CDC(Window wnd);
-	virtual ~CDC();
+	CX11DC();
+	CX11DC(Window wnd);
+	virtual ~CX11DC();
 	void Init(Window wnd);
-	void CreateCompatible(const CDC& dc, unsigned w = 0, unsigned h = 0);
+	void CreateCompatible(const CX11DC& dc, unsigned w = 0, unsigned h = 0);
 	void SelectPen(unsigned long color);
 	void Rectangle(int x, int y, int W, int H);
 	void TextOut(const char* str, int x, int y, int W, int H);
@@ -31,7 +31,7 @@ public:
 	virtual void Rectangle(RECT rcRgn, RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG);
 	virtual void TextStd(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr);
 	virtual void Text(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr, unsigned nFormat);
-	virtual void BitBlt(const CLiteDCInterface& dc_src, int src_x, int src_y, unsigned w, unsigned h, int des_x, int des_y);
+	virtual void BitBlt(const ILiteDC& dc_src, int src_x, int src_y, unsigned w, unsigned h, int des_x, int des_y);
 	virtual char* BeginData(int x, int y, unsigned w, unsigned h);
 	virtual void EndData();
 

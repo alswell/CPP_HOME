@@ -1,16 +1,19 @@
 #include "LiteBKG.h"
 
-CLiteInterface::~CLiteInterface()
+ILiteGlobal* gui;
+ILiteGlobal::~ILiteGlobal()
 {
 
 }
 
-CLiteBKG::CLiteBKG(CLiteInterface& wnd, CLiteDCInterface& dcImpl, int W, int H)
-	: CLiteCtrlBase(RECT(0, 0, W, H), dcImpl)
-	, m_wnd(wnd)
+ILiteContext::~ILiteContext()
+{
+
+}
+
+CLiteBKG::CLiteBKG(int W, int H)
+	: CLiteCtrlBase(RECT(0, 0, W, H), *Init(W, H))
 	, m_rcPaintRgn(0, 0, W, H)
-	, m_nWidth(W)
-	, m_nHeight(H)
 {
 	m_pHoverCtrl = nullptr;
 	m_pDownCtrl = nullptr;
@@ -23,6 +26,14 @@ CLiteBKG::CLiteBKG(CLiteInterface& wnd, CLiteDCInterface& dcImpl, int W, int H)
 	ADD_BTN(W - 20, 0, 20, 20, "X", StdBtn, OnClose);
 }
 
+ILiteDC* CLiteBKG::Init(int W, int H)
+{
+	m_nWidth = W;
+	m_nHeight = H;
+	m_wnd = gui->GetContext(this);
+	return m_wnd->GetDC();
+}
+
 
 CLiteBKG::~CLiteBKG()
 {
@@ -30,13 +41,13 @@ CLiteBKG::~CLiteBKG()
 
 void CLiteBKG::OnClose()
 {
-	m_wnd.OnClose();
+	m_wnd->OnClose();
 }
 
 void CLiteBKG::InvalidateCtrl2(RECT& rc)
 {
 	m_rcPaintRgn.UnionRect(RECT(m_rcPaintRgn), rc);
-	m_wnd.Refresh(rc);
+	m_wnd->Refresh(rc);
 }
 
 void CLiteBKG::OnPaint()

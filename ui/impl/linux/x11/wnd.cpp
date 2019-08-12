@@ -3,26 +3,26 @@
 #include <map>
 using namespace std;
 
-Display* g_dsp = nullptr;
-map<Window, CWnd*> g_mapWnd;
-struct InitDisplay
-{
-	InitDisplay()
-	{
-		XInitThreads();
-		g_dsp = XOpenDisplay(nullptr);
-	}
-};
-InitDisplay init_disp;
 
-bool GetMessage(XEvent& evt)
+CX11Global::CX11Global()
+{
+	XInitThreads();
+	m_dsp = XOpenDisplay(nullptr);
+	auto screen = DefaultScreen(m_dsp);
+	m_nScreenWidth = DisplayWidth(m_dsp, screen);
+	m_nScreenHeight = DisplayHeight(m_dsp, screen);
+	printf("ScreenCount: %d, DefaultScreen: %d[%d * %d]\n", ScreenCount(m_dsp), screen, m_nScreenWidth, m_nScreenHeight);
+	m_fontDefault = XLoadQueryFont(m_dsp, "-misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso8859-9");
+}
+
+bool CX11Global::GetMessage(XEvent& evt)
 {
 	XEvent tmp;
 //	unsigned evt_mask;
 	switch (evt.type)
 	{
 	case Expose:
-		while (XCheckWindowEvent(g_dsp, evt.xany.window, ExposureMask, &tmp));
+		while (XCheckWindowEvent(m_dsp, evt.xany.window, ExposureMask, &tmp));
 		break;
 	}
 //	while (1)
@@ -39,7 +39,7 @@ bool GetMessage(XEvent& evt)
 //			return true;
 //		}
 //	}
-	bool b = XNextEvent(g_dsp, &evt) == 0;// calls XFlush()
+	bool b = XNextEvent(m_dsp, &evt) == 0;// calls XFlush()
 //	switch (evt.type)
 //	{
 //	case MotionNotify:
@@ -56,10 +56,12 @@ bool GetMessage(XEvent& evt)
 	return b;
 }
 
-void DispatchMessage(const XEvent& evt)
+void CX11Global::DispatchMessage(const XEvent& evt)
 {
 	static int count = 0;
 	Window w = evt.xany.window;
+	auto pCtxt = m_mapContext[w];
+	auto pBKG = pCtxt->m_pBKG;
 	switch (evt.type)
 	{
 	case ClientMessage:
@@ -83,19 +85,19 @@ void DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			g_mapWnd[w]->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pBKG->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 2:
 			//g_mapWnd[w]->OnLBtnDown(CPoint(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 3:
-			g_mapWnd[w]->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pBKG->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 4:
-			g_mapWnd[w]->OnMouseWhell(120);
+			pBKG->OnMouseWhell(120);
 			break;
 		case 5:
-			g_mapWnd[w]->OnMouseWhell(-120);
+			pBKG->OnMouseWhell(-120);
 			break;
 		}
 		break;
@@ -104,7 +106,7 @@ void DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			g_mapWnd[w]->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
+			pBKG->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
 			break;
 		case 2:
 			//g_mapWnd[w]->OnLBtnDown(CPoint(evt.xbutton.x, evt.xbutton.y));
@@ -115,8 +117,8 @@ void DispatchMessage(const XEvent& evt)
 		}
 		break;
 	case MotionNotify:
-		g_mapWnd[w]->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
-		if (XPending(g_dsp) > 3)
+		pBKG->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
+		if (XPending(m_dsp) > 3)
 			return;
 		break;
 	default:
@@ -124,11 +126,11 @@ void DispatchMessage(const XEvent& evt)
 		return;
 		//break;
 	}
-	g_mapWnd[w]->OnPaint();
-	g_mapWnd[w]->Flush();
+	pBKG->OnPaint();
+	pCtxt->Flush();
 }
 
-void MessageLoop()
+void CX11Global::MessageLoop()
 {
 	XEvent evt;
 	evt.type = -1;
@@ -136,63 +138,86 @@ void MessageLoop()
 		DispatchMessage(evt);
 }
 
-CWnd::CWnd(int x, int y, int W, int H)
-	: CLiteBKG(*this, m_dc, W, H)
-	, m_rcInvalidate(0, 0, W, H)
+void CX11Global::Start()
+{
+	MessageLoop();
+}
+
+ILiteContext* CX11Global::GetContext(CLiteBKG* pBKG)
+{
+	auto p = new CX11Context(pBKG);
+	return p;
+}
+
+int CX11Global::ScreenWidth()
+{
+	return m_nScreenWidth;
+}
+
+int CX11Global::ScreenHeight()
+{
+	return m_nScreenHeight;
+}
+
+CX11Context::CX11Context(CLiteBKG* pBKG)
+	: m_pBKG(pBKG)
+	, m_rcInvalidate(0, 0, pBKG->m_nWidth, pBKG->m_nHeight)
 {
 //	m_nWidth = W;
 //	m_nHeight = H;
 //	unsigned long white = WhitePixel(g_dsp, screenNumber);
 //	unsigned long black = BlackPixel(g_dsp, screenNumber);
-	m_hWnd = XCreateSimpleWindow(g_dsp, DefaultRootWindow(g_dsp), x, y, unsigned(W), unsigned(H), 0, 0x000000, 0xFFFFFF);
-	XMapWindow(g_dsp, m_hWnd);
+	m_hWnd = XCreateSimpleWindow(X11_DSP, DefaultRootWindow(X11_DSP),
+								 0, 0, unsigned(pBKG->m_nWidth), unsigned(pBKG->m_nHeight),
+								 0, 0x000000, 0xFFFFFF);
+	XMapWindow(X11_DSP, m_hWnd);
 	long eventMask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
-	XSelectInput(g_dsp, m_hWnd, eventMask);
-	g_mapWnd[m_hWnd] = this;
+	XSelectInput(X11_DSP, m_hWnd, eventMask);
 
 	m_dcWnd.Init(m_hWnd);
 	m_dc.CreateCompatible(m_dcWnd);
+	X11_GUI(m_mapContext)[m_hWnd] = this;
 }
 
-void CWnd::CenterWindow()
+void CX11Context::CenterWindow()
 {
-	int scrNum = DefaultScreen(g_dsp);
-	int scrWidth = XDisplayWidth(g_dsp, scrNum);
-	int scrHeight = XDisplayHeight(g_dsp, scrNum);
-	XMoveWindow(g_dsp, m_hWnd, (scrWidth - m_nWidth) / 2, (scrHeight - m_nHeight) / 2);
+	XMoveWindow(X11_DSP, m_hWnd,
+				(X11_GUI(m_nScreenWidth) - m_rcInvalidate.Width()) / 2,
+				(X11_GUI(m_nScreenHeight) - m_rcInvalidate.Height()) / 2);
 }
 
-XEvent event;
-void CWnd::SendRefreshEvent()
-{
-	event.type = Expose;
-	event.xany.window = m_hWnd;
-	cout << XSendEvent(g_dsp, m_hWnd, 1, ExposureMask, &event) << endl;
-//	cout << XPending(g_dsp) << endl;
-	cout << XSync(g_dsp, false) << endl;
-}
+//XEvent event;
+//void CWnd::SendRefreshEvent()
+//{
+//	event.type = Expose;
+//	event.xany.window = m_hWnd;
+//	cout << XSendEvent(g_dsp, m_hWnd, 1, ExposureMask, &event) << endl;
+////	cout << XPending(g_dsp) << endl;
+//	cout << XSync(g_dsp, false) << endl;
+//}
 
-CDC& CWnd::GetDC()
-{
-	return m_dc;
-}
-
-void CWnd::Flush()
+void CX11Context::Flush()
 {
 	//m_dc.Flush(m_rcInvalidate);
 	m_dcWnd.BitBlt(m_dc, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
 	m_rcInvalidate.SetRectEmpty();
 }
 
-void CWnd::Refresh(RECT &rc)
+ILiteDC* CX11Context::GetDC()
+{
+	return &m_dc;
+}
+
+void CX11Context::Refresh(RECT &rc)
 {
 	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
 	//cout << "Refresh" << endl;
 }
 
-void CWnd::OnClose()
+void CX11Context::OnClose()
 {
 	cout << "OnClose" << endl;
-	XDestroyWindow(g_dsp, m_hWnd);
-	XCloseDisplay(g_dsp);
+	XDestroyWindow(X11_DSP, m_hWnd);
+	XCloseDisplay(X11_DSP);
 }
+

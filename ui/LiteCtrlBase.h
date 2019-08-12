@@ -63,16 +63,16 @@ enum ETextFormat
 };
 #define STD_TXT_FMT (TXT_FMT_CENTER | TXT_FMT_VCENTER | TXT_FMT_SINGLELINE | TXT_FMT_END_ELLIPSIS)
 
-class CLiteDCInterface
+class ILiteDC
 {
 public:
-	virtual ~CLiteDCInterface();
+	virtual ~ILiteDC();
 	virtual void Point(int x, int y, COLORREF clr) = 0;
 	virtual void Line(int x1, int y1, int x2, int y2, COLORREF clr) = 0;
 	virtual void Rectangle(RECT rcRgn, RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG) = 0;
 	virtual void TextStd(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr) = 0;
 	virtual void Text(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr, unsigned nFormat) = 0;
-	virtual void BitBlt(const CLiteDCInterface& dc_src, int src_x, int src_y, unsigned w, unsigned h, int des_x, int des_y) = 0;
+	virtual void BitBlt(const ILiteDC& dc_src, int src_x, int src_y, unsigned w, unsigned h, int des_x, int des_y) = 0;
 	virtual char* BeginData(int x, int y, unsigned w, unsigned h) = 0;
 	virtual void EndData() = 0;
 };
@@ -81,12 +81,12 @@ class CMouseCapturer;
 class CLiteCtrlBase
 {
 public:
-	CLiteCtrlBase(RECT rcRelLoc, CLiteDCInterface& dcImpl);
+	CLiteCtrlBase(RECT rcRelLoc, ILiteDC& dcImpl);
 	CLiteCtrlBase(RECT rcRelLoc, CLiteCtrlBase* pParentCtrl);
 	virtual ~CLiteCtrlBase();
 
 protected:
-	CLiteDCInterface& m_dcImpl;
+	ILiteDC& m_dcImpl;
 	virtual void Draw(POINT ptOffset, RECT rcParentRgn);
 	void DrawChildren(POINT ptOffset = POINT(0, 0), RECT rcRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT pt);
@@ -122,5 +122,7 @@ public:
 	void MoveToY(int y);
 	void MoveTo(int x, int y);
 	void Move(int x, int y);
+	int Width();
+	int Height();
 };
 

@@ -1,9 +1,9 @@
 #include "LiteCtrlBase.h"
 
 
-CLiteDCInterface::~CLiteDCInterface(){}
+ILiteDC::~ILiteDC(){}
 
-CLiteCtrlBase::CLiteCtrlBase(RECT rcRelLoc, CLiteDCInterface & dcImpl)
+CLiteCtrlBase::CLiteCtrlBase(RECT rcRelLoc, ILiteDC & dcImpl)
 	: m_bAlpha(FALSE)
 	, m_pOldRect(NULL)
 	, m_bIsVisible(TRUE)
@@ -145,4 +145,14 @@ void CLiteCtrlBase::Move(int x, int y)
 	InvalidateCtrl();
 	m_rcRelLoc.OffsetRect(x, y);
 	InvalidateCtrl();
+}
+
+int CLiteCtrlBase::Width()
+{
+	return m_rcRelLoc.Width();
+}
+
+int CLiteCtrlBase::Height()
+{
+	return m_rcRelLoc.Height();
 }
