@@ -269,20 +269,20 @@ public:
 
 	T DirectionX()
 	{
-		return CDirection<float>(y, z);
+		return CDirection<float>(0, y, z);
 	}
 	T DirectionY()
 	{
-		return CDirection<float>(x, z);
+		return CDirection<float>(0, x, z);
 	}
 	T DirectionZ()
 	{
-		return CDirection<float>(x, y);
+		return CDirection<float>(0, x, y);
 	}
 
 	T Longitude()
 	{
-		return CDirection<float>(x, y);
+		return CDirection<float>(0, x, y);
 	}
 
 	T Latitude()

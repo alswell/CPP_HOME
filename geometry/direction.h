@@ -26,12 +26,6 @@ public:
 	__device__ CDirection(T direction) { m_Direction = Normalization(direction); m_bValid = true; }
 
 	template <class VAL_T>
-	__device__ CDirection(VAL_T x, VAL_T y)
-	{
-		SetValue(CVector2<VAL_T>(0, 0), CVector2<VAL_T>(x, y));
-	}
-
-	template <class VAL_T>
 	__device__ CDirection(const CVector2<VAL_T>& pt)
 	{
 		SetValue(CVector2<VAL_T>(0, 0), pt);
@@ -41,6 +35,12 @@ public:
 	__device__ CDirection(const CVector2<VAL_T>& pt1, const CVector2<VAL_T>& pt2)
 	{
 		SetValue(pt1, pt2);
+	}
+
+	template <class VAL_T>
+	__device__ CDirection(int, VAL_T x, VAL_T y)
+	{
+		SetValue(CVector2<VAL_T>(0, 0), CVector2<VAL_T>(x, y));
 	}
 
 	template <class VAL_T>
@@ -59,7 +59,7 @@ public:
 		}
 		else
 		{
-			m_Direction = atan((T)(pt2.y - pt1.y) / (T)(pt2.x - pt1.x));
+			m_Direction = atan(T(pt2.y - pt1.y) / T(pt2.x - pt1.x));
 			if (pt2.x - pt1.x < 0)
 			{
 				if (m_Direction > 0)

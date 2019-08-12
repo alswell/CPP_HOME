@@ -47,7 +47,7 @@ const char* ToStr(CRect<T> rc)
 //	static char buff[128];
 //	sprintf(buff, "[%s, %s]", _(v.x), _(v.y));
 //	return buff;
-	return SPRINTF("[%s, %s; %s * %s]", _(rc.left), _(rc.right), _(rc.Width()), _(rc.Height()));
+	return SPRINTF("{(%s, %s); [%s * %s]}", _(rc.left), _(rc.top), _(rc.Width()), _(rc.Height()));
 }
 
 typedef CRect<int> RECT;
