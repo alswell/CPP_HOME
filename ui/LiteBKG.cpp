@@ -1,5 +1,7 @@
 #include "LiteBKG.h"
 
+map<void*, vector<void*>> m_mapRadio;
+
 ILiteGlobal* gui;
 ILiteGlobal::~ILiteGlobal()
 {
@@ -22,16 +24,15 @@ CLiteBKG::CLiteBKG(int W, int H)
 	m_pTip->ShowCtrl(FALSE);
 
 	m_pBKG = ADD_BLOCK(0, 0, W, H, RGBH(1EA084), RGBH(00FF00));
-	m_pTitle = ADD_TXT(0, 0, 50, 20, "CVLab", STD_TXT_FMT, RGBH(FFFFFF));
-	ADD_BTN(W - 20, 0, 20, 20, "X", StdBtn, OnClose);
+//	ADD_BTN(W - 20, 0, 20, 20, "X", StdBtn, OnClose);
 }
 
 ILiteDC* CLiteBKG::Init(int W, int H)
 {
 	m_nWidth = W;
 	m_nHeight = H;
-	m_wnd = gui->GetContext(this);
-	return m_wnd->GetDC();
+	m_implContext = gui->GetContext(this);
+	return m_implContext->GetDC();
 }
 
 
@@ -41,13 +42,13 @@ CLiteBKG::~CLiteBKG()
 
 void CLiteBKG::OnClose()
 {
-	m_wnd->OnClose();
+	m_implContext->OnClose();
 }
 
 void CLiteBKG::InvalidateCtrl2(RECT& rc)
 {
 	m_rcPaintRgn.UnionRect(RECT(m_rcPaintRgn), rc);
-	m_wnd->Refresh(rc);
+	m_implContext->Refresh(rc);
 }
 
 void CLiteBKG::OnPaint()
@@ -124,3 +125,4 @@ void CLiteBKG::OnRBtnDown(POINT pt)
 {
 	m_pHoverCtrl->RBtnDown(pt);
 }
+
