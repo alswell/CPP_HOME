@@ -10,8 +10,8 @@ public:
 	T bottom;
 	CRect() : left(0), top(0), right(0), bottom(0) {}
 	CRect(T l, T t, T r, T b) : left(l), top(t), right(r), bottom(b) {}
-	T Width() { return right - left; }
-	T Height() { return bottom - top; }
+	T Width() const { return right - left; }
+	T Height() const { return bottom - top; }
 	bool IsRectEmpty() { return (right - left <= 0) || (bottom - top <= 0 ); }
 	void OffsetRect(T x, T y) { left += x; right += x; top += y; bottom += y; }
 	void MoveToXY(T x, T y) { right += x - left; left = x; bottom += y - top; top = y; }

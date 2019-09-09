@@ -55,6 +55,12 @@ T Distance(const CVector2<T>& pt0, const CVector2<T>& ptA, const CVector2<T>& pt
 }
 
 template <class T>
+CVector3<T> MidPoint(const CVector3<T>& pt1, const CVector3<T>& pt2)
+{
+	return CVector3<T>((pt1.x + pt2.x)/2, (pt1.y + pt2.y)/2, (pt1.z + pt2.z)/2);
+}
+
+template <class T>
 T Area(const CVector2<T>& pt1, const CVector2<T>& pt2, const CVector2<T>& pt3)
 {
 	CDirection<T> dir1(pt1, pt2);
@@ -131,6 +137,43 @@ CVector3<T> CrossPoint(const CLine3<T>& seg, const CPointNormalPlain<T>& plain)
 	T t = (A*(plain.m_M0.x - seg.m_pts[0].x) + B*(plain.m_M0.y - seg.m_pts[0].y) + C*(plain.m_M0.z - seg.m_pts[0].z)) / (A*m + B*n + C*p);
 
 	return CVector3<T>(seg.m_pts[0].x + m * t, seg.m_pts[0].y + n * t, seg.m_pts[0].z + p * t);
+}
+
+template<class T>
+const CLine3<T> CommonPerpendicular(const CLine3<T>& segA, const CLine3<T>& segB)
+{
+	auto vA = segA.DirectionVector();
+	auto vB = segB.DirectionVector();
+
+	auto a1 = segA.A.x - segA.B.x;
+	auto a2 = segA.A.y - segA.B.y;
+	auto a3 = segA.A.z - segA.B.z;
+	auto b1 = segB.A.x - segB.B.x;
+	auto b2 = segB.A.y - segB.B.y;
+	auto b3 = segB.A.z - segB.B.z;
+	auto c1 = segA.B.x - segB.B.x;
+	auto c2 = segA.B.y - segB.B.y;
+	auto c3 = segA.B.z - segB.B.z;
+
+	auto A1 = a1 * vA.x + a2 * vA.y + a3 * vA.z;
+	auto B1 = b1 * vA.x + b2 * vA.y + b3 * vA.z;
+	auto C1 = c1 * vA.x + c2 * vA.y + c3 * vA.z;
+	auto A2 = a1 * vB.x + a2 * vB.y + a3 * vB.z;
+	auto B2 = b1 * vB.x + b2 * vB.y + b3 * vB.z;
+	auto C2 = c1 * vB.x + c2 * vB.y + c3 * vB.z;
+
+	auto b = (C2 * A1 - C1 * A2) / (B2 * A1 - B1 * A2);
+	auto a = (b * B1 - C1) / A1;
+	CVector3<T> ptA(a * a1 + segA.B.x, a * a2+segA.B.y, a * a3+segA.B.z);
+	CVector3<T> ptB(b * b1 + segB.B.x, b * b2+segB.B.y, b * b3+segB.B.z);
+	return CLine3<T>(ptA, ptB);
+}
+
+template<class T>
+CVector3<T> CrossPoint(const CLine3<T>& segA, const CLine3<T>& segB)
+{
+	auto seg = CommonPerpendicular(segA, segB);
+	return MidPoint(seg.A, seg.B);
 }
 
 template<class T>

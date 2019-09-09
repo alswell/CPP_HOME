@@ -7,7 +7,12 @@ class CLine3
 {
 public:
 	CVector3<T> m_pts[2];
-	CLine3(const CVector3<T>& pt1, const CVector3<T>& pt2) {
+	CVector3<T>& A;
+	CVector3<T>& B;
+	CLine3(const CVector3<T>& pt1, const CVector3<T>& pt2)
+		: A(m_pts[0])
+		, B(m_pts[1])
+	{
 		m_pts[0] = pt1;
 		m_pts[1] = pt2;
 	}
