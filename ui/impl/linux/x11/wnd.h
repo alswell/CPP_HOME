@@ -39,7 +39,7 @@ public:
 public:
 	CX11Context(CLiteBKG* pBKG);
 	void CenterWindow();
-//	void SendRefreshEvent();
+	void SendRefreshEvent();
 	void Flush();
 
 	virtual ILiteDC* GetDC();

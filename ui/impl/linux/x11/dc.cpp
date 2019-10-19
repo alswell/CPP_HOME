@@ -62,13 +62,15 @@ void CX11DC::SelectPen(unsigned long color)
 	XSetForeground(X11_DSP, m_gc, color);
 }
 
-void CX11DC::Rectangle(int x, int y, int W, int H)
+void CX11DC::Rectangle(int x, int y, unsigned W, unsigned H)
 {
 	XDrawRectangle(X11_DSP, m_hPixmap, m_gc, x, y, W, H);
 }
 
 void CX11DC::TextOut(const char *str, int x, int y, int W, int H)
 {
+	if (str == nullptr)
+		return;
 	XFontStruct* font = X11_GUI(m_fontDefault);
 	int string_height = font->ascent + font->descent;
 	int n = int(strlen(str));

@@ -23,7 +23,7 @@ public:
 	void Init(Window wnd);
 	void CreateCompatible(const CX11DC& dc, unsigned w = 0, unsigned h = 0);
 	void SelectPen(unsigned long color);
-	void Rectangle(int x, int y, int W, int H);
+	void Rectangle(int x, int y, unsigned W, unsigned H);
 	void TextOut(const char* str, int x, int y, int W, int H);
 
 	virtual void Point(int x, int y, COLORREF clr);

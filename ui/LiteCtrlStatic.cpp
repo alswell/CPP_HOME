@@ -34,8 +34,11 @@ CTextBlock::CTextBlock(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* st
 	, m_clrText(clrText)
 {
 	m_nFormat = nFormat;
-	m_strText = NULL;
-	COPY_STRING(m_strText, strText);
+	m_strText = nullptr;
+	if (strText)
+	{
+		COPY_STRING(m_strText, strText);
+	}
 }
 
 CTextBlock::~CTextBlock()

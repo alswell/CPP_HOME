@@ -121,6 +121,9 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		if (XPending(m_dsp) > 3)
 			return;
 		break;
+	case ConfigureNotify:
+		// drag move window
+		return;
 	default:
 		cout << evt.type << endl;
 		return;
@@ -186,15 +189,16 @@ void CX11Context::CenterWindow()
 				(X11_GUI(m_nScreenHeight) - m_rcInvalidate.Height()) / 2);
 }
 
-//XEvent event;
-//void CWnd::SendRefreshEvent()
-//{
-//	event.type = Expose;
-//	event.xany.window = m_hWnd;
-//	cout << XSendEvent(g_dsp, m_hWnd, 1, ExposureMask, &event) << endl;
-////	cout << XPending(g_dsp) << endl;
-//	cout << XSync(g_dsp, false) << endl;
-//}
+
+void CX11Context::SendRefreshEvent()
+{
+	static XEvent event;
+	event.type = Expose;
+	event.xany.window = m_hWnd;
+	cout << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
+//	cout << XPending(g_dsp) << endl;
+	cout << XSync(X11_DSP, false) << endl;
+}
 
 void CX11Context::Flush()
 {
@@ -212,6 +216,7 @@ void CX11Context::Refresh(RECT &rc)
 {
 	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
 	//cout << "Refresh" << endl;
+	SendRefreshEvent();
 }
 
 void CX11Context::OnClose()

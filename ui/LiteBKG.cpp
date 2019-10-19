@@ -1,6 +1,5 @@
 #include "LiteBKG.h"
 
-map<void*, vector<void*>> m_mapRadio;
 
 ILiteGlobal* gui;
 ILiteGlobal::~ILiteGlobal()
@@ -65,11 +64,14 @@ void CLiteBKG::OnMouseMove(POINT pt)
 	if (m_pDownCtrl)
 		m_pDownCtrl->ActivateMove(pt);
 	CMouseCapturer* pHandler = WantCapture(pt);
-	if (m_pHoverCtrl && m_pHoverCtrl != pHandler)
-		m_pHoverCtrl->ReleaseMouse(m_pDownCtrl);
-	m_pHoverCtrl = pHandler;
-	if (!m_pDownCtrl && m_pHoverCtrl)
-		m_pHoverCtrl->CaptureMouse();
+	if (m_pHoverCtrl != pHandler)
+	{
+		if (m_pHoverCtrl)
+			m_pHoverCtrl->ReleaseMouse(m_pDownCtrl && m_pDownCtrl == m_pHoverCtrl/*pHandler*/);
+		m_pHoverCtrl = pHandler;
+		if ((!m_pDownCtrl || m_pDownCtrl == m_pHoverCtrl) && m_pHoverCtrl)
+			m_pHoverCtrl->CaptureMouse(m_pDownCtrl && m_pDownCtrl == m_pHoverCtrl);
+	}
 
 	bool bShowTip = false;
 	if (m_pHoverCtrl)
@@ -107,7 +109,7 @@ void CLiteBKG::OnLBtnUp()
 		{
 			m_pDownCtrl->Inactivate(false);
 			if (m_pHoverCtrl)
-				m_pHoverCtrl->CaptureMouse();
+				m_pHoverCtrl->CaptureMouse(false);
 		}
 		m_pDownCtrl = nullptr;
 	}

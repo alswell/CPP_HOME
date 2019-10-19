@@ -3,21 +3,17 @@
 
 ILiteDC::~ILiteDC(){}
 
-CLiteCtrlBase::CLiteCtrlBase(RECT rcRelLoc, ILiteDC & dcImpl)
-	: m_bAlpha(FALSE)
-	, m_pOldRect(NULL)
-	, m_bIsVisible(TRUE)
-	, m_ptScroll(0, 0)
+CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & dcImpl)
+	: m_dcImpl(dcImpl)
 	, m_rcRelLoc(rcRelLoc)
-	, m_pParentCtrl(NULL)
+	, m_ptScroll(0, 0)
+	, m_pParentCtrl(nullptr)
+	, m_bIsVisible(TRUE)
 	, m_nZOrder(0)
-	, m_dcImpl(dcImpl)
 {
-	m_szBmp.cx = m_rcRelLoc.Width();
-	m_szBmp.cy = m_rcRelLoc.Height();
 }
 
-CLiteCtrlBase::CLiteCtrlBase(RECT rcRelLoc, CLiteCtrlBase* pParentCtrl)
+CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl)
 	: CLiteCtrlBase(rcRelLoc, pParentCtrl->m_dcImpl)
 {
 	m_pParentCtrl = pParentCtrl;
@@ -48,10 +44,10 @@ void CLiteCtrlBase::DrawChildren(POINT ptOffset /*= CPoint(0, 0)*/, RECT rcRgn /
 			}
 }
 
-CMouseCapturer* CLiteCtrlBase::WantCapture(POINT pt)
+CMouseCapturer* CLiteCtrlBase::WantCapture(POINT ptParent)
 {
-	m_bIsMouseIn = CG::PtInRect(m_rcRelLoc, pt);
-	m_ptMousePos = ParentToChild(pt);
+	m_bIsMouseIn = CG::PtInRect(m_rcRelLoc, ptParent);
+	m_ptMousePos = ParentToChild(ptParent);
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
 			if ((**it).m_bIsVisible)
@@ -102,6 +98,16 @@ CLiteCtrlBase* CLiteCtrlBase::AddCtrl(CLiteCtrlBase * pCtrl, int nZOrder/* = 0*/
 {
 	m_vCtrls[nZOrder].push_back(pCtrl);
 	return pCtrl;
+}
+
+POINT CLiteCtrlBase::GetMousePos()
+{
+	return m_ptMousePos;
+}
+
+RECT CLiteCtrlBase::GetRelLoc()
+{
+	return m_rcRelLoc;
 }
 
 RECT CLiteCtrlBase::GetDrawRect()

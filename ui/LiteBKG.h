@@ -14,10 +14,9 @@ public:
 
 class CLiteBKG : public CLiteCtrlBase
 {
-	CONF_THIS_CLS(CLiteBKG);
 protected:
 	CColorBlock* m_pBKG;
-	CLiteBtn<CLiteCtrlBase>* m_pTip;
+	CLiteMagicBox* m_pTip;
 
 	CMouseCapturer* m_pHoverCtrl;
 	CMouseCapturer* m_pDownCtrl;

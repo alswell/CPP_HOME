@@ -1,10 +1,10 @@
 #pragma once
 #include "func.h"
 
-struct CSize
-{
-	int cx, cy;
-};
+//struct CSize
+//{
+//	int cx, cy;
+//};
 typedef unsigned long COLORREF;
 typedef int BOOL;
 typedef unsigned UINT;
@@ -19,9 +19,9 @@ typedef unsigned UINT;
 #include <map>
 using namespace std;
 
-#ifndef CONF_THIS_CLS
-#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
-#endif
+//#ifndef CONF_THIS_CLS
+//#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
+//#endif
 
 #define RectW(l, t, w, h)		(RECT(l, t, (l + w), (t + h)))
 
@@ -81,15 +81,15 @@ class CMouseCapturer;
 class CLiteCtrlBase
 {
 public:
-	CLiteCtrlBase(RECT rcRelLoc, ILiteDC& dcImpl);
-	CLiteCtrlBase(RECT rcRelLoc, CLiteCtrlBase* pParentCtrl);
+	CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC& dcImpl);
+	CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl);
 	virtual ~CLiteCtrlBase();
 
 protected:
 	ILiteDC& m_dcImpl;
 	virtual void Draw(POINT ptOffset, RECT rcParentRgn);
 	void DrawChildren(POINT ptOffset = POINT(0, 0), RECT rcRgn = RECT());
-	virtual CMouseCapturer* WantCapture(POINT pt);
+	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	//virtual CLiteCtrlBase* LBtnDown(CPoint pt);
 	//virtual CLiteCtrlBase* LBtnUp(CPoint pt);
 
@@ -97,11 +97,10 @@ protected:
 	BOOL m_bIsMouseIn;
 	POINT m_ptMousePos;
 	RECT m_rcRelLoc;
-	CSize m_szBmp;
 	POINT m_ptScroll;
 	map<int, vector<CLiteCtrlBase*>> m_vCtrls;
 private:
-	RECT* m_pOldRect;
+//	RECT* m_pOldRect;
 protected:
 	UINT m_nTimerID;
 public:
@@ -110,13 +109,15 @@ public:
 protected:
 	virtual void InvalidateCtrl2(RECT& rc);
 public:
-	BOOL m_bAlpha;
+//	BOOL m_bAlpha;
 	BOOL m_bIsVisible;
 	void ShowCtrl(BOOL bShow);
 	int m_nZOrder;
 
 	POINT ParentToChild(POINT pt);
 	CLiteCtrlBase* AddCtrl(CLiteCtrlBase* pCtrl, int nZOrder = 0);
+	POINT GetMousePos();
+	RECT GetRelLoc();
 	RECT GetDrawRect();
 	void MoveToX(int x);
 	void MoveToY(int y);

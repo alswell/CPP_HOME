@@ -5,7 +5,6 @@ using namespace std;
 
 class CLocalImgWnd : public CLiteBKG
 {
-	CONF_THIS_CLS(CLocalImgWnd);
 public:
 	CLocalImgWnd(int x, int y, int W, int H);
 	~CLocalImgWnd();
@@ -35,6 +34,10 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	ADD_RADIO_BOX(120, nTop, 100, 25, "radio2.0", StdBtn, OnRadio2);
 	ADD_RADIO_BOX(220, nTop, 100, 25, "radio2.1", StdBtn, OnRadio2);
 	ADD_RADIO_BOX(320, nTop, 100, 25, "radio2.2", StdBtn, OnRadio2);
+
+	nTop += 30;
+	ADD_TXT(10, nTop, 100, 25, "Test Scroll:", STD_TXT_FMT, RGBH(FFFFFF));
+	ADD_SCROLL_HORIZON(120, nTop, 300, 25, 50, StdBtn);
 }
 
 CLocalImgWnd::~CLocalImgWnd()
