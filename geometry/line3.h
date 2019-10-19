@@ -18,7 +18,8 @@ public:
 	}
 
 	int m_bIsZValid;
-	T Z(T x, T y) {
+	T Z(T x, T y)
+	{
 		if (m_pts[1].x == m_pts[0].x)
 			return (m_pts[1].z - m_pts[0].z) / (m_pts[1].y - m_pts[0].y) * (y - m_pts[0].y) + m_pts[0].z;
 		else
