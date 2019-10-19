@@ -19,9 +19,9 @@
 
 using namespace std;
 
-#ifndef CONF_THIS_CLS
-#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
-#endif
+//#ifndef CONF_THIS_CLS
+//#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
+//#endif
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define PTXY(pt) pt.x, pt.y
@@ -169,5 +169,12 @@ cls* cls::Instance()\
 #define PI_8     0.3926990816987241
 #define PI_D     6.28318530717958647692
 #define SQRT_2   1.414213562373095048802
+#define PIf       3.14159265358979323846f
+#define PI_2f     1.57079632679489661923f
+#define PI_3f     1.047197551196597746153f
+#define PI_4f     0.785398163397448309616f
+#define PI_8f     0.3926990816987241f
+#define PI_Df     6.28318530717958647692f
+#define SQRT_2f   1.414213562373095048802f
 #define CUBIC(x) ((x) * (x) * (x))
 #define SQUARE(x) ((x) * (x))
