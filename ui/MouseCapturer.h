@@ -14,7 +14,7 @@ public:
 	virtual void Activate(POINT ptParent) {}
 	virtual void ActivateMove(POINT ptParent) {}
 	virtual void Inactivate(bool bCapture) {}
-	virtual void MouseWhell(int zDelta) {}
+	virtual void MouseWheel(int zDelta) {}
 	virtual char* GetTipString() { return nullptr; }
 	virtual void RBtnDown(POINT pt) {}
 };

@@ -115,11 +115,11 @@ void CLiteBKG::OnLBtnUp()
 	}
 }
 
-void CLiteBKG::OnMouseWhell(int zDelta)
+void CLiteBKG::OnMouseWheel(int zDelta)
 {
 	if (m_pHoverCtrl && !m_pDownCtrl)
 	{
-		m_pHoverCtrl->MouseWhell(zDelta);
+		m_pHoverCtrl->MouseWheel(zDelta);
 	}
 }
 

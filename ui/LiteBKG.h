@@ -41,7 +41,7 @@ public:
 	void OnMouseMove(POINT pt);
 	void OnLBtnDown(POINT pt);
 	void OnLBtnUp();
-	void OnMouseWhell(int zDelta);
+	void OnMouseWheel(int zDelta);
 	void OnRBtnDown(POINT pt);
 };
 

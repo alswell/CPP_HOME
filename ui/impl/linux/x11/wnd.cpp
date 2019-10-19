@@ -65,16 +65,16 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 	switch (evt.type)
 	{
 	case ClientMessage:
-		cout << "ClientMessage" << count++ << endl;
+		cout << "ClientMessage: " << count++ << endl;
 		break;
 	case MapNotify:
 		//g_mapWnd[w]->InvalidateCtrl();
 		break;
 	case Expose:
-		cout << "Expose" << count++ << endl;
+		cout << "Expose: " << count++ << endl;
 		break;
 	case GraphicsExpose:
-		cout << "GraphicsExpose" << count++ << endl;
+		cout << "GraphicsExpose: " << count++ << endl;
 		break;
 	case NoExpose:
 		//cout << "NoExpose" << count++ << endl;
@@ -94,10 +94,10 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 			pBKG->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 4:
-			pBKG->OnMouseWhell(120);
+			pBKG->OnMouseWheel(120);
 			break;
 		case 5:
-			pBKG->OnMouseWhell(-120);
+			pBKG->OnMouseWheel(-120);
 			break;
 		}
 		break;
@@ -121,11 +121,14 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		if (XPending(m_dsp) > 3)
 			return;
 		break;
+	case ReparentNotify:
+		// @beginning
+		return;
 	case ConfigureNotify:
 		// drag move window
 		return;
 	default:
-		cout << evt.type << endl;
+		cout << "evt.type: " << evt.type << endl;
 		return;
 		//break;
 	}
@@ -195,9 +198,9 @@ void CX11Context::SendRefreshEvent()
 	static XEvent event;
 	event.type = Expose;
 	event.xany.window = m_hWnd;
-	cout << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
+	cout << "XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event): " << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
 //	cout << XPending(g_dsp) << endl;
-	cout << XSync(X11_DSP, false) << endl;
+	cout << "XSync(X11_DSP, false): " << XSync(X11_DSP, false) << endl;
 }
 
 void CX11Context::Flush()
@@ -216,7 +219,7 @@ void CX11Context::Refresh(RECT &rc)
 {
 	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
 	//cout << "Refresh" << endl;
-	SendRefreshEvent();
+	//SendRefreshEvent();
 }
 
 void CX11Context::OnClose()
