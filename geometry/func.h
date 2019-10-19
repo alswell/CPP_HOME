@@ -53,6 +53,56 @@ T Distance(const CVector2<T>& pt0, const CVector2<T>& ptA, const CVector2<T>& pt
 	T len = Distance(ptA, pt0);
 	return (len * sin(delta));
 }
+template<class T>
+T Distance(const CVector2<T>& pt0, CLine2<T>& line)
+{
+	return Distance(pt0, line.m_pts[0], line.m_pts[1]);
+}
+// vector 0A's projection on AB
+template<class T>
+T Projection(const CVector2<T>& pt0, const CVector2<T>& ptA, const CVector2<T>& ptB)
+{
+	CDirection<T> dir0(ptA, ptB);
+	if (!dir0.IsValid())
+		return Distance(pt0, ptA);
+
+	CDirection<T> dir(ptA, pt0);
+	if (!dir.IsValid())
+		return 0;
+
+	T delta = dir - dir0;
+	T len = Distance(ptA, pt0);
+	return (len * cos(delta));
+}
+
+template<class T>
+T Distance(const CVector2<T>& pt, const CRay2<T>& ray)
+{
+	if (!ray.m_dir.IsValid())
+		return Distance(ray.m_pt0, pt);
+
+	CDirection<T> dir(ray.m_pt0, pt);
+	if (!dir.IsValid())
+		return 0;
+
+	T delta = dir - ray.m_dir;
+	T len = Distance(ray.m_pt0, pt);
+	return (len * sin(delta));
+}
+template<class T>
+T Projection(const CVector2<T>& pt, const CRay2<T>& ray)
+{
+	if (!ray.m_dir.IsValid())
+		return Distance(ray.m_pt0, pt);
+
+	CDirection<T> dir(ray.m_pt0, pt);
+	if (!dir.IsValid())
+		return 0;
+
+	T delta = dir - ray.m_dir;
+	T len = Distance(ray.m_pt0, pt);
+	return (len * cos(delta));
+}
 
 template <class T>
 CVector3<T> MidPoint(const CVector3<T>& pt1, const CVector3<T>& pt2)
