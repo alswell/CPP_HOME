@@ -70,6 +70,11 @@ public:
 		}
 	}
 
+	CVector2<T> Vector(T len = 1)
+	{
+		return CVector2<T>(cos(m_Direction) * len, sin(m_Direction) * len);
+	}
+
 	inline bool IsValid() const { return m_bValid; }
 
 	operator T() const { return m_Direction; }
