@@ -37,14 +37,14 @@ int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& 
 	return 0;
 }
 
-int jpeg2rgb(const char* file_name, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+int jpeg2rgb(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
 	jpeg_decompress_struct cinfo;
 	jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-	FILE* f = fopen(file_name, "rb");
+	FILE* f = fopen(filename, "rb");
 	jpeg_stdio_src(&cinfo, f);
 	decompress(cinfo, img, w, h, scale_denom);
 	fclose(f);
@@ -54,10 +54,10 @@ int jpeg2rgb(const char* file_name, unsigned char*& img, unsigned& w, unsigned& 
 	return 0;
 }
 
-void rgb2jpeg(const char* file_name, unsigned char* img, unsigned w, unsigned h)
+void rgb2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h)
 {
-	FILE * f = fopen(file_name, "wb");
-	if (f == NULL)
+	FILE * f = fopen(filename, "wb");
+	if (f == nullptr)
 		return;
 
 	jpeg_compress_struct cinfo;
