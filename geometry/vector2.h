@@ -22,38 +22,6 @@ public:
 #ifdef WIN32
 	CVector2(const CPoint& pt) : x(pt.x), y(pt.y) {}
 #endif
-	void FromString(const char* str)
-	{
-		char* a = (char*)str, *b = NULL, *c = NULL;
-		for (char* p = (char*)str; *p; ++p)
-		{
-			switch (*p)
-			{
-			case '(':
-				a = p + 1;
-				break;
-			case ',':
-				*p = 0;
-				b = p;
-				break;
-			case ')':
-				*p = 0;
-				c = p;
-				break;
-			}
-		}
-		x = atof(a);
-		if (b)
-		{
-			y = atof(b + 1);
-			*b = ',';
-		}
-		else
-		{
-			y = 0;
-		}
-		if (c) *c = ')';
-	}
 
 	template <class DES_T>
 	operator CVector2<DES_T>() const

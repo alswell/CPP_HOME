@@ -61,11 +61,17 @@ public:
 		m_pt0 = pt1;
 		m_dir.SetValue(pt1, pt2);
 	}
-	CVector2<T> Endpoint(T accuracy)
+	CRay2(const CVector2<T>& pt1, const CVector2<T>& pt2, T rotation)
+	{
+		m_pt0 = pt1;
+		m_dir.SetValue(pt1, pt2);
+		m_dir += rotation;
+	}
+	CVector2<T> Endpoint(T accuracy) const
 	{
 		return m_pt0 + m_dir.Vector(accuracy);
 	}
-	CLine2<T> Line(T len)
+	CLine2<T> Line(T len) const
 	{
 		return CLine2<T>(m_pt0, m_pt0 + m_dir.Vector(len));
 	}

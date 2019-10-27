@@ -115,6 +115,10 @@ public:
 		{
 			return m_nCount < m_nListSize;
 		}
+		void rewind()
+		{
+			m_nCount = 0;
+		}
 	};
 //	class const_iterator_ex : public iterator_ex
 //	{
