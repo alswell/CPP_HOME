@@ -39,7 +39,7 @@ using namespace std;
 	for (cls i = a; i < b; ++i)
 
 #define FOR_EACH(it, obj) \
-	for (auto it = obj.begin(); it != obj.end(); ++it)
+	for (auto it = (obj).begin(); it != (obj).end(); ++it)
 
 #define FOR_LIST(cls, obj, it) \
 	for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
