@@ -84,11 +84,11 @@ public:
 			return _old_it;
 		}
 
-		iterator operator+ ()
+		iterator operator+ () const
 		{
 			return iterator(m_pListNode->m_pNext);
 		}
-		iterator operator- ()
+		iterator operator- () const
 		{
 			return iterator(m_pListNode->m_pPrior);
 		}
