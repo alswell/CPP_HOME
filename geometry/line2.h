@@ -33,6 +33,10 @@ public:
 		m_pts[1].x = m_pts[0].x + ACCURACY;
 		m_pts[1].y = m_pts[0].y + ACCURACY * k;
 	}
+	bool IsValid()
+	{
+		return m_pts[0] != m_pts[1];
+	}
 
 	T k()
 	{
@@ -41,6 +45,10 @@ public:
 	T b()
 	{
 		return m_pts[0].y - k() * m_pts[0].x;
+	}
+	CDirection<T> Direction()
+	{
+		return CDirection<T>(m_pts[0], m_pts[1]);
 	}
 	bool IsVertical()
 	{
