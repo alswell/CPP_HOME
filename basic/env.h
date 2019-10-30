@@ -41,8 +41,8 @@ using namespace std;
 #define FOR_EACH(it, obj) \
 	for (auto it = (obj).begin(); it != (obj).end(); ++it)
 
-#define FOR_LIST(cls, obj, it) \
-	for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
+//#define FOR_LIST(cls, obj, it) \
+//	for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
 
 #define FOR_MAP(cls1, cls2, obj, it) \
 	for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)

@@ -30,7 +30,7 @@ HttpResponse::HttpResponse(CSock _sock)
 			lsStatus.pop_front();
 			m_strStatus = lsStatus.front();
 			ls.pop_front();
-			FOR_LIST(CString, ls, it)
+			FOR_EACH(it, ls)
 			{
 				list<CString> kv = it->Split(':', 1);
 				m_dHead[kv.front()] = kv.back().Trim();
@@ -93,7 +93,7 @@ HttpRequest::HttpRequest(const CString &str)
 	lsStatus.pop_front();
 	m_fVersion = atof(lsStatus.front().Mid(5));
 	ls.pop_front();
-	FOR_LIST(CString, ls, it)
+	FOR_EACH(it, ls)
 	{
 		list<CString> kv = it->Split(':', 1);
 		m_dHead[kv.front()] = kv.back().Trim();

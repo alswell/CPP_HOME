@@ -16,34 +16,34 @@ public:
 
 	void Move(const CVector3<T>& delta)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			(**it) += delta;
 	}
 
 	void Rotation3DX(const CVector3<T>& pt0, T delta)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			**it = (**it).Rotation3DX(pt0, delta);
 	}
 	void Rotation3DY(const CVector3<T>& pt0, T delta)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			**it = (**it).Rotation3DY(pt0, delta);
 	}
 	void Rotation3DZ(const CVector3<T>& pt0, T delta)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			**it = (**it).Rotation3DZ(pt0, delta);
 	}
 
 	void ZoomIn(float n)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			(**it) *= n;
 	}
 	void ZoomOut(float n)
 	{
-		FOR_LIST(CVector3<T>*, m_lsPts, it)
+		FOR_EACH(it, m_lsPts)
 			(**it) /= n;
 	}
 };

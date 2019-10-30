@@ -8,7 +8,7 @@ CConf::CConf(const char* filename)
 {
 	CFile file(filename);
 	list<CString> ls = file.ReadLines();
-	FOR_LIST(CString, ls, it)
+	FOR_EACH(it, ls)
 	{
 		(*it).Trim();
 		if ((*it).GetLength() == 0)
@@ -90,7 +90,7 @@ void CConf::Save()
 	file1.Close();
 	CString strSection;
 	DICT(DICT(CString)) dict = m_kv;
-	FOR_LIST(CString, ls, it)
+	FOR_EACH(it, ls)
 	{
 		(*it).Trim();
 		if ((*it).GetLength() == 0)
@@ -133,7 +133,7 @@ void CConf::Save()
 //		}
 //		file.WriteLine("");
 //	}
-	FOR_LIST(CString, ls, it)
+	FOR_EACH(it, ls)
 	{
 		file.WriteLine((*it));
 	}
