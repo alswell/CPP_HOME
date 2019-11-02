@@ -120,6 +120,45 @@ public:
 			m_nCount = 0;
 		}
 	};
+	struct iterator3
+	{
+		iterator itA;
+		iterator it0;
+		iterator itB;
+		iterator3(iterator it)
+		{
+			reset(it);
+		}
+		void reset(iterator it)
+		{
+			it0 = it;
+			itA = it; --itA;
+			itB = it; ++itB;
+		}
+		iterator3& operator++ ()
+		{
+			++itA; ++it0; ++itB;
+			return *this;
+		}
+		iterator3 operator++ (int)
+		{
+			auto old = *this;
+			++itA; ++it0; ++itB;
+			return old;
+		}
+		iterator3& operator-- ()
+		{
+			--itA; --it0; --itB;
+			return *this;
+		}
+		iterator3 operator-- (int)
+		{
+			auto old = *this;
+			--itA; --it0; --itB;
+			return old;
+		}
+	};
+
 //	class const_iterator_ex : public iterator_ex
 //	{
 //	public:
