@@ -13,6 +13,7 @@ public:
 	T Width() const { return right - left; }
 	T Height() const { return bottom - top; }
 	bool IsRectEmpty() { return (right - left <= 0) || (bottom - top <= 0 ); }
+	bool IsPtInside(CVector2<T> pt) { return pt.x >= left && pt.x <= right && pt.y >= top && pt.y <= bottom; }
 	void OffsetRect(T x, T y) { left += x; right += x; top += y; bottom += y; }
 	void MoveToXY(T x, T y) { right += x - left; left = x; bottom += y - top; top = y; }
 	void MoveToX(T x) { right += x - left; left = x; }
