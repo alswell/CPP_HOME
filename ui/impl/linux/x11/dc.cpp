@@ -128,7 +128,33 @@ void CX11DC::Line(int x1, int y1, int x2, int y2, COLORREF clr)
 	XDrawLine(X11_DSP, m_hPixmap, m_gc, x1, y1, x2, y2);
 }
 
-void CX11DC::Rectangle(RECT rcRgn, RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG)
+#define RGN_PT(x, y, x1, y1, x2, y2) \
+	if (x < rcRgn.left) {\
+		y = (rcRgn.left - x1) * (y2 - y1) / (x2 - x1) + y1;\
+		x = rcRgn.left;\
+	} else if (x > rcRgn.right) {\
+		y = (rcRgn.right - x1) * (y2 - y1) / (x2 - x1) + y1;\
+		x = rcRgn.right;\
+	}\
+	if (y < rcRgn.top) {\
+		x = (rcRgn.top - y1) * (x2 - x1) / (y2 - y1) + x1;\
+		y = rcRgn.top;\
+	} else if (y > rcRgn.bottom) {\
+		x = (rcRgn.bottom - y1) * (x2 - x1) / (y2 - y1) + x1;\
+		y = rcRgn.bottom;\
+	}
+void CX11DC::Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr)
+{
+	int _x1 = x1, _x2 = x2, _y1 = y1, _y2 = y2;
+	RGN_PT(_x1, _y1, x1, y1, x2, y2);
+	RGN_PT(_x2, _y2, x1, y1, x2, y2);
+	if (_x1 == _x2 && _y1 == _y2)
+		return;
+	XSetForeground(X11_DSP, m_gc, clr);
+	XDrawLine(X11_DSP, m_hPixmap, m_gc, _x1, _y1, _x2, _y2);
+}
+
+void CX11DC::Rectangle(const RECT rcRgn, const RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG)
 {
 	XSetForeground(X11_DSP, m_gc, clrBKG);
 	XFillRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, rcDraw.Width(), rcDraw.Height());
@@ -136,13 +162,13 @@ void CX11DC::Rectangle(RECT rcRgn, RECT rcDraw, COLORREF clrBorder, COLORREF clr
 	XDrawRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, rcDraw.Width() - 1, rcDraw.Height() - 1);
 }
 
-void CX11DC::TextStd(RECT rcRgn, RECT rcDraw, char *str, COLORREF clr)
+void CX11DC::TextStd(const RECT rcRgn, const RECT rcDraw, const char *str, COLORREF clr)
 {
 	XSetForeground(X11_DSP, m_gc, clr);
 	TextOut(str, rcDraw.left, rcDraw.top, rcDraw.Width(), rcDraw.Height());
 }
 
-void CX11DC::Text(RECT rcRgn, RECT rcDraw, char *str, COLORREF clr, unsigned nFormat)
+void CX11DC::Text(const RECT rcRgn, const RECT rcDraw, const char *str, COLORREF clr, unsigned nFormat)
 {
 	XSetForeground(X11_DSP, m_gc, clr);
 	TextOut(str, rcDraw.left, rcDraw.top, rcDraw.Width(), rcDraw.Height());

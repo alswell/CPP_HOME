@@ -62,9 +62,10 @@ public:
 	virtual ~ILiteDC();
 	virtual void Point(int x, int y, COLORREF clr) = 0;
 	virtual void Line(int x1, int y1, int x2, int y2, COLORREF clr) = 0;
-	virtual void Rectangle(RECT rcRgn, RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG) = 0;
-	virtual void TextStd(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr) = 0;
-	virtual void Text(RECT rcRgn, RECT rcDraw, char * str, COLORREF clr, unsigned nFormat) = 0;
+	virtual void Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr) = 0;
+	virtual void Rectangle(const RECT rcRgn, const RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG) = 0;
+	virtual void TextStd(const RECT rcRgn, const RECT rcDraw, const char * str, COLORREF clr) = 0;
+	virtual void Text(const RECT rcRgn, const RECT rcDraw, const char * str, COLORREF clr, unsigned nFormat) = 0;
 	virtual void BitBlt(const ILiteDC& dc_src, int src_x, int src_y, unsigned w, unsigned h, int des_x, int des_y) = 0;
 	virtual char* BeginData(int x, int y, unsigned w, unsigned h) = 0;
 	virtual void EndData() = 0;
