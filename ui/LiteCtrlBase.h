@@ -25,13 +25,6 @@ using namespace std;
 
 #define RectW(l, t, w, h)		(RECT(l, t, (l + w), (t + h)))
 
-#define DRAW_INIT(rcDraw, rcRelLoc, ptOffset, rcRgn, rcParentRgn) \
-	RECT rcDraw = rcRelLoc;\
-	RECT rcRgn;\
-	rcDraw.OffsetRect(ptOffset);\
-	rcRgn.IntersectRect(rcDraw, rcParentRgn);\
-	if (rcRgn.IsRectEmpty())\
-		return;
 
 enum ETextFormat
 {
@@ -87,8 +80,9 @@ public:
 
 protected:
 	ILiteDC& m_dcImpl;
-	virtual void Draw(POINT ptOffset, RECT rcParentRgn);
-	void DrawChildren(POINT ptOffset = POINT(0, 0), RECT rcRgn = RECT());
+	virtual void Draw(RECT rcLoc, RECT rcViewRgn);
+	void PreDraw(POINT ptParentPos, RECT rcParentViewRgn);
+	void DrawChildren(POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	//virtual CLiteCtrlBase* LBtnDown(CPoint pt);
 	//virtual CLiteCtrlBase* LBtnUp(CPoint pt);

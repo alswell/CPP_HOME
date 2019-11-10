@@ -23,24 +23,30 @@ CLiteCtrlBase::~CLiteCtrlBase()
 {
 }
 
-void CLiteCtrlBase::Draw(POINT ptOffset, RECT rcParentRgn)
+void CLiteCtrlBase::Draw(RECT rcLoc, RECT rcViewRgn)
 {
-	RECT rcDraw = m_rcRelLoc;
-	rcDraw.OffsetRect(ptOffset);
-	RECT rcRgn;
-	rcRgn.IntersectRect(rcDraw, rcParentRgn);
-	rcDraw.OffsetRect(-m_ptScroll);
-	DrawChildren(POINT(rcDraw.left, rcDraw.top), rcRgn);
 }
 
-void CLiteCtrlBase::DrawChildren(POINT ptOffset /*= CPoint(0, 0)*/, RECT rcRgn /*= RECT()*/)
+void CLiteCtrlBase::PreDraw(POINT ptParentPos, RECT rcParentViewRgn)
+{
+	RECT rcLoc = m_rcRelLoc;
+	rcLoc.OffsetRect(ptParentPos);
+	RECT rcViewRgn;
+	rcViewRgn.IntersectRect(rcLoc, rcParentViewRgn);
+	if (rcViewRgn.IsRectEmpty())
+		return;
+	Draw(rcLoc, rcViewRgn);
+	DrawChildren(POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
+}
+
+void CLiteCtrlBase::DrawChildren(POINT ptParentPos /*= CPoint(0, 0)*/, RECT rcParentViewRgn /*= RECT()*/)
 {
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
 			if ((**it).m_bIsVisible) 
 			{
 				//OutputDebugString("Draw\n");
-				(**it).Draw(ptOffset, rcRgn);
+				(**it).PreDraw(ptParentPos, rcParentViewRgn);
 			}
 }
 
