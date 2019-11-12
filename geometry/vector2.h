@@ -212,3 +212,4 @@ const char* ToStr(CVector2<T> v)
 }
 
 typedef CVector2<int> POINT;
+typedef CVector2<float> PointF;

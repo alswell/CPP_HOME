@@ -52,3 +52,25 @@ const char* ToStr(CRect<T> rc)
 }
 
 typedef CRect<int> RECT;
+
+template <class T>
+class CRectLimit : public CRect<T>
+{
+public:
+	CRectLimit(T r, T c) : CRect<T>(c, r, c, r) {}
+	void Visit(T r, T c)
+	{
+		if (CRect<T>::left > c)
+			CRect<T>::left = c;
+		else if (CRect<T>::right < c)
+			CRect<T>::right = c;
+		if (CRect<T>::top > r)
+			CRect<T>::top = r;
+		else if (CRect<T>::bottom < r)
+			CRect<T>::bottom = r;
+	}
+	CVector2<T> Base()
+	{
+		return CVector2<T>(CRect<T>::top, CRect<T>::left);
+	}
+};
