@@ -12,7 +12,7 @@ public:
 	CColorBlock(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, COLORREF clrBkgnd, COLORREF clrBorder = CLR_NONE);
 	virtual ~CColorBlock();
 
-	virtual void Draw(RECT rcLoc, RECT rcViewRgn);
+	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
 
 	void SetColor(COLORREF clrBkgnd, COLORREF clrBorder);
 };
@@ -28,7 +28,7 @@ public:
 	CTextBlock(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* strText, unsigned nFormat = STD_TXT_FMT, COLORREF clrText = CLR_DEFAULT);
 	virtual ~CTextBlock();
 
-	virtual void Draw(RECT rcLoc, RECT rcViewRgn);
+	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
 
 	void SetColor(COLORREF clrText);
 	void SetFont(unsigned nFont);

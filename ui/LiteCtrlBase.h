@@ -81,7 +81,7 @@ public:
 
 protected:
 	ILiteDC& m_dcImpl;
-	virtual void Draw(RECT rcLoc, RECT rcViewRgn);
+	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
 	void PreDraw(POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT ptParent);

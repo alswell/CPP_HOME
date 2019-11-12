@@ -23,7 +23,7 @@ CLiteCtrlBase::~CLiteCtrlBase()
 {
 }
 
-void CLiteCtrlBase::Draw(RECT rcLoc, RECT rcViewRgn)
+void CLiteCtrlBase::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
 {
 }
 
