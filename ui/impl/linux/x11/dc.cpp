@@ -128,26 +128,32 @@ void CX11DC::Line(int x1, int y1, int x2, int y2, COLORREF clr)
 	XDrawLine(X11_DSP, m_hPixmap, m_gc, x1, y1, x2, y2);
 }
 
-#define RGN_PT(x, y, x1, y1, x2, y2) \
-	if (x < rcRgn.left) {\
-		y = (rcRgn.left - x1) * (y2 - y1) / (x2 - x1) + y1;\
-		x = rcRgn.left;\
-	} else if (x > rcRgn.right) {\
-		y = (rcRgn.right - x1) * (y2 - y1) / (x2 - x1) + y1;\
-		x = rcRgn.right;\
-	}\
-	if (y < rcRgn.top) {\
-		x = (rcRgn.top - y1) * (x2 - x1) / (y2 - y1) + x1;\
-		y = rcRgn.top;\
-	} else if (y > rcRgn.bottom) {\
-		x = (rcRgn.bottom - y1) * (x2 - x1) / (y2 - y1) + x1;\
-		y = rcRgn.bottom;\
-	}
+#define EP_RGN(x, y, x1, y1, x2, y2) \
+if (x < rcRgn.left) {\
+	if (deltaX == 0) return;\
+	y = (rcRgn.left - x1) * deltaY / deltaX + y1;\
+	x = rcRgn.left;\
+} else if (x > rcRgn.right) {\
+	if (deltaX == 0) return;\
+	y = (rcRgn.right - x1) * deltaY / deltaX + y1;\
+	x = rcRgn.right;\
+}\
+if (y < rcRgn.top) {\
+	if (deltaY == 0) return;\
+	x = (rcRgn.top - y1) * deltaX / deltaY + x1;\
+	y = rcRgn.top;\
+} else if (y > rcRgn.bottom) {\
+	if (deltaY == 0) return;\
+	x = (rcRgn.bottom - y1) * deltaX / deltaY + x1;\
+	y = rcRgn.bottom;\
+}
 void CX11DC::Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr)
 {
 	int _x1 = x1, _x2 = x2, _y1 = y1, _y2 = y2;
-	RGN_PT(_x1, _y1, x1, y1, x2, y2);
-	RGN_PT(_x2, _y2, x1, y1, x2, y2);
+	auto deltaX = x2 - x1;
+	auto deltaY = y2 - y1;
+	EP_RGN(_x1, _y1, x1, y1, x2, y2);
+	EP_RGN(_x2, _y2, x1, y1, x2, y2);
 	if (_x1 == _x2 && _y1 == _y2)
 		return;
 	XSetForeground(X11_DSP, m_gc, clr);
