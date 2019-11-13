@@ -68,7 +68,6 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		cout << "ClientMessage: " << count++ << endl;
 		break;
 	case MapNotify:
-		//g_mapWnd[w]->InvalidateCtrl();
 		break;
 	case Expose:
 		cout << "Expose: " << count++ << endl;
@@ -79,7 +78,6 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 	case NoExpose:
 		//cout << "NoExpose" << count++ << endl;
 		return;
-		//break;
 	case ButtonPress:
 		//cout << "ButtonPress: " << evt.xbutton.button << endl;
 		switch (evt.xbutton.button)
@@ -88,7 +86,6 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 			pBKG->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 2:
-			//g_mapWnd[w]->OnLBtnDown(CPoint(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 3:
 			pBKG->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
@@ -100,7 +97,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 			pBKG->OnMouseWheel(-120);
 			break;
 		}
-		break;
+		return;
 	case ButtonRelease:
 		//cout << "ButtonRelease: " << evt.xbutton.button << endl;
 		switch (evt.xbutton.button)
@@ -109,18 +106,16 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 			pBKG->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
 			break;
 		case 2:
-			//g_mapWnd[w]->OnLBtnDown(CPoint(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 3:
-			//g_mapWnd[w]->OnLBtnDown(CPoint(evt.xbutton.x, evt.xbutton.y));
 			break;
 		}
-		break;
+		return;
 	case MotionNotify:
 		pBKG->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
-		if (XPending(m_dsp) > 3)
-			return;
-		break;
+		//if (XPending(m_dsp) > 3)
+		//	return;
+		return;
 	case ReparentNotify:
 		// @beginning
 		return;
@@ -130,7 +125,6 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 	default:
 		cout << "evt.type: " << evt.type << endl;
 		return;
-		//break;
 	}
 	pBKG->OnPaint();
 	pCtxt->Flush();
@@ -205,7 +199,6 @@ void CX11Context::SendRefreshEvent()
 
 void CX11Context::Flush()
 {
-	//m_dc.Flush(m_rcInvalidate);
 	m_dcWnd.BitBlt(m_dc, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
 	m_rcInvalidate.SetRectEmpty();
 }
@@ -218,8 +211,7 @@ ILiteDC* CX11Context::GetDC()
 void CX11Context::Refresh(RECT &rc)
 {
 	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
-	//cout << "Refresh" << endl;
-	//SendRefreshEvent();
+	SendRefreshEvent();
 }
 
 void CX11Context::OnClose()

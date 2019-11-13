@@ -10,6 +10,12 @@ typedef int BOOL;
 typedef unsigned UINT;
 #define CLR_NONE                0xFFFFFFFFL
 #define CLR_DEFAULT             0xFF000000L
+#define CLR_R                   0xFFFF0000L
+#define CLR_G                   0xFF00FF00L
+#define CLR_B                   0xFF0000FFL
+#define CLR_C                   0xFF00FFFFL
+#define CLR_M                   0xFFFF00FFL
+#define CLR_Y                   0xFFFFFF00L
 #define FALSE 0
 #define TRUE  1
 //#define RGBH(v)					((0x##v & 0xff) << 16 | (0x##v & 0xff00) | (0x##v >> 16))	// RGBH(rgb) =  RGB(r,g,b)
