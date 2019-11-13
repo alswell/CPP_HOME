@@ -19,14 +19,14 @@ public:
 	CSock(int fd);
 
 	operator bool();
-	int Connect(const char *net_addr = NULL, short port = 0);
+	int Connect(const char *net_addr = nullptr, short port = 0);
 	void PrintReadErr(int r);
 	void SetTimeout(int nSecond);
 	void SetRecvFlag(int flag);
 	void SetWaitAll();
 
 	virtual int Read(void* pBuff, unsigned nSize);
-	virtual int Write(const void* pBuff, unsigned nSize);
+	virtual int Write(const void* pBuff, unsigned long nSize);
 	virtual void Close();
 };
 

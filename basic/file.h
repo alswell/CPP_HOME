@@ -9,7 +9,7 @@ public:
 	CFile(const char* strFileName, const char *mode = "ab+");
 
 	virtual int Read(void *pBuff, unsigned nSize);
-	virtual int Write(const void *pBuff, unsigned nSize);
+	virtual int Write(const void *pBuff, unsigned long nSize);
 	virtual void Close();
 	list<CString> ReadLines();
 };

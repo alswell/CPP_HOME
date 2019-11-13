@@ -13,7 +13,7 @@ int CFile::Read(void *pBuff, unsigned nSize)
 	return fread(pBuff, 1, nSize, m_pFile);
 }
 
-int CFile::Write(const void *pBuff, unsigned nSize)
+int CFile::Write(const void *pBuff, unsigned long nSize)
 {
 	return fwrite(pBuff, 1, nSize, m_pFile);
 }
@@ -23,7 +23,7 @@ void CFile::Close()
 	if (m_pFile)
 	{
 		fclose(m_pFile);
-		m_pFile = NULL;
+		m_pFile = nullptr;
 	}
 }
 

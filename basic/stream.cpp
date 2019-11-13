@@ -2,7 +2,7 @@
 
 IStream::IStream()
 {
-	m_pBuff = NULL;
+	m_pBuff = nullptr;
 	m_nSize = 0;
 }
 
@@ -11,7 +11,7 @@ IStream::~IStream()
 	if (m_pBuff)
 	{
 		delete[] m_pBuff;
-		m_pBuff = NULL;
+		m_pBuff = nullptr;
 	}
 	//Close();
 }
@@ -27,12 +27,12 @@ char *IStream::ReadN(unsigned nSize)
 	}
 	int r = Read(m_pBuff, nSize);
 	if (r < 0)
-		return NULL;
+		return nullptr;
 	m_pBuff[r] = 0;
 	return m_pBuff;
 }
 
-char *IStream::ReadLine(int nSize)
+char *IStream::ReadLine(unsigned nSize)
 {
 	if (m_nSize < nSize)
 	{
@@ -41,7 +41,7 @@ char *IStream::ReadLine(int nSize)
 		m_nSize = nSize;
 		m_pBuff = new char[m_nSize];
 	}
-	int i = 0;
+	unsigned i = 0;
 	for (; i < m_nSize; ++i)
 	{
 		int r = Read(&m_pBuff[i], 1);
@@ -57,10 +57,8 @@ char *IStream::ReadLine(int nSize)
 			cout << "ELF" << endl;
 			m_pBuff[i] = 0;
 			return m_pBuff;
-			break;
 		default:
-			return NULL;
-			break;
+			return nullptr;
 		}
 	}
 	m_pBuff[i] = 0;
@@ -74,8 +72,8 @@ int IStream::WriteString(const char *str)
 
 int IStream::WriteLine(const char *str)
 {
-	int nString = strlen(str);
-	int nLine = nString + strlen(CRLF);
+	auto nString = strlen(str);
+	auto nLine = nString + strlen(CRLF);
 	char* buff = new char[nLine + 1];
 	strcpy(buff, str);
 	strcpy(&buff[nString], CRLF);

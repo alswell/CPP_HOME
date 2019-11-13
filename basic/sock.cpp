@@ -44,7 +44,7 @@ int CSock::Connect(const char * net_addr, short port)
 void CSock::PrintReadErr(int r)
 {
 	char err_msg[1024];
-	char *p;
+	const char *p;
 	switch (r) {
 	case 0:
 		p = "remote close";
@@ -63,7 +63,7 @@ void CSock::PrintReadErr(int r)
 void CSock::SetTimeout(int nSecond)
 {
 	struct timeval timeout={nSecond, 0};
-	setsockopt(m_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+	setsockopt(m_fd, SOL_SOCKET, SO_RCVTIMEO, static_cast<void*>(&timeout), sizeof(timeout));
 }
 
 void CSock::SetRecvFlag(int flag)
@@ -80,18 +80,18 @@ int CSock::Read(void *pBuff, unsigned nSize)
 {
 	if (nSize == 0)
 		return 0;
-	int r = recv(m_fd, pBuff, nSize, m_nRecvFlag);
+	int r = int(recv(m_fd, pBuff, nSize, m_nRecvFlag));
 	if (r <= 0)
 		PrintReadErr(r);
 
 	return r;
 }
 
-int CSock::Write(const void *pBuff, unsigned nSize)
+int CSock::Write(const void *pBuff, unsigned long nSize)
 {
 	if (nSize == 0)
 		return 0;
-	int r = send(m_fd, pBuff, nSize, 0);
+	int r = int(send(m_fd, pBuff, nSize, 0));
 	if (r == -1)
 		perror("write error, close");
 
@@ -111,7 +111,11 @@ CServSock::CServSock(short port, int backlog, const char* net_addr)
 {
 	int r;
 	m_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (m_fd == -1) printf("1:%m\n"), exit(-1);
+	if (m_fd == -1)
+	{
+		printf("1: %m\n");
+		exit(-1);
+	}
 	printf("socket ok!\n");
 
 	struct sockaddr_in addr;
@@ -120,11 +124,21 @@ CServSock::CServSock(short port, int backlog, const char* net_addr)
 	inet_aton(net_addr, &addr.sin_addr);
 
 	r = bind(m_fd, (struct sockaddr*)&addr, sizeof(addr));
-	if (r == -1) printf("2:%m\n"), close(m_fd), exit(-1);
+	if (r == -1)
+	{
+		printf("2: %m\n");
+		close(m_fd);
+		exit(-1);
+	}
 	printf("bind ok!\n");
 
 	r = listen(m_fd, backlog);
-	if (r == -1) printf("3:%m\n"), close(m_fd), exit(-1);
+	if (r == -1)
+	{
+		printf("3: %m\n");
+		close(m_fd);
+		exit(-1);
+	}
 	printf("listen ok!\n");
 }
 
@@ -134,6 +148,6 @@ CServSock::~CServSock()
 
 CSock CServSock::Accept()
 {
-	int fd = accept(m_fd, 0, 0);
+	int fd = accept(m_fd, nullptr, nullptr);
 	return CSock(fd);
 }
