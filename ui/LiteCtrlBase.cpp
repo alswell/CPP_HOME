@@ -3,8 +3,8 @@
 
 ILiteDC::~ILiteDC(){}
 
-CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & dcImpl)
-	: m_dcImpl(dcImpl)
+CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & implDC)
+	: m_implDC(implDC)
 	, m_rcRelLoc(rcRelLoc)
 	, m_ptScroll(0, 0)
 	, m_pParentCtrl(nullptr)
@@ -14,7 +14,7 @@ CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & dcImpl)
 }
 
 CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl)
-	: CLiteCtrlBase(rcRelLoc, pParentCtrl->m_dcImpl)
+	: CLiteCtrlBase(rcRelLoc, pParentCtrl->m_implDC)
 {
 	m_pParentCtrl = pParentCtrl;
 }
