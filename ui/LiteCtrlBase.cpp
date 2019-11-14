@@ -3,8 +3,8 @@
 
 ILiteDC::~ILiteDC(){}
 
-CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & implDC)
-	: m_implDC(implDC)
+CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc)
+	: m_implDC(nullptr)
 	, m_rcRelLoc(rcRelLoc)
 	, m_ptScroll(0, 0)
 	, m_pParentCtrl(nullptr)
@@ -14,13 +14,19 @@ CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC & implDC)
 }
 
 CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl)
-	: CLiteCtrlBase(rcRelLoc, pParentCtrl->m_implDC)
+	: CLiteCtrlBase(rcRelLoc)
 {
 	m_pParentCtrl = pParentCtrl;
+	m_implDC = pParentCtrl->m_implDC;
 }
 
 CLiteCtrlBase::~CLiteCtrlBase()
 {
+}
+
+void CLiteCtrlBase::InitDC(ILiteDC* implDC)
+{
+	m_implDC = implDC;
 }
 
 void CLiteCtrlBase::Draw(const RECT& rcLoc, const RECT& rcViewRgn)

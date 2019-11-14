@@ -13,7 +13,7 @@ CColorBlock::~CColorBlock()
 
 void CColorBlock::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	m_implDC.Rectangle(rcViewRgn, rcLoc, m_clrBorder, m_clrBkgnd);
+	m_implDC->Rectangle(rcViewRgn, rcLoc, m_clrBorder, m_clrBkgnd);
 	//__super::Draw(ptOffset, rcParentRgn);
 }
 
@@ -48,7 +48,7 @@ CTextBlock::~CTextBlock()
 
 void CTextBlock::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	m_implDC.Text(rcViewRgn, rcLoc, m_strText, m_clrText, m_nFormat);
+	m_implDC->Text(rcViewRgn, rcLoc, m_strText, m_clrText, m_nFormat);
 }
 
 void CTextBlock::SetColor(COLORREF clrText)

@@ -3,14 +3,37 @@
 #include "LiteBtn.h"
 
 
+class CLiteBKG;
 class ILiteContext
 {
+protected:
+	CLiteBKG* m_pBKG;
 public:
 	virtual ~ILiteContext();
+	virtual void Init() = 0;
 	virtual ILiteDC* GetDC() = 0;
 	virtual void Refresh(RECT& rc) = 0;
 	virtual void OnClose() = 0;
+
+	void SetBkgAndInit(CLiteBKG* pBKG);
+	void OnPaint();
+	void OnMouseMove(const POINT& pt);
+	void OnLBtnDown(const POINT& pt);
+	void OnLBtnUp();
+	void OnMouseWheel(int zDelta);
+	void OnRBtnDown(const POINT& pt);
 };
+class ILiteGlobal
+{
+public:
+	virtual ~ILiteGlobal();
+	virtual ILiteContext* CreateContext() = 0;
+	virtual void Start() = 0;
+	virtual int ScreenWidth() = 0;
+	virtual int ScreenHeight() = 0;
+	ILiteContext* GetContext(CLiteBKG* pBKG);
+};
+extern ILiteGlobal* gui;
 
 class CLiteBKG : public CLiteCtrlBase
 {
@@ -26,10 +49,7 @@ protected:
 	ILiteContext* m_implContext;
 	RECT m_rcPaintRgn;
 public:
-	int m_nWidth;
-	int m_nHeight;
 	CLiteBKG(int W, int H);
-	ILiteDC* Init(int W, int H);
 	virtual ~CLiteBKG();
 
 private:
@@ -38,21 +58,10 @@ private:
 
 public:
 	void OnPaint();
-	void OnMouseMove(POINT pt);
-	void OnLBtnDown(POINT pt);
+	void OnMouseMove(const POINT& pt);
+	void OnLBtnDown(const POINT& pt);
 	void OnLBtnUp();
 	void OnMouseWheel(int zDelta);
-	void OnRBtnDown(POINT pt);
+	void OnRBtnDown(const POINT& pt);
 };
-
-class ILiteGlobal
-{
-public:
-	virtual ~ILiteGlobal();
-	virtual void Start() = 0;
-	virtual ILiteContext* GetContext(CLiteBKG* pBKG) = 0;
-	virtual int ScreenWidth() = 0;
-	virtual int ScreenHeight() = 0;
-};
-extern ILiteGlobal* gui;
 

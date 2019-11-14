@@ -81,12 +81,13 @@ class CMouseCapturer;
 class CLiteCtrlBase
 {
 public:
-	CLiteCtrlBase(const RECT& rcRelLoc, ILiteDC& implDC);
+	CLiteCtrlBase(const RECT& rcRelLoc);
 	CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl);
 	virtual ~CLiteCtrlBase();
 
 protected:
-	ILiteDC& m_implDC;
+	ILiteDC* m_implDC;
+	void InitDC(ILiteDC* implDC);
 	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
 	void PreDraw(POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());

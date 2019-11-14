@@ -61,7 +61,6 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 	static int count = 0;
 	Window w = evt.xany.window;
 	auto pCtxt = m_mapContext[w];
-	auto pBKG = pCtxt->m_pBKG;
 	switch (evt.type)
 	{
 	case ClientMessage:
@@ -83,18 +82,18 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			pBKG->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pCtxt->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 2:
 			break;
 		case 3:
-			pBKG->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pCtxt->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 4:
-			pBKG->OnMouseWheel(120);
+			pCtxt->OnMouseWheel(120);
 			break;
 		case 5:
-			pBKG->OnMouseWheel(-120);
+			pCtxt->OnMouseWheel(-120);
 			break;
 		}
 		return;
@@ -103,7 +102,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			pBKG->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
+			pCtxt->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
 			break;
 		case 2:
 			break;
@@ -112,7 +111,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		}
 		return;
 	case MotionNotify:
-		pBKG->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
+		pCtxt->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
 		//if (XPending(m_dsp) > 3)
 		//	return;
 		return;
@@ -126,7 +125,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		cout << "evt.type: " << evt.type << endl;
 		return;
 	}
-	pBKG->OnPaint();
+	pCtxt->OnPaint();
 	pCtxt->Flush();
 }
 
@@ -138,15 +137,14 @@ void CX11Global::MessageLoop()
 		DispatchMessage(evt);
 }
 
+ILiteContext* CX11Global::CreateContext()
+{
+	return new CX11Context;
+}
+
 void CX11Global::Start()
 {
 	MessageLoop();
-}
-
-ILiteContext* CX11Global::GetContext(CLiteBKG* pBKG)
-{
-	auto p = new CX11Context(pBKG);
-	return p;
 }
 
 int CX11Global::ScreenWidth()
@@ -157,26 +155,6 @@ int CX11Global::ScreenWidth()
 int CX11Global::ScreenHeight()
 {
 	return m_nScreenHeight;
-}
-
-CX11Context::CX11Context(CLiteBKG* pBKG)
-	: m_pBKG(pBKG)
-	, m_rcInvalidate(0, 0, pBKG->m_nWidth, pBKG->m_nHeight)
-{
-//	m_nWidth = W;
-//	m_nHeight = H;
-//	unsigned long white = WhitePixel(g_dsp, screenNumber);
-//	unsigned long black = BlackPixel(g_dsp, screenNumber);
-	m_hWnd = XCreateSimpleWindow(X11_DSP, DefaultRootWindow(X11_DSP),
-								 0, 0, unsigned(pBKG->m_nWidth), unsigned(pBKG->m_nHeight),
-								 0, 0x000000, 0xFFFFFF);
-	XMapWindow(X11_DSP, m_hWnd);
-	long eventMask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
-	XSelectInput(X11_DSP, m_hWnd, eventMask);
-
-	m_dcWnd.Init(m_hWnd);
-	m_dc.CreateCompatible(m_dcWnd);
-	X11_GUI(m_mapContext)[m_hWnd] = this;
 }
 
 void CX11Context::CenterWindow()
@@ -199,13 +177,30 @@ void CX11Context::SendRefreshEvent()
 
 void CX11Context::Flush()
 {
-	m_dcWnd.BitBlt(m_dc, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
+	m_dcWnd.BitBlt(m_dcMem, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
 	m_rcInvalidate.SetRectEmpty();
+}
+
+void CX11Context::Init()
+{
+	m_rcInvalidate = RECT(0, 0, m_pBKG->Width(), m_pBKG->Height());
+	//	unsigned long white = WhitePixel(g_dsp, screenNumber);
+	//	unsigned long black = BlackPixel(g_dsp, screenNumber);
+	m_hWnd = XCreateSimpleWindow(X11_DSP, DefaultRootWindow(X11_DSP),
+								 0, 0, unsigned(m_pBKG->Width()), unsigned(m_pBKG->Height()),
+								 0, 0x000000, 0xFFFFFF);
+	XMapWindow(X11_DSP, m_hWnd);
+	long eventMask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
+	XSelectInput(X11_DSP, m_hWnd, eventMask);
+
+	m_dcWnd.Init(m_hWnd);
+	m_dcMem.CreateCompatible(m_dcWnd);
+	X11_GUI(m_mapContext)[m_hWnd] = this;
 }
 
 ILiteDC* CX11Context::GetDC()
 {
-	return &m_dc;
+	return &m_dcMem;
 }
 
 void CX11Context::Refresh(RECT &rc)

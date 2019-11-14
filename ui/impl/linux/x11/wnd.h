@@ -20,8 +20,8 @@ public:
 	bool GetMessage(XEvent& evt);
 	void DispatchMessage(const XEvent& evt);
 	void MessageLoop();
+	virtual ILiteContext* CreateContext();
 	virtual void Start();
-	virtual ILiteContext* GetContext(CLiteBKG* pBKG);
 	virtual int ScreenWidth();
 	virtual int ScreenHeight();
 };
@@ -30,18 +30,15 @@ class CX11Context : public ILiteContext
 {
 public:
 	Window m_hWnd;
-	CLiteBKG* m_pBKG;
-//	unsigned m_nWidth;
-//	unsigned m_nHeight;
 	CX11DC m_dcWnd;
-	CX11DC m_dc;
+	CX11DC m_dcMem;
 	RECT m_rcInvalidate;
 public:
-	CX11Context(CLiteBKG* pBKG);
 	void CenterWindow();
 	void SendRefreshEvent();
 	void Flush();
 
+	virtual void Init();
 	virtual ILiteDC* GetDC();
 	virtual void Refresh(RECT& rc);
 	virtual void OnClose();
