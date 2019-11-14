@@ -42,8 +42,16 @@ char *IStream::ReadLine(unsigned nSize)
 		m_pBuff = new char[m_nSize];
 	}
 	unsigned i = 0;
-	for (; i < m_nSize; ++i)
+	for (;; ++i)
 	{
+		if (i == m_nSize)
+		{
+			auto buff = new char[m_nSize + nSize];
+			memcpy(buff, m_pBuff, m_nSize);
+			delete[] m_pBuff;
+			m_pBuff = buff;
+			m_nSize += nSize;
+		}
 		int r = Read(&m_pBuff[i], 1);
 		switch (r) {
 		case 1:
