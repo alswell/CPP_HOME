@@ -288,3 +288,4 @@ public:
 
 #endif // SIMPLE_DIR
 
+typedef CDirection<float> DirF;
