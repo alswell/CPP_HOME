@@ -22,23 +22,23 @@ public:
 		iterator() : m_pListNode(0) {}
 		iterator(CNode* pListNode) : m_pListNode(pListNode) {}
 
-		bool operator== (iterator it)
+		inline bool operator== (iterator it)
 		{
 			return m_pListNode == it.m_pListNode;
 		}
-		bool operator!= (iterator it)
+		inline bool operator!= (iterator it)
 		{
 			return m_pListNode != it.m_pListNode;
 		}
-		T& operator* ()
+		inline T& operator* ()
 		{
 			return m_pListNode->m_Data;
 		}
-		const T& operator* () const
+		inline const T& operator* () const
 		{
 			return m_pListNode->m_Data;
 		}
-		T* operator-> ()
+		inline T* operator-> ()
 		{
 			return &(m_pListNode->m_Data);
 		}
@@ -61,39 +61,39 @@ public:
 
 			return *this;
 		}
-		iterator& operator++ ()
+		inline iterator& operator++ ()
 		{
 			m_pListNode = m_pListNode->m_pNext;
 			return *this;
 		}
-		iterator operator++ (int)
+		inline iterator operator++ (int)
 		{
 			iterator _old_it = *this;
 			m_pListNode = m_pListNode->m_pNext;
 			return _old_it;
 		}
-		iterator& operator-- ()
+		inline iterator& operator-- ()
 		{
 			m_pListNode = m_pListNode->m_pPrior;
 			return *this;
 		}
-		iterator operator-- (int)
+		inline iterator operator-- (int)
 		{
 			iterator _old_it = *this;
 			m_pListNode = m_pListNode->m_pPrior;
 			return _old_it;
 		}
 
-		iterator operator+ () const
+		inline iterator operator+ () const
 		{
 			return iterator(m_pListNode->m_pNext);
 		}
-		iterator operator- () const
+		inline iterator operator- () const
 		{
 			return iterator(m_pListNode->m_pPrior);
 		}
 
-		operator bool()
+		inline operator bool()
 		{
 			return m_pListNode;
 		}
