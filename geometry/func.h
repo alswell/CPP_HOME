@@ -168,7 +168,7 @@ CVector2<T> CrossPoint(CLine2<T> line1, CLine2<T> line2)
 	T l21xx = line2.m_pts[0].x - line1.m_pts[0].x;
 	T l21yy = line2.m_pts[0].y - line1.m_pts[0].y;
 	T B = (l21xx * l1yy - l21yy * l1xx) / (l2yy * l1xx - l2xx * l1yy);
-	T A = (l2xx * B + l21xx) / l1xx;
+	T A = l1xx == 0 ? ((l2yy * B + l21yy) / l1yy) : ((l2xx * B + l21xx) / l1xx);
 	return CVector2<T>(l1xx * A + line1.m_pts[0].x, l1yy * A + line1.m_pts[0].y);
 }
 
