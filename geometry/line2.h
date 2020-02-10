@@ -64,12 +64,13 @@ class CRay2
 public:
 	CVector2<T> m_pt0;
 	CDirection<T> m_dir;
-	CRay2(const CVector2<T>& pt1, const CVector2<T>& pt2)
+	CRay2(const CVector2<T>& pt0, const CVector2<T>& pt1, const CVector2<T>& pt2, T rotation = 0)
 	{
-		m_pt0 = pt1;
+		m_pt0 = pt0;
 		m_dir.SetValue(pt1, pt2);
+		m_dir += rotation;
 	}
-	CRay2(const CVector2<T>& pt1, const CVector2<T>& pt2, T rotation)
+	CRay2(const CVector2<T>& pt1, const CVector2<T>& pt2, T rotation = 0)
 	{
 		m_pt0 = pt1;
 		m_dir.SetValue(pt1, pt2);

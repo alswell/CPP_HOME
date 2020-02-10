@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "line2.h"
 #include "line3.h"
 #include "plain.h"
@@ -214,8 +214,8 @@ const CLine3<T> CommonPerpendicular(const CLine3<T>& segA, const CLine3<T>& segB
 
 	auto b = (C2 * A1 - C1 * A2) / (B2 * A1 - B1 * A2);
 	auto a = (b * B1 - C1) / A1;
-	CVector3<T> ptA(a * a1 + segA.B.x, a * a2+segA.B.y, a * a3+segA.B.z);
-	CVector3<T> ptB(b * b1 + segB.B.x, b * b2+segB.B.y, b * b3+segB.B.z);
+	CVector3<T> ptA(a * a1 + segA.B.x, a * a2 + segA.B.y, a * a3 + segA.B.z);
+	CVector3<T> ptB(b * b1 + segB.B.x, b * b2 + segB.B.y, b * b3 + segB.B.z);
 	return CLine3<T>(ptA, ptB);
 }
 
