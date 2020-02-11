@@ -13,6 +13,11 @@ CX11Global::CX11Global()
 	m_nScreenHeight = DisplayHeight(m_dsp, screen);
 	printf("ScreenCount: %d, DefaultScreen: %d[%d * %d]\n", ScreenCount(m_dsp), screen, m_nScreenWidth, m_nScreenHeight);
 	m_fontDefault = XLoadQueryFont(m_dsp, "-misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso8859-9");
+	g_nKeyMap[37] = KEY_CTRL_L;
+	g_nKeyMap[105] = KEY_CTRL_R;
+	g_nKeyMap[50] = KEY_SHIFT_L;
+	g_nKeyMap[62] = KEY_SHIFT_R;
+	g_nKeyMap[38] = KEY_A;
 }
 
 void CX11Global::Start()
@@ -101,6 +106,14 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 	case NoExpose:
 		//cout << "NoExpose" << count++ << endl;
 		return;
+	case KeyPress:
+		cout << "KeyPress:" << evt.xkey.type << "; " << evt.xkey.keycode << endl;
+		pX11Wnd->OnKeyDown(g_nKeyMap[evt.xkey.keycode]);
+		return;
+	case KeyRelease:
+		cout << "KeyRelease:" << evt.xkey.type << "; " << evt.xkey.keycode << endl;
+		pX11Wnd->OnKeyUp(g_nKeyMap[evt.xkey.keycode]);
+		return;
 	case ButtonPress:
 		//cout << "ButtonPress: " << evt.xbutton.button << endl;
 		switch (evt.xbutton.button)
@@ -186,7 +199,7 @@ void CX11Wnd::Init()
 								 0, 0, unsigned(m_pBKG->Width()), unsigned(m_pBKG->Height()),
 								 0, 0x000000, 0xFFFFFF);
 	XMapWindow(X11_DSP, m_hWnd);
-	long eventMask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
+	long eventMask =  ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
 	XSelectInput(X11_DSP, m_hWnd, eventMask);
 
 	m_dcWnd.Init(m_hWnd);

@@ -2,6 +2,16 @@
 #include "LiteCtrlStatic.h"
 #include "LiteBtn.h"
 
+enum KEYBOARD
+{
+	KEY_UNKNOWN = 0,
+	KEY_CTRL_L,
+	KEY_CTRL_R,
+	KEY_SHIFT_L,
+	KEY_SHIFT_R,
+	KEY_A,
+};
+extern KEYBOARD g_nKeyMap[256];
 
 class CLiteBKG;
 class ILiteWnd
@@ -22,6 +32,8 @@ public:
 	void OnLBtnUp();
 	void OnMouseWheel(int zDelta);
 	void OnRBtnDown(const POINT& pt);
+	void OnKeyDown(KEYBOARD key);
+	void OnKeyUp(KEYBOARD key);
 };
 class ILiteGlobal
 {
@@ -39,6 +51,7 @@ extern ILiteGlobal* gui;
 class CLiteBKG : public CLiteCtrlBase
 {
 protected:
+	bool m_bKeyDown[256];
 	CColorBlock* m_pBKG;
 	CLiteMagicBox* m_pTip;
 
@@ -64,5 +77,9 @@ public:
 	void OnLBtnUp();
 	void OnMouseWheel(int zDelta);
 	void OnRBtnDown(const POINT& pt);
-};
+	void OnKeyDown(KEYBOARD key);
+	void OnKeyUp(KEYBOARD key);
 
+	bool KeyDown(KEYBOARD key);
+};
+#define ROOT_CTRL(p) reinterpret_cast<CLiteBKG*>(p)

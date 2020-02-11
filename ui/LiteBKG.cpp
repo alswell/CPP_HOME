@@ -2,6 +2,7 @@
 
 
 ILiteGlobal* gui;
+KEYBOARD g_nKeyMap[256];
 
 
 ILiteWnd::~ILiteWnd()
@@ -44,6 +45,16 @@ void ILiteWnd::OnRBtnDown(const POINT& pt)
 	m_pBKG->OnRBtnDown(pt);
 }
 
+void ILiteWnd::OnKeyDown(KEYBOARD key)
+{
+	m_pBKG->OnKeyDown(key);
+}
+
+void ILiteWnd::OnKeyUp(KEYBOARD key)
+{
+	m_pBKG->OnKeyUp(key);
+}
+
 ILiteGlobal::~ILiteGlobal()
 {
 
@@ -65,6 +76,7 @@ CLiteBKG::CLiteBKG(int W, int H)
 
 	m_pRootCtrl = this;
 
+	memset(m_bKeyDown, 0, sizeof(m_bKeyDown));
 	m_pHoverCtrl = nullptr;
 	m_pDownCtrl = nullptr;
 
@@ -166,5 +178,20 @@ void CLiteBKG::OnMouseWheel(int zDelta)
 void CLiteBKG::OnRBtnDown(const POINT& pt)
 {
 	m_pHoverCtrl->RBtnDown(pt);
+}
+
+void CLiteBKG::OnKeyDown(KEYBOARD key)
+{
+	m_bKeyDown[key] = true;
+}
+
+void CLiteBKG::OnKeyUp(KEYBOARD key)
+{
+	m_bKeyDown[key] = false;
+}
+
+bool CLiteBKG::KeyDown(KEYBOARD key)
+{
+	return m_bKeyDown[key];
 }
 
