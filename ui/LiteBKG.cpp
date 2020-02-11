@@ -3,42 +3,43 @@
 
 ILiteGlobal* gui;
 
-ILiteContext::~ILiteContext()
+
+ILiteWnd::~ILiteWnd()
 {
 }
 
-void ILiteContext::SetBkgAndInit(CLiteBKG* pBKG)
+void ILiteWnd::SetBkgAndInit(CLiteBKG* pBKG)
 {
 	m_pBKG = pBKG;
 	Init();
 }
 
-void ILiteContext::OnPaint()
+void ILiteWnd::OnPaint()
 {
 	m_pBKG->OnPaint();
 }
 
-void ILiteContext::OnMouseMove(const POINT& pt)
+void ILiteWnd::OnMouseMove(const POINT& pt)
 {
 	m_pBKG->OnMouseMove(pt);
 }
 
-void ILiteContext::OnLBtnDown(const POINT& pt)
+void ILiteWnd::OnLBtnDown(const POINT& pt)
 {
 	m_pBKG->OnLBtnDown(pt);
 }
 
-void ILiteContext::OnLBtnUp()
+void ILiteWnd::OnLBtnUp()
 {
 	m_pBKG->OnLBtnUp();
 }
 
-void ILiteContext::OnMouseWheel(int zDelta)
+void ILiteWnd::OnMouseWheel(int zDelta)
 {
 	m_pBKG->OnMouseWheel(zDelta);
 }
 
-void ILiteContext::OnRBtnDown(const POINT& pt)
+void ILiteWnd::OnRBtnDown(const POINT& pt)
 {
 	m_pBKG->OnRBtnDown(pt);
 }
@@ -48,9 +49,9 @@ ILiteGlobal::~ILiteGlobal()
 
 }
 
-ILiteContext* ILiteGlobal::GetContext(CLiteBKG* pBKG)
+ILiteWnd* ILiteGlobal::NewWnd(CLiteBKG* pBKG)
 {
-	auto p = CreateContext();
+	auto p = CreateWindow();
 	p->SetBkgAndInit(pBKG);
 	return p;
 }
@@ -59,7 +60,7 @@ CLiteBKG::CLiteBKG(int W, int H)
 	: CLiteCtrlBase(RECT(0, 0, W, H))
 	, m_rcPaintRgn(0, 0, W, H)
 {
-	m_implContext = gui->GetContext(this);
+	m_implContext = gui->NewWnd(this);
 	InitDC(m_implContext->GetDC());
 
 	m_pHoverCtrl = nullptr;

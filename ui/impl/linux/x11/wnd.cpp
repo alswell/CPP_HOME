@@ -15,6 +15,30 @@ CX11Global::CX11Global()
 	m_fontDefault = XLoadQueryFont(m_dsp, "-misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso8859-9");
 }
 
+void CX11Global::Start()
+{
+	// MessageLoop:
+	XEvent evt;
+	evt.type = -1;
+	while (GetMessage(evt))
+		DispatchMessage(evt);
+}
+
+ILiteWnd* CX11Global::CreateWindow()
+{
+	return new CX11Wnd;
+}
+
+int CX11Global::ScreenWidth()
+{
+	return m_nScreenWidth;
+}
+
+int CX11Global::ScreenHeight()
+{
+	return m_nScreenHeight;
+}
+
 bool CX11Global::GetMessage(XEvent& evt)
 {
 	XEvent tmp;
@@ -60,7 +84,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 {
 	static int count = 0;
 	Window w = evt.xany.window;
-	auto pCtxt = m_mapContext[w];
+	auto pX11Wnd = m_mapWnd[w];
 	switch (evt.type)
 	{
 	case ClientMessage:
@@ -82,18 +106,18 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			pCtxt->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pX11Wnd->OnLBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 2:
 			break;
 		case 3:
-			pCtxt->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
+			pX11Wnd->OnRBtnDown(POINT(evt.xbutton.x, evt.xbutton.y));
 			break;
 		case 4:
-			pCtxt->OnMouseWheel(120);
+			pX11Wnd->OnMouseWheel(120);
 			break;
 		case 5:
-			pCtxt->OnMouseWheel(-120);
+			pX11Wnd->OnMouseWheel(-120);
 			break;
 		}
 		return;
@@ -102,7 +126,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		switch (evt.xbutton.button)
 		{
 		case 1:
-			pCtxt->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
+			pX11Wnd->OnLBtnUp(/*CPoint(evt.xbutton.x, evt.xbutton.y)*/);
 			break;
 		case 2:
 			break;
@@ -111,7 +135,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		}
 		return;
 	case MotionNotify:
-		pCtxt->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
+		pX11Wnd->OnMouseMove(POINT(evt.xmotion.x, evt.xmotion.y));
 		//if (XPending(m_dsp) > 3)
 		//	return;
 		return;
@@ -125,39 +149,11 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		cout << "evt.type: " << evt.type << endl;
 		return;
 	}
-	pCtxt->OnPaint();
-	pCtxt->Flush();
+	pX11Wnd->OnPaint();
+	pX11Wnd->Flush();
 }
 
-void CX11Global::MessageLoop()
-{
-	XEvent evt;
-	evt.type = -1;
-	while (GetMessage(evt))
-		DispatchMessage(evt);
-}
-
-ILiteContext* CX11Global::CreateContext()
-{
-	return new CX11Context;
-}
-
-void CX11Global::Start()
-{
-	MessageLoop();
-}
-
-int CX11Global::ScreenWidth()
-{
-	return m_nScreenWidth;
-}
-
-int CX11Global::ScreenHeight()
-{
-	return m_nScreenHeight;
-}
-
-void CX11Context::CenterWindow()
+void CX11Wnd::CenterWindow()
 {
 	XMoveWindow(X11_DSP, m_hWnd,
 				(X11_GUI(m_nScreenWidth) - m_rcInvalidate.Width()) / 2,
@@ -165,7 +161,7 @@ void CX11Context::CenterWindow()
 }
 
 
-void CX11Context::SendRefreshEvent()
+void CX11Wnd::SendRefreshEvent()
 {
 	static XEvent event;
 	event.type = Expose;
@@ -175,13 +171,13 @@ void CX11Context::SendRefreshEvent()
 	cout << "XSync(X11_DSP, false): " << XSync(X11_DSP, false) << endl;
 }
 
-void CX11Context::Flush()
+void CX11Wnd::Flush()
 {
 	m_dcWnd.BitBlt(m_dcMem, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
 	m_rcInvalidate.SetRectEmpty();
 }
 
-void CX11Context::Init()
+void CX11Wnd::Init()
 {
 	m_rcInvalidate = RECT(0, 0, m_pBKG->Width(), m_pBKG->Height());
 	//	unsigned long white = WhitePixel(g_dsp, screenNumber);
@@ -195,21 +191,21 @@ void CX11Context::Init()
 
 	m_dcWnd.Init(m_hWnd);
 	m_dcMem.CreateCompatible(m_dcWnd);
-	X11_GUI(m_mapContext)[m_hWnd] = this;
+	X11_GUI(m_mapWnd)[m_hWnd] = this;
 }
 
-ILiteDC* CX11Context::GetDC()
+ILiteDC* CX11Wnd::GetDC()
 {
 	return &m_dcMem;
 }
 
-void CX11Context::Refresh(RECT &rc)
+void CX11Wnd::Refresh(RECT &rc)
 {
 	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
 	SendRefreshEvent();
 }
 
-void CX11Context::OnClose()
+void CX11Wnd::OnClose()
 {
 	cout << "OnClose" << endl;
 	XDestroyWindow(X11_DSP, m_hWnd);

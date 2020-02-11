@@ -2,7 +2,7 @@
 #include <X11/Xlib.h>
 #include "LiteCtrlBase.h"
 
-class CX11Context;
+class CX11Wnd;
 class CX11DC : public ILiteDC
 {
 	Pixmap m_hPixmap;

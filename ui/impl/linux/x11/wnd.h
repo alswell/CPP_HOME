@@ -8,25 +8,24 @@
 
 class CX11Global : public ILiteGlobal
 {
-	friend class CX11Context;
+	friend class CX11Wnd;
 	friend class CX11DC;
 	Display* m_dsp;
-	map<Window, CX11Context*> m_mapContext;
+	map<Window, CX11Wnd*> m_mapWnd;
 	int m_nScreenWidth;
 	int m_nScreenHeight;
 	XFontStruct* m_fontDefault;
 public:
 	CX11Global();
-	bool GetMessage(XEvent& evt);
-	void DispatchMessage(const XEvent& evt);
-	void MessageLoop();
-	virtual ILiteContext* CreateContext();
 	virtual void Start();
+	virtual ILiteWnd* CreateWindow();
 	virtual int ScreenWidth();
 	virtual int ScreenHeight();
+	bool GetMessage(XEvent& evt);
+	void DispatchMessage(const XEvent& evt);
 };
 
-class CX11Context : public ILiteContext
+class CX11Wnd : public ILiteWnd
 {
 public:
 	Window m_hWnd;

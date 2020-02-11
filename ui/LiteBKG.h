@@ -4,12 +4,12 @@
 
 
 class CLiteBKG;
-class ILiteContext
+class ILiteWnd
 {
 protected:
 	CLiteBKG* m_pBKG;
 public:
-	virtual ~ILiteContext();
+	virtual ~ILiteWnd();
 	virtual void Init() = 0;
 	virtual ILiteDC* GetDC() = 0;
 	virtual void Refresh(RECT& rc) = 0;
@@ -25,13 +25,14 @@ public:
 };
 class ILiteGlobal
 {
+	friend class CLiteBKG;
+	ILiteWnd* NewWnd(CLiteBKG* pBKG);
 public:
 	virtual ~ILiteGlobal();
-	virtual ILiteContext* CreateContext() = 0;
 	virtual void Start() = 0;
+	virtual ILiteWnd* CreateWindow() = 0;
 	virtual int ScreenWidth() = 0;
 	virtual int ScreenHeight() = 0;
-	ILiteContext* GetContext(CLiteBKG* pBKG);
 };
 extern ILiteGlobal* gui;
 
@@ -46,7 +47,7 @@ protected:
 	//static CBJICtrlBase* m_pDownActiveCtrl;
 	//static map<CBJICtrlBase*, BOOL> m_pActiveMenu;
 
-	ILiteContext* m_implContext;
+	ILiteWnd* m_implContext;
 	RECT m_rcPaintRgn;
 public:
 	CLiteBKG(int W, int H);
