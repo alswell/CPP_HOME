@@ -63,6 +63,8 @@ CLiteBKG::CLiteBKG(int W, int H)
 	m_implContext = gui->NewWnd(this);
 	InitDC(m_implContext->GetDC());
 
+	m_pRootCtrl = this;
+
 	m_pHoverCtrl = nullptr;
 	m_pDownCtrl = nullptr;
 

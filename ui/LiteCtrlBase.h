@@ -106,6 +106,7 @@ private:
 protected:
 	UINT m_nTimerID;
 public:
+	CLiteCtrlBase* m_pRootCtrl;
 	CLiteCtrlBase* m_pParentCtrl;
 	void InvalidateCtrl();
 protected:
