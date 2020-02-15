@@ -40,6 +40,15 @@ public:
 		top = 0;
 		bottom = 0;
 	}
+
+	template<class T2>
+	void operator *= (T2 x)
+	{
+		left *= x;
+		top *= x;
+		right *= x;
+		bottom *= x;
+	}
 };
 
 template <class T>

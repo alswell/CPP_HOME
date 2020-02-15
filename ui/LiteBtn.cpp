@@ -71,7 +71,7 @@ void CLiteBtn::ReleaseMouse(bool bDown)
 		SetNormal();
 }
 
-void CLiteBtn::Activate(POINT ptParent)
+void CLiteBtn::Activate(POINT)
 {
 	SetDownOrSelect();
 }
@@ -130,7 +130,7 @@ void CLiteCheckBox::ReleaseMouse(bool bDown)
 	}
 }
 
-void CLiteCheckBox::Activate(POINT ptParent)
+void CLiteCheckBox::Activate(POINT)
 {
 	SetDownOrSelect();
 }
@@ -194,7 +194,7 @@ void CLiteRadioBox::ReleaseMouse(bool bDown)
 	}
 }
 
-void CLiteRadioBox::Activate(POINT ptParent)
+void CLiteRadioBox::Activate(POINT)
 {
 	SetDownOrSelect();
 }
@@ -241,15 +241,15 @@ CLiteScrollBar::CLiteScrollBar(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const 
 
 }
 
-void CLiteScrollBar::Activate(POINT ptParent)
+void CLiteScrollBar::Activate(POINT ptWnd)
 {
-	CLiteBtn::Activate(ptParent);
-	m_ptDown = ParentToChild(ptParent);
+	CLiteBtn::Activate(ptWnd);
+	m_ptDown = ParentToChild(ptWnd); // WindowToChild
 }
 
-void CLiteScrollBar::ActivateMove(POINT ptParent)
+void CLiteScrollBar::ActivateMove(POINT ptWnd)
 {
-	auto pt = ParentToChild(ptParent);
+	auto pt = ParentToChild(ptWnd); // WindowToChild
 	int x = pt.x - m_ptDown.x;
 	int y = pt.y - m_ptDown.y;
 	RECT rcTmp = m_rcRelLoc;

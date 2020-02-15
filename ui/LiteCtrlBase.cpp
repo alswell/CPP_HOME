@@ -12,6 +12,7 @@ CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc)
 	, m_bIsVisible(TRUE)
 	, m_nZOrder(0)
 {
+	m_strDebugName = nullptr;
 }
 
 CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl)
@@ -35,7 +36,8 @@ void CLiteCtrlBase::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
 {
 }
 
-void CLiteCtrlBase::PreDraw(POINT ptParentPos, RECT rcParentViewRgn)
+//#define DEBUG_DRAW
+void CLiteCtrlBase::WrapDraw(POINT ptParentPos, RECT rcParentViewRgn)
 {
 	RECT rcLoc = m_rcRelLoc;
 	rcLoc.OffsetRect(ptParentPos);
@@ -44,6 +46,10 @@ void CLiteCtrlBase::PreDraw(POINT ptParentPos, RECT rcParentViewRgn)
 	if (rcViewRgn.IsRectEmpty())
 		return;
 	Draw(rcLoc, rcViewRgn);
+	#ifdef DEBUG_DRAW
+	if (m_strDebugName)
+		cout << "DRAW: " << m_strDebugName << endl;
+	#endif
 	DrawChildren(POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
 }
 
@@ -54,7 +60,7 @@ void CLiteCtrlBase::DrawChildren(POINT ptParentPos /*= CPoint(0, 0)*/, RECT rcPa
 			if ((**it).m_bIsVisible) 
 			{
 				//OutputDebugString("Draw\n");
-				(**it).PreDraw(ptParentPos, rcParentViewRgn);
+				(**it).WrapDraw(ptParentPos, rcParentViewRgn);
 			}
 }
 
@@ -72,6 +78,14 @@ CMouseCapturer* CLiteCtrlBase::WantCapture(POINT ptParent)
 					return pHandler;
 			}
 	return nullptr;
+}
+
+void CLiteCtrlBase::LocInParent(RECT& rcChild)
+{
+	rcChild.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
+	rcChild.OffsetRect(-m_ptScroll);
+	if (m_pParentCtrl)
+		m_pParentCtrl->LocInParent(rcChild);
 }
 
 void CLiteCtrlBase::InvalidateCtrl()
@@ -102,6 +116,20 @@ void CLiteCtrlBase::ShowCtrl(BOOL bShow)
 	InvalidateCtrl();
 }
 
+RECT CLiteCtrlBase::AbsLoc()
+{
+	RECT rc(m_rcRelLoc);
+	m_pParentCtrl->LocInParent(rc);
+	return rc;
+}
+
+POINT CLiteCtrlBase::WindowToChild(POINT pt)
+{
+	auto rc = AbsLoc();
+	pt.Offset(-rc.left + m_ptScroll.x, -rc.top + m_ptScroll.y);
+	return pt;
+}
+
 POINT CLiteCtrlBase::ParentToChild(POINT pt)
 {
 	pt.Offset(-m_rcRelLoc.left + m_ptScroll.x, -m_rcRelLoc.top + m_ptScroll.y);
@@ -117,6 +145,13 @@ CLiteCtrlBase* CLiteCtrlBase::AddCtrl(CLiteCtrlBase * pCtrl, int nZOrder/* = 0*/
 POINT CLiteCtrlBase::GetMousePos()
 {
 	return m_ptMousePos;
+}
+
+RECT CLiteCtrlBase::SetRelLoc(const RECT& rc)
+{
+	auto old = m_rcRelLoc;
+	m_rcRelLoc = rc;
+	return old;
 }
 
 RECT CLiteCtrlBase::GetRelLoc()

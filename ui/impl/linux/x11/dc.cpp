@@ -162,10 +162,16 @@ void CX11DC::Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr
 
 void CX11DC::Rectangle(const RECT rcRgn, const RECT rcDraw, COLORREF clrBorder, COLORREF clrBKG)
 {
-	XSetForeground(X11_DSP, m_gc, clrBKG);
-	XFillRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, rcDraw.Width(), rcDraw.Height());
-	XSetForeground(X11_DSP, m_gc, clrBorder);
-	XDrawRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, rcDraw.Width() - 1, rcDraw.Height() - 1);
+	if (clrBKG != CLR_NONE)
+	{
+		XSetForeground(X11_DSP, m_gc, clrBKG);
+		XFillRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, unsigned(rcDraw.Width()), unsigned(rcDraw.Height()));
+	}
+	if (clrBorder != CLR_NONE)
+	{
+		XSetForeground(X11_DSP, m_gc, clrBorder);
+		XDrawRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, unsigned(rcDraw.Width()) - 1, unsigned(rcDraw.Height()) - 1);
+	}
 }
 
 void CX11DC::TextStd(const RECT rcRgn, const RECT rcDraw, const char *str, COLORREF clr)

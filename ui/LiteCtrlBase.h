@@ -85,11 +85,12 @@ public:
 	CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl);
 	virtual ~CLiteCtrlBase();
 
+	const char* m_strDebugName;
 protected:
 	ILiteDC* m_implDC;
 	void InitDC(ILiteDC* implDC);
 	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
-	void PreDraw(POINT ptParentPos, RECT rcParentViewRgn);
+	void WrapDraw(POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	//virtual CLiteCtrlBase* LBtnDown(CPoint pt);
@@ -103,6 +104,7 @@ protected:
 	map<int, vector<CLiteCtrlBase*>> m_vCtrls;
 private:
 //	RECT* m_pOldRect;
+	void LocInParent(RECT& rcChild);
 protected:
 	UINT m_nTimerID;
 public:
@@ -117,9 +119,12 @@ public:
 	void ShowCtrl(BOOL bShow);
 	int m_nZOrder;
 
+	RECT AbsLoc();
+	POINT WindowToChild(POINT pt);
 	POINT ParentToChild(POINT pt);
 	CLiteCtrlBase* AddCtrl(CLiteCtrlBase* pCtrl, int nZOrder = 0);
 	POINT GetMousePos();
+	RECT SetRelLoc(const RECT& rc);
 	RECT GetRelLoc();
 	RECT GetDrawRect();
 	void MoveToX(int x);

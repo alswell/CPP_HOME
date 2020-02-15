@@ -177,7 +177,8 @@ void CLiteBKG::OnMouseWheel(int zDelta)
 
 void CLiteBKG::OnRBtnDown(const POINT& pt)
 {
-	m_pHoverCtrl->RBtnDown(pt);
+	if (m_pHoverCtrl)
+		m_pHoverCtrl->RBtnDown(pt);
 }
 
 void CLiteBKG::OnKeyDown(KEYBOARD key)
