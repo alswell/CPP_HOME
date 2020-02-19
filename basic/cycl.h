@@ -103,6 +103,7 @@ public:
 		unsigned m_nListSize;
 		unsigned m_nCount;
 	public:
+		iterator_ex() : iterator(), m_nListSize(0), m_nCount(0) {}
 		iterator_ex(const cycl<T>& pList) : iterator(pList.entry()), m_nListSize(pList.size()), m_nCount(0) {}
 		iterator_ex(const cycl<T>& pList, iterator it) : iterator(it), m_nListSize(pList.size()), m_nCount(0) {}
 		iterator& operator++ ()
