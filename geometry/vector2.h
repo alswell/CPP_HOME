@@ -143,6 +143,10 @@ public:
 		return r;
 	}
 
+	T Len()
+	{
+		return sqrt(SQUARE(x) + SQUARE(y));
+	}
 	CVector2<T>& RCXY()
 	{
 		T temp = -x;
