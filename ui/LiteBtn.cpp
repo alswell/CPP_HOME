@@ -22,7 +22,7 @@ void CLiteMagicBox::SetText(char* str)
 	m_pTxt->SetText(str);
 }
 
-void CLiteMagicBox::Show(int nIndex)
+void CLiteMagicBox::Show(int nIndex, bool refresh)
 {
 	if (m_nCurIndex == nIndex)
 		return;
@@ -36,7 +36,8 @@ void CLiteMagicBox::Show(int nIndex)
 	//	else if (nIndex != 3)
 	//		m_pIconTxt->SetText(RADIO_UNCHECK);
 	m_nCurIndex = nIndex;
-	InvalidateCtrl();
+	if (refresh)
+		InvalidateCtrl();
 }
 
 
@@ -206,7 +207,7 @@ void CLiteRadioBox::Inactivate(bool bCapture)
 		if (m_bSelected)
 			return;
 		m_bSelected = true;
-		Notify();
+		Notify(true);
 		if (m_bSelected)
 			SetDownOrSelect();
 		else
@@ -219,7 +220,7 @@ void CLiteRadioBox::Inactivate(bool bCapture)
 	}
 }
 
-void CLiteRadioBox::Notify()
+void CLiteRadioBox::Notify(bool call)
 {
 	unsigned n = 0;
 	auto& v = m_mapRadio[m_cbNotify];
@@ -232,7 +233,15 @@ void CLiteRadioBox::Notify()
 			p->SetNormal();
 		}
 	}
-	reinterpret_cast<NOTIFY>(m_cbNotify)(m_pParentCtrl, int(n));
+	if (call)
+		reinterpret_cast<NOTIFY>(m_cbNotify)(m_pParentCtrl, int(n));
+}
+
+void CLiteRadioBox::Select()
+{
+	m_bSelected = true;
+	Show(2, false);
+	Notify(false);
 }
 
 CLiteScrollBar::CLiteScrollBar(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)

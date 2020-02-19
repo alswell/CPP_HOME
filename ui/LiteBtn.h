@@ -48,7 +48,7 @@ protected:
 public:
 	CLiteMagicBox(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc, const char* str, const BtnStyle& btnStyle);
 	void SetText(char* str);
-	void Show(int nIndex);
+	void Show(int nIndex, bool refresh = true);
 };
 
 
@@ -102,7 +102,8 @@ public:
 	virtual void ReleaseMouse(bool bDown);
 	virtual void Activate(POINT);
 	virtual void Inactivate(bool bCapture);
-	void Notify();
+	void Notify(bool call);
+	void Select();
 };
 
 
