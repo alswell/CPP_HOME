@@ -147,20 +147,6 @@ public:
 	{
 		return sqrt(SQUARE(x) + SQUARE(y));
 	}
-	CVector2<T>& RCXY()
-	{
-		T temp = -x;
-		x = y;
-		y = temp;
-		return *this;
-	}
-	CVector2<T>& XYRC()
-	{
-		T temp = -y;
-		y = x;
-		x = temp;
-		return *this;
-	}
 
 	__device__ void RotationSelf(T delta)
 	{
@@ -216,4 +202,50 @@ const char* ToStr(CVector2<T> v)
 }
 
 typedef CVector2<int> POINT;
+typedef CVector2<int> ROW_COL;
 typedef CVector2<float> PointF;
+
+
+template <class T>
+class Coords;
+template <class T>
+class RowCol;
+
+template <class T>
+class Point: public CVector2<T>
+{
+public:
+	template <class SRC_T>
+	Point(CVector2<SRC_T> pt) : CVector2<T>(pt) {}
+	Point(Coords<T> xy) : CVector2<T>(xy.x, -xy.y) {}
+	Point(RowCol<T> rc) : CVector2<T>(rc.y, rc.x) {}
+
+	void Up(int i) { CVector2<T>::y -= i; }
+	void Left(int i) { CVector2<T>::x -= i; }
+};
+
+template <class T>
+class RowCol: public CVector2<T>
+{
+public:
+	RowCol(T r, T c) : CVector2<T>(r, c) {}
+	template <class SRC_T>
+	RowCol(CVector2<SRC_T> pt) : CVector2<T>(pt) {}
+	RowCol(Coords<T> xy) : CVector2<T>(-xy.y, xy.x) {}
+	RowCol(Point<T> pt) : CVector2<T>(pt.y, pt.x) {}
+
+	void Up(int i) { CVector2<T>::x -= i; }
+	void Left(int i) { CVector2<T>::y -= i; }
+};
+
+template <class T>
+class Coords: public CVector2<T>
+{
+public:
+	Coords(Point<T> pt) : CVector2<T>(pt.x, -pt.y) {}
+	Coords(RowCol<T> rc) : CVector2<T>(rc.y, -rc.x) {}
+
+	void Up(int i) { CVector2<T>::y += i; }
+	void Left(int i) { CVector2<T>::x -= i; }
+};
+
