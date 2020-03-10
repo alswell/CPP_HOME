@@ -27,8 +27,8 @@ public:
 	operator CVector2<DES_T>() const
 	{
 		CVector2<DES_T> dest_p;
-		dest_p.x = (DES_T)x;
-		dest_p.y = (DES_T)y;
+		dest_p.x = static_cast<DES_T>(x);
+		dest_p.y = static_cast<DES_T>(y);
 		return dest_p;
 	}
 	operator T() const
@@ -153,8 +153,8 @@ public:
 		//T x = pt.x * cosf(delta) - pt.y * sinf(delta);
 		//T y = pt.x * sinf(delta) + pt.y * cosf(delta);
 		//return CPointEx<T>(x, y);
-		register T sin_delta = sinf(delta);
-		register T cos_delta = cosf(delta);
+		T sin_delta = sinf(delta);
+		T cos_delta = cosf(delta);
 		T temp_x = x * cos_delta - y * sin_delta;
 		y = x * sin_delta + y * cos_delta;
 		x = temp_x;
@@ -164,8 +164,8 @@ public:
 		//T x = pt.x * cosf(delta) - pt.y * sinf(delta);
 		//T y = pt.x * sinf(delta) + pt.y * cosf(delta);
 		//return CPointEx<T>(x, y);
-		register T sin_delta = sinf(delta);
-		register T cos_delta = cosf(delta);
+		T sin_delta = sinf(delta);
+		T cos_delta = cosf(delta);
 		return CVector2<T>(x * cos_delta - y * sin_delta, x * sin_delta + y * cos_delta);
 	}
 	CVector2<T> Rotation(CVector2<T> pt0, T delta) const
@@ -190,6 +190,14 @@ public:
 	//	pt += pt0;
 	//	return pt;
 	//}
+	CVector2<T> Clockwise90() const
+	{
+		return CVector2<T>(y, -x);
+	}
+	CVector2<T> Anticlockwise90() const
+	{
+		return CVector2<T>(-y, x);
+	}
 };
 
 template <class T>
@@ -202,7 +210,6 @@ const char* ToStr(CVector2<T> v)
 }
 
 typedef CVector2<int> POINT;
-typedef CVector2<int> ROW_COL;
 typedef CVector2<float> PointF;
 
 
@@ -242,6 +249,8 @@ template <class T>
 class Coords: public CVector2<T>
 {
 public:
+	template <class SRC_T>
+	Coords(CVector2<SRC_T> pt) : CVector2<T>(pt) {}
 	Coords(Point<T> pt) : CVector2<T>(pt.x, -pt.y) {}
 	Coords(RowCol<T> rc) : CVector2<T>(rc.y, -rc.x) {}
 

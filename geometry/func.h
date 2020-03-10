@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "line2.h"
 #include "line3.h"
 #include "plain.h"
