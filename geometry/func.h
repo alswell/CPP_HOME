@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "line2.h"
 #include "line3.h"
 #include "plain.h"
@@ -236,6 +236,14 @@ template<class T>
 bool PtInRect(const CRect<T> &rc, int r, int c)
 {
 	return c >= rc.left && c < rc.right && r >= rc.top && r < rc.bottom;
+}
+
+template<class T>
+CVector2<T> PtAtSeg(CVector2<T> ptA, CVector2<T> ptB, T theta)
+{
+	auto x = (ptB.x - ptA.x) * theta + ptA.x;
+	auto y = (ptB.y - ptA.y) * theta + ptA.y;
+	return CVector2<T>(x, y);
 }
 
 }
