@@ -19,6 +19,11 @@ long CDateTime::TickCount(const CDateTime& dt)
 	str.ReleaseBuffer();\
 	return str
 
+CString CDateTime::StrFmt(const char* fmt)
+{
+	FMT_TIME(fmt);
+}
+
 CString CDateTime::StrYmd()
 {
 	FMT_TIME("%Y%m%d");

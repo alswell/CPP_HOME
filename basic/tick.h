@@ -10,6 +10,7 @@ class CDateTime
 public:
 	CDateTime();
 	long TickCount(const CDateTime &dt);
+	CString StrFmt(const char* fmt);
 	CString StrYmd();
 	CString StrHMS();
 	CString StrYmdHMS();
