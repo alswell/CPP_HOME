@@ -55,11 +55,11 @@ public:
 	};
 
 	void SetMemBufCount(unsigned n);
-	bool Init(int w, int h, int nDataType = 0);
-	int GetImage(void* image);
+	bool Init(unsigned w, unsigned h, unsigned nDataType = 0);
+	unsigned GetImage(void* image);
 	Camera *GetFrame();
-	int GetW();
-	int GetH();
+	unsigned GetW();
+	unsigned GetH();
 
 	unsigned GetImageSize();
 	void Identify();
@@ -72,10 +72,10 @@ public:
 private:
 	CString m_strDevName;
 	int m_fd;
-	int m_nWidth;
-	int m_nHeight;
-	int m_nDataType;
-	int m_nMemCount;
+	unsigned m_nWidth;
+	unsigned m_nHeight;
+	unsigned m_nDataType;
+	unsigned m_nMemCount;
 	unsigned m_nImageSize;	//to keep the real image size!
 
 	fd_set m_fds;
@@ -103,12 +103,12 @@ private:
 	bool m_bStarted;
 
 	bool wait_frame();
-	int read_frame(void* image);
+	unsigned read_frame(void* image);
 
 	void print_info(const char * str);
 	void print_error(const char * str);
-	void errno_exit(const char * str);
-	int xioctl(int fd, int request, void * arg);
+	void errno_exit(const char * str) __attribute__((noreturn));
+	int xioctl(int fd, unsigned request, void * arg);
 
 	bool DQBUF(v4l2_buffer& buf);
 	bool QBUF(v4l2_buffer& buf);

@@ -10,8 +10,8 @@ void Camera::CheckDev()
 	Identify();
 	m_fd = -1;
 	if (!open_device())
-		errno_exit("open failed");
-	printf("open success\n");
+		errno_exit("open camera failed");
+	printf("open camera success\n");
 	check_device();
 	RetrievePixFmt();
 
@@ -43,11 +43,12 @@ Camera::~Camera()
 
 void Camera::PrintDevInfo()
 {
-	printf("Support format:\n");
-	for (int i = 0; i < m_vFmts.size(); ++i)
+	printf("Supported Format:\n");
+	for (unsigned i = 0; i < m_vFmts.size(); ++i)
 	{
-		printf("\t%d. %s\n", i, m_vFmts[i].name);
+		printf("\t[%d] %s\n", i, m_vFmts[i].name);
 		enum_frame_sizes(m_fd, m_vFmts[i].fmt);
+		printf("\n");
 	}
 }
 
@@ -61,7 +62,7 @@ unsigned Camera::GetImageSize()
 	return m_nImageSize;
 }
 
-bool Camera::Init(int w, int h, int nDataType)
+bool Camera::Init(unsigned w, unsigned h, unsigned nDataType)
 {
 	m_nWidth = w;
 	m_nHeight = h;
@@ -85,7 +86,7 @@ bool Camera::Init(int w, int h, int nDataType)
 	return true;
 }
 
-int Camera::GetImage(void* image)
+unsigned Camera::GetImage(void* image)
 {
 	if (wait_frame())
 		return read_frame(image);
@@ -96,15 +97,15 @@ Camera * Camera::GetFrame()
 {
 	if (wait_frame())
 		return this;
-	return NULL;
+	return nullptr;
 }
 
-int Camera::GetW()
+unsigned Camera::GetW()
 {
 	return m_nWidth;
 }
 
-int Camera::GetH()
+unsigned Camera::GetH()
 {
 	return m_nHeight;
 }
@@ -124,7 +125,7 @@ void Camera::RetrievePixFmt()
 	struct v4l2_fmtdesc fmtdesc;
 	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	for (fmtdesc.index = 0; ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1; ++fmtdesc.index)
-		m_vFmts.push_back(SFmtInfo(fmtdesc.pixelformat, (char*)fmtdesc.description));
+		m_vFmts.push_back(SFmtInfo(fmtdesc.pixelformat, reinterpret_cast<char*>(fmtdesc.description)));
 }
 
 bool Camera::open_device(void)
@@ -187,21 +188,20 @@ int Camera::enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 heigh
 	fival.pixel_format = pixfmt;
 	fival.width = width;
 	fival.height = height;
-	printf("\tTime interval between frame: ");
+	printf("\t  time interval between frame:");
 	while ((ret = ioctl(dev, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) {
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) {
 			printf("%u/%u, ",
 				fival.discrete.numerator, fival.discrete.denominator);
 		}
 		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) {
-			printf("{min { %u/%u } .. max { %u/%u } }, ",
+			printf("{min{ %u/%u } max{ %u/%u }}, ",
 				fival.stepwise.min.numerator, fival.stepwise.min.numerator,
 				fival.stepwise.max.denominator, fival.stepwise.max.denominator);
 			break;
 		}
 		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) {
-			printf("{min { %u/%u } .. max { %u/%u } / "
-				"stepsize { %u/%u } }, ",
+			printf("{min{ %u/%u } max{ %u/%u } stepsize{ %u/%u }}, ",
 				fival.stepwise.min.numerator, fival.stepwise.min.denominator,
 				fival.stepwise.max.numerator, fival.stepwise.max.denominator,
 				fival.stepwise.step.numerator, fival.stepwise.step.denominator);
@@ -227,31 +227,28 @@ int Camera::enum_frame_sizes(int dev, __u32 pixfmt)
 	fsize.index = 0;
 	fsize.pixel_format = pixfmt;
 	while ((ret = ioctl(dev, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) {
-		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
-			printf("{ discrete: width = %u, height = %u }\n",
-				fsize.discrete.width, fsize.discrete.height);
-			ret = enum_frame_intervals(dev, pixfmt,
-				fsize.discrete.width, fsize.discrete.height);
-			if (ret != 0)
-				printf("  Unable to enumerate frame sizes.\n");
-		}
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) {
-			printf("{ continuous: min { width = %u, height = %u } .. "
-				"max { width = %u, height = %u } }\n",
+		if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS)
+		{
+			printf("\t{ CONTINUOUS: min{ %u * %u } max{ %u * %u } }\n",
 				fsize.stepwise.min_width, fsize.stepwise.min_height,
 				fsize.stepwise.max_width, fsize.stepwise.max_height);
-			printf("  Refusing to enumerate frame intervals.\n");
+			printf("\tRefusing to enumerate frame intervals.\n");
 			break;
 		}
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) {
-			printf("{ stepwise: min { width = %u, height = %u } .. "
-				"max { width = %u, height = %u } / "
-				"stepsize { width = %u, height = %u } }\n",
+		if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE)
+		{
+			printf("\t{ STEPWISE: min{ %u * %u } max { %u * %u } stepsize{ %u * %u } }\n",
 				fsize.stepwise.min_width, fsize.stepwise.min_height,
 				fsize.stepwise.max_width, fsize.stepwise.max_height,
 				fsize.stepwise.step_width, fsize.stepwise.step_height);
-			printf("  Refusing to enumerate frame intervals.\n");
+			printf("\tRefusing to enumerate frame intervals.\n");
 			break;
+		}
+		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+			printf("\t- %u * %u\n", fsize.discrete.width, fsize.discrete.height);
+			ret = enum_frame_intervals(dev, pixfmt, fsize.discrete.width, fsize.discrete.height);
+			if (ret != 0)
+				printf("\tUnable to enumerate frame sizes.\n");
 		}
 		fsize.index++;
 	}
@@ -266,8 +263,8 @@ int Camera::enum_frame_sizes(int dev, __u32 pixfmt)
 bool Camera::check_device(void)
 {
 	struct v4l2_capability cap;
-	struct v4l2_cropcap cropcap;
-	struct v4l2_crop crop;
+//	struct v4l2_cropcap cropcap;
+//	struct v4l2_crop crop;
 	if (-1 == xioctl(m_fd, VIDIOC_QUERYCAP, &cap))
 		errno_exit("VIDIOC_QUERYCAP: not V4L2 dev");
 
@@ -325,7 +322,7 @@ bool Camera::init_device(void)
 	/* Note VIDIOC_S_FMT may change width and height. */
 	printf("-#-#-#-#-#-#-#-#-#-#-#-#-#-\n");
 	/* Buggy driver paranoia. */
-	int min = fmt.fmt.pix.width * 2;
+	unsigned min = fmt.fmt.pix.width * 2;
 	if (fmt.fmt.pix.bytesperline < min)
 		fmt.fmt.pix.bytesperline = min;
 	min = m_nWidth * m_nHeight * 3 / 2;
@@ -372,7 +369,7 @@ bool Camera::init_mmap(void)
 		if (-1 == xioctl(m_fd, VIDIOC_QUERYBUF, &buf))
 			errno_exit("VIDIOC_QUERYBUF");
 		m_pBuff[m_nBuff].length = buf.length;
-		m_pBuff[m_nBuff].start = mmap(NULL /* start anywhere */, buf.length,
+		m_pBuff[m_nBuff].start = mmap(nullptr /* start anywhere */, buf.length,
 			PROT_READ | PROT_WRITE /* required */,
 			MAP_SHARED /* recommended */, m_fd, buf.m.offset);
 		if (MAP_FAILED == m_pBuff[m_nBuff].start)
@@ -447,8 +444,8 @@ bool Camera::wait_frame()
 	FD_SET(m_fd, &m_fds);
 	m_tmSelect.tv_sec = 2;
 	m_tmSelect.tv_usec = 0;
-	int r = select(m_fdMax, &m_fds, NULL, NULL, &m_tmSelect);
-	printf("select time remain: %d.%06d\n", m_tmSelect.tv_sec, m_tmSelect.tv_usec);
+	int r = select(m_fdMax, &m_fds, nullptr, nullptr, &m_tmSelect);
+	printf("select time remain: %ld.%06ld\n", m_tmSelect.tv_sec, m_tmSelect.tv_usec);
 	if (-1 == r)
 		errno_exit("select");
 
@@ -460,25 +457,25 @@ bool Camera::wait_frame()
 	return true;
 }
 
-int Camera::read_frame(void* image)
+unsigned Camera::read_frame(void* image)
 {
 	struct v4l2_buffer buf;
 	DQBUF(buf);
 	assert(buf.index < m_nBuff);
 	memcpy(image, m_pBuff[buf.index].start, buf.bytesused);
-	int bytesused = buf.bytesused;
+	unsigned bytesused = buf.bytesused;
 	QBUF(buf);
 	return bytesused;
 }
 
 void Camera::print_info(const char * str)
 {
-	printf("[%s] %s", (const char*)m_strDevName, str);
+	printf("[%s] %s", m_strDevName.GetString(), str);
 }
 
 void Camera::print_error(const char * str)
 {
-	printf("[%s] %s ?_? %m(%d)\n", (const char*)m_strDevName, str, errno);
+	printf("[%s] %s ?_? %m(%d)\n", m_strDevName.GetString(), str, errno);
 }
 
 void Camera::errno_exit(const char * str)
@@ -488,7 +485,7 @@ void Camera::errno_exit(const char * str)
 	exit(EXIT_FAILURE);
 }
 
-int Camera::xioctl(int fd, int request, void * arg)
+int Camera::xioctl(int fd, unsigned request, void * arg)
 {
 	int r;
 	do
@@ -512,7 +509,7 @@ bool Camera::DQBUF(v4l2_buffer& buf)
 		case EIO:
 			printf("EIO\n");
 			/* Could ignore EIO, see spec. */
-			/* fall through */
+			[[clang::fallthrough]];
 		default:
 			errno_exit("VIDIOC_DQBUF");
 		}
