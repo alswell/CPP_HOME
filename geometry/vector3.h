@@ -297,4 +297,3 @@ const char* ToStr(CVector3<T> v)
 {
 	return SPRINTF("[%s, %s, %s]", _(v.x), _(v.y), _(v.z));
 }
-

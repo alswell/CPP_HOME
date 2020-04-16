@@ -1,5 +1,5 @@
 #pragma once
-#include "vector2.h"
+#include "env.h"
 #include "cycl.h"
 
 #define ITER(p, implIter) for (auto p = (implIter).Start(); implIter; p = ++(implIter))
@@ -16,14 +16,13 @@ public:
 };
 
 template <class T_ELEM, class T_RETURN>
-class IListIter : public IIterator<T_RETURN*>
+class CListIter : public IIterator<T_RETURN*>
 {
 protected:
 	list<T_ELEM>& m_ls;
 	typename::list<T_ELEM>::iterator m_it;
 public:
-	IListIter(list<T_ELEM>& ls) : m_ls(ls) {}
-	virtual T_RETURN* Get() = 0;
+	CListIter(list<T_ELEM>& ls) : m_ls(ls) {}
 	virtual unsigned Size()
 	{
 		return m_ls.size();
@@ -31,12 +30,12 @@ public:
 	virtual T_RETURN* Start()
 	{
 		m_it = m_ls.begin();
-		return Get();
+		return GetIterItem(*m_it);
 	}
 	virtual T_RETURN* operator++()
 	{
 		++m_it;
-		return Get();
+		return GetIterItem(*m_it);
 	}
 	virtual operator bool()
 	{
@@ -45,14 +44,13 @@ public:
 };
 
 template <class T_ELEM, class T_RETURN>
-class ICyclIter : public IIterator<T_RETURN*>
+class CCyclIter : public IIterator<T_RETURN*>
 {
 protected:
 	cycl<T_ELEM>& m_ls;
 	typename::cycl<T_ELEM>::iterator_ex m_it;
 public:
-	ICyclIter(cycl<T_ELEM>& ls) : m_ls(ls), m_it(ls) {}
-	virtual T_RETURN* Get() = 0;
+	CCyclIter(cycl<T_ELEM>& ls) : m_ls(ls), m_it(ls) {}
 	virtual unsigned Size()
 	{
 		return m_ls.size();
@@ -60,15 +58,51 @@ public:
 	virtual T_RETURN* Start()
 	{
 		m_it = m_ls.entry_ex();
-		return Get();
+		return GetIterItem(*m_it);
 	}
 	virtual T_RETURN* operator++()
 	{
 		++m_it;
-		return Get();
+		return GetIterItem(*m_it);
 	}
 	virtual operator bool()
 	{
 		return m_it;
 	}
 };
+
+template <class T_ELEM, class T_RETURN>
+class CCyclSegIter : public IIterator<T_RETURN*>
+{
+	typename::cycl<T_ELEM>::iterator m_it0, m_it1, m_it;
+	bool m_bStop;
+public:
+	CCyclSegIter(typename::cycl<T_ELEM>::iterator it0, typename::cycl<T_ELEM>::iterator it1) : m_it0(it0), m_it1(it1), m_it(it0){}
+	virtual unsigned Size()
+	{
+		unsigned count = 1;
+		for (auto it = m_it0; it != m_it1; ++it, ++count);
+		return count;
+	}
+	virtual T_RETURN* Start()
+	{
+		m_bStop = false;
+		m_it = m_it0;
+		return GetIterItem(*m_it);
+	}
+	virtual T_RETURN* operator++()
+	{
+		if (m_it == m_it1)
+		{
+			m_bStop = true;
+			return nullptr;
+		}
+		++m_it;
+		return GetIterItem(*m_it);
+	}
+	virtual operator bool()
+	{
+		return !m_bStop;
+	}
+};
+

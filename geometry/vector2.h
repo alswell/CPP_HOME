@@ -258,3 +258,14 @@ public:
 	void Left(int i) { CVector2<T>::x -= i; }
 };
 
+template <class T>
+CVector2<T>* GetIterItem(CVector2<T>* pt)
+{
+	return pt;
+}
+template <class T>
+CVector2<T>* GetIterItem(CVector2<T>& pt)
+{
+	return &pt;
+}
+
