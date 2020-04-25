@@ -252,7 +252,8 @@ public:
 	template <class SRC_T>
 	Coords(CVector2<SRC_T> pt) : CVector2<T>(pt) {}
 	Coords(Point<T> pt) : CVector2<T>(pt.x, -pt.y) {}
-	Coords(RowCol<T> rc) : CVector2<T>(rc.y, -rc.x) {}
+	template <class SRC_T>
+	Coords(RowCol<SRC_T> rc) : CVector2<T>(rc.y, -rc.x) {}
 
 	void Up(int i) { CVector2<T>::y += i; }
 	void Left(int i) { CVector2<T>::x -= i; }
