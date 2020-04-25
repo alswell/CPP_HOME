@@ -190,6 +190,23 @@ CVector3<T> CrossPoint(const CLine3<T>& seg, const CPointNormalPlain<T>& plain)
 }
 
 template<class T>
+CVector3<T> CrossPoint(const CVector3<T>& ptA, const CVector3<T>& ptB, const CPlain<T>& plain)
+{
+	auto Aax = plain.m_A * ptA.x;
+	auto Abx = plain.m_A * ptB.x;
+	auto Bay = plain.m_B * ptA.y;
+	auto Bby = plain.m_B * ptB.y;
+	auto Caz = plain.m_C * ptA.z;
+	auto Cbz = plain.m_C * ptB.z;
+	auto theta = -(Aax + Bay + Caz + plain.m_D) / (Abx - Aax + Bby - Bay + Cbz - Caz);
+	auto x = (ptB.x - ptA.x) * theta + ptA.x;
+	auto y = (ptB.y - ptA.y) * theta + ptA.y;
+	auto z = (ptB.z - ptA.z) * theta + ptA.z;
+
+	return CVector3<T>(x, y, z);
+}
+
+template<class T>
 const CLine3<T> CommonPerpendicular(const CLine3<T>& segA, const CLine3<T>& segB)
 {
 	auto vA = segA.DirectionVector();
@@ -244,6 +261,14 @@ CVector2<T> PtAtSeg(CVector2<T> ptA, CVector2<T> ptB, T theta)
 	auto x = (ptB.x - ptA.x) * theta + ptA.x;
 	auto y = (ptB.y - ptA.y) * theta + ptA.y;
 	return CVector2<T>(x, y);
+}
+template<class T>
+CVector3<T> PtAtSeg(const CVector3<T>& ptA, const CVector3<T>& ptB, T theta)
+{
+	auto x = (ptB.x - ptA.x) * theta + ptA.x;
+	auto y = (ptB.y - ptA.y) * theta + ptA.y;
+	auto z = (ptB.z - ptA.z) * theta + ptA.z;
+	return CVector3<T>(x, y, z);
 }
 
 }
