@@ -16,6 +16,34 @@ public:
 };
 
 template <class T_ELEM, class T_RETURN>
+class CVectorIter : public IIterator<T_RETURN*>
+{
+protected:
+	vector<T_ELEM>& m_ls;
+	typename::vector<T_ELEM>::iterator m_it;
+public:
+	CVectorIter(vector<T_ELEM>& ls) : m_ls(ls) {}
+	virtual unsigned Size()
+	{
+		return m_ls.size();
+	}
+	virtual T_RETURN* Start()
+	{
+		m_it = m_ls.begin();
+		return GetIterItem(*m_it);
+	}
+	virtual T_RETURN* operator++()
+	{
+		++m_it;
+		return GetIterItem(*m_it);
+	}
+	virtual operator bool()
+	{
+		return m_it != m_ls.end();
+	}
+};
+
+template <class T_ELEM, class T_RETURN>
 class CListIter : public IIterator<T_RETURN*>
 {
 protected:
