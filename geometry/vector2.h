@@ -159,6 +159,12 @@ public:
 		y = x * sin_delta + y * cos_delta;
 		x = temp_x;
 	}
+	void RotationSelf(CVector2<T> pt0, T delta)
+	{
+		(*this) -= pt0;
+		this->RotationSelf(delta);
+		(*this) += pt0;
+	}
 	__device__ CVector2<T> Rotation(T delta) const
 	{
 		//T x = pt.x * cosf(delta) - pt.y * sinf(delta);
