@@ -19,20 +19,74 @@ bool in(cls c, cls arr[], int n)\
 
 DEF_IN(char)
 
-int KMP(const char* str, const char* pattern, int begin = 0)
+void get_nextval(const char* pattern, int plen, int* next)
 {
-	// fake KMP algorithm
-	for (int i = begin; str[i]; ++i)
+	int i = 0;
+	next[i] = -1;
+	int j = -1;
+	while (i < plen - 1)
 	{
-		if (str[i] == pattern[0])
+		if (j == -1 || pattern[i] == pattern[j])
 		{
-			const char *p1 = pattern, *p2 = &str[i];
-			for (; *p1 != 0 && *p1 == *p2; ++p1, ++p2);
-			if (*p1 == 0)
-				return i;
+			++i;
+			++j;
+//			if (ptrn[i] != ptrn[j])
+//				nextval[i] = j;
+//			else
+//				nextval[i] = nextval[j];
+			next[i] = j;
+		}
+		else
+		{
+			j = next[j];
 		}
 	}
-	return -1;
+}
+
+int kmp_search(const char* src, int slen, const char* pattern, int plen, const int* next, int pos)
+{
+	int i = pos, j = 0;
+	while (i < slen && j < plen)
+	{
+		if (j == -1 || src[i] == pattern[j])
+		{
+			++i;
+			++j;
+		}
+		else
+		{
+			j = next[j];
+		}
+	}
+	if (j >= plen)
+		return i - plen;
+	else
+		return -1;
+}
+
+int KMP(const char* str, const char* pattern, int begin = 0)
+{
+	auto slen = strlen(str);
+	auto plen = strlen(pattern);
+	vector<int> next(plen);
+	get_nextval(pattern, int(plen), next.data());
+//	for (unsigned i = 0; i < next.size(); ++i)
+//	{
+//		cout << next[i] << ", ";
+//	}
+//	cout << endl;
+	return kmp_search(str, int(slen), pattern, int(plen), next.data(), begin);
+//	for (int i = begin; str[i]; ++i)
+//	{
+//		if (str[i] == pattern[0])
+//		{
+//			const char *p1 = pattern, *p2 = &str[i];
+//			for (; *p1 != 0 && *p1 == *p2; ++p1, ++p2);
+//			if (*p1 == 0)
+//				return i;
+//		}
+//	}
+//	return -1;
 }
 
 class CStrMgr
