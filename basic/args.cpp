@@ -1,11 +1,79 @@
 #include "args.h"
 
+IArg::~IArg()
+{
+}
+
+void IArg::Init(const char* name, char short_name, bool required, const char* help, void* pValue)
+{
+	m_strName = name;
+	m_cName = short_name;
+	m_bRequired = required;
+	m_strHelp = help;
+	m_pValue = pValue;
+}
+
+bool IArg::IsBool()
+{
+	return false;
+}
+
+bool CArgBool::IsBool()
+{
+	return true;
+}
+
+void CArgBool::SetValue(const char*)
+{
+	auto p = reinterpret_cast<bool*>(m_pValue);
+	*p = !*p;
+}
+
+const char* CArgBool::Type()
+{
+	return "";
+}
+
+void CArgInt::SetValue(const char* str)
+{
+	auto p = reinterpret_cast<int*>(m_pValue);
+	*p = atoi(str);
+}
+
+const char* CArgInt::Type()
+{
+	return "<int value>";
+}
+
+void CArgFloat::SetValue(const char* str)
+{
+	auto p = reinterpret_cast<double*>(m_pValue);
+	*p = atof(str);
+}
+
+const char* CArgFloat::Type()
+{
+	return "<float value>";
+}
+
+void CArgStr::SetValue(const char* str)
+{
+	auto p = reinterpret_cast<const char**>(m_pValue);
+	*p = str;
+}
+
+const char* CArgStr::Type()
+{
+	return "<string value>";
+}
+
 #define PCC const char*
 int CArgParser::m_nArg;
 char** CArgParser::m_pArgs;
 CArgParser::CArgParser(const char *sub_cmd, const char *description, CB cb)
 {
-	m_bPrintHelp = AddBool("help", 'h', "show help message");
+	Add(m_bPrintHelp, "help", 'h', "show help message");
+	m_nMaxFlagLen = 4;
 
 	m_strName = sub_cmd;
 	m_strDescription = description;
@@ -19,6 +87,12 @@ CArgParser::CArgParser(int argc, char *argv[], const char *description)
 {
 	m_nArg = argc;
 	m_pArgs = argv;
+}
+
+CArgParser& CArgParser::AddRef(IArg* p)
+{
+	m_lsRefParentFlag.push_back(p);
+	return *this;
 }
 
 void CArgParser::AddOption(IArg* p)
@@ -38,38 +112,40 @@ void CArgParser::AddOption(IArg* p)
 	m_lsArgInfo.push_back(p);
 	m_mapKV[p->m_strName] = p;
 	m_mapKV[p->m_cName] = p;
+	if (m_nMaxFlagLen < strlen(p->m_strName))
+		m_nMaxFlagLen = strlen(p->m_strName);
 }
 
-bool* CArgParser::AddBool(const char* name, char short_name, const char* help)
+IArg* CArgParser::Add(bool& value, const char* name, char short_name, const char* help)
 {
 	auto p = new CArgBool;
-	p->SetName(name, short_name, false, help);
+	p->Init(name, short_name, false, help, &value);
 	AddOption(p);
-	return &p->m_bValue;
+	return p;
 }
 
-int* CArgParser::AddInt(const char* name, char short_name, bool required, const char* help)
+IArg* CArgParser::Add(int& value, const char* name, char short_name, bool required, const char* help)
 {
 	auto p = new CArgInt;
-	p->SetName(name, short_name, required, help);
+	p->Init(name, short_name, required, help, &value);
 	AddOption(p);
-	return &p->m_iValue;
+	return p;
 }
 
-double* CArgParser::AddFloat(const char* name, char short_name, bool required, const char* help)
+IArg* CArgParser::Add(double& value, const char* name, char short_name, bool required, const char* help)
 {
 	auto p = new CArgFloat;
-	p->SetName(name, short_name, required, help);
+	p->Init(name, short_name, required, help, &value);
 	AddOption(p);
-	return &p->m_fValue;
+	return p;
 }
 
-const char** CArgParser::AddStr(const char* name, char short_name, bool required, const char* help)
+IArg* CArgParser::Add(const char*& value, const char* name, char short_name, bool required, const char* help)
 {
 	auto p = new CArgStr;
-	p->SetName(name, short_name, required, help);
+	p->Init(name, short_name, required, help, &value);
 	AddOption(p);
-	return &p->m_strValue;
+	return p;
 }
 
 //void CArgParser::AddPosition(const char *name, EArgType type, bool is_list, const char *help)
@@ -85,7 +161,7 @@ const char** CArgParser::AddStr(const char* name, char short_name, bool required
 //		m_pListPosition = &m_lsPositional.back();
 //}
 
-CArgParser &CArgParser::AddSub(const char* sub_cmd, CB cb, const char* description)
+CArgParser& CArgParser::AddSub(const char* sub_cmd, CB cb, const char* description)
 {
 	CArgParser* pSub = new CArgParser(sub_cmd, description, cb);
 	m_mapSubParser[sub_cmd] = pSub;
@@ -97,14 +173,6 @@ void CArgParser::ParseArgs()
 	if (ParseArgs(1) == false)
 		exit(-1);
 }
-
-//CSmartType &CArgParser::operator [] (const CString& key)
-//{
-//	map<CString, list<SArgInfo>::iterator>::iterator it = m_mapKV.find(key);
-//	if (it == m_mapKV.end())
-//		return NONE;
-//	return it->second->value;
-//}
 
 void CArgParser::PrintHelp()
 {
@@ -140,33 +208,14 @@ void CArgParser::PrintHelp()
 		printf("%s,", (PCC)it->first);
 	cout << "} commands" << endl << endl;
 	cout << "optional arguments:" << endl;
+	CString strFmtFlag;
+	strFmtFlag.Format("--%%-%ds -%%c ", m_nMaxFlagLen);
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
-		printf("--%-10s -%c ", (PCC)(**it).m_strName, (**it).m_cName);
-		if (!(**it).IsBool())
-			printf("<%s>", (**it).Type());
-		printf(" : %s\n", (PCC)(**it).m_strHelp);
+		printf(strFmtFlag, (PCC)(**it).m_strName, (**it).m_cName);
+		printf("%14s : %s\n", (**it).Type(), (PCC)(**it).m_strHelp);
 	}
 	cout << endl;
-}
-
-void CArgParser::PrintResult()
-{
-	cout << m_strName << ":" << endl;
-	for (auto it = m_lsPositional.begin(); it != m_lsPositional.end(); ++it)
-	{
-		//printf("%s = %s\n", (PCC)(**it).m_strName, (PCC)it->value.ToStr());
-	}
-	cout << endl;
-	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
-	{
-		//printf("%s = %s\n", (PCC)(**it).m_strName, (PCC)it->value.ToStr());
-	}
-	cout << "= = = = = = = = = = = = = = = =" << endl;
-	if (m_pSubParser)
-	{
-		m_pSubParser->PrintResult();
-	}
 }
 
 bool CArgParser::ParseArgs(int nBeg)
@@ -190,7 +239,7 @@ bool CArgParser::ParseArgs(int nBeg)
 			if (itKey->second->IsBool())
 				itKey->second->SetValue(nullptr);
 			else
-				itKey->second->SetValue(nEq == -1 ? m_pArgs[++i] : &(*m_pArgs)[nEq + 1]);
+				itKey->second->SetValue(nEq == -1 ? m_pArgs[++i] : &(m_pArgs[i])[nEq + 1]);
 		}
 		else if (str.StartsWith("-"))
 		{
@@ -205,7 +254,7 @@ bool CArgParser::ParseArgs(int nBeg)
 				itKey->second->m_bSet = true;
 				if (!itKey->second->IsBool())
 				{
-					itKey->second->SetValue(j < str.GetLength()-1 ? &(*m_pArgs)[j + 1] : m_pArgs[++i]);
+					itKey->second->SetValue(j < str.GetLength()-1 ? &(m_pArgs[i])[j + 1] : m_pArgs[++i]);
 					break;
 				}
 				itKey->second->SetValue(nullptr);
@@ -222,10 +271,19 @@ bool CArgParser::ParseArgs(int nBeg)
 			else
 			{
 				m_pSubParser = itSub->second;
+				auto& flags = m_pSubParser->m_lsRefParentFlag;
+				for (auto it = flags.begin(); it != flags.end(); ++it)
+				{
+					if (!(**it).m_bSet)
+					{
+						printf("--%s/-%c is required\n", (**it).m_strName, (**it).m_cName);
+						exit(-1);
+					}
+				}
 				return m_pSubParser->ParseArgs(++i);
 			}
 		}
-		if (*m_bPrintHelp)
+		if (m_bPrintHelp)
 		{
 			PrintHelp();
 			exit(0);
@@ -258,6 +316,6 @@ bool CArgParser::ParseArgs(int nBeg)
 
 	//cout << "Parse Args Finish!" << endl;
 	if (m_cb)
-		exit(m_cb(*this));
+		exit(m_cb());
 	return true;
 }

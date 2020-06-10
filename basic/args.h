@@ -14,16 +14,11 @@ public:
 	bool m_bRequired;
 	bool m_bSet;
 	const char* m_strHelp;
+	void* m_pValue;
 public:
-	void SetName(const char* name, char short_name, bool required, const char* help)
-	{
-		m_strName = name;
-		m_cName = short_name;
-		m_bRequired = required;
-		m_strHelp = help;
-	}
-	virtual bool IsBool() { return false; }
-	virtual ~IArg() {}
+	virtual ~IArg();
+	void Init(const char* name, char short_name, bool required, const char* help, void* pValue);
+	virtual bool IsBool();
 	virtual void SetValue(const char* str) = 0;
 	virtual const char* Type() = 0;
 };
@@ -31,73 +26,41 @@ public:
 class CArgBool : public IArg
 {
 public:
-	bool m_bDefault;
-	bool m_bValue;
-public:
-	virtual bool IsBool() { return true; }
-	virtual void SetValue(const char*)
-	{
-		m_bValue = !m_bDefault;
-	}
-	virtual const char* Type()
-	{
-		return "";
-	}
+	virtual bool IsBool();
+	virtual void SetValue(const char*);
+	virtual const char* Type();
 };
 
 class CArgInt : public IArg
 {
 public:
-	int m_iDefault;
-	int m_iValue;
-	virtual void SetValue(const char* str)
-	{
-		m_iValue = atoi(str);
-	}
-	virtual const char* Type()
-	{
-		return "int value";
-	}
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
 };
 
 class CArgFloat : public IArg
 {
 public:
-	double m_fDefault;
-	double m_fValue;
-	virtual void SetValue(const char* str)
-	{
-		m_fValue = atof(str);
-	}
-	virtual const char* Type()
-	{
-		return "float value";
-	}
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
 };
 
 class CArgStr : public IArg
 {
 public:
-	const char* m_strDefault;
-	const char* m_strValue;
-	virtual void SetValue(const char* str)
-	{
-		m_strValue = str;
-	}
-	virtual const char* Type()
-	{
-		return "string value";
-	}
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
 };
 
 
 class CArgParser
 {
-	typedef int(*CB)(CArgParser& args);
+	typedef int(*CB)(void);
 	CB m_cb;
 	static int m_nArg;
 	static char** m_pArgs;
-	bool* m_bPrintHelp;
+	bool m_bPrintHelp;
+	int m_nMaxFlagLen;
 	CString m_strName;
 	CString m_strDescription;
 	list<IArg*> m_lsArgInfo;
@@ -106,26 +69,24 @@ class CArgParser
 	//SArgInfo* m_pListPosition;
 	map<CString, CArgParser*> m_mapSubParser;
 	CArgParser* m_pSubParser;
+	list<IArg*> m_lsRefParentFlag;
 
 	CArgParser(const char* sub_cmd, const char* description, CB cb);
 public:
-	CArgParser(int argc, char* argv[], const char *description = NULL);
+	CArgParser(int argc, char* argv[], const char *description = nullptr);
 
+	CArgParser& AddRef(IArg* p);
 	void AddOption(IArg* p);
-	bool* AddBool(const char* name, char short_name = 0, const char* help = nullptr);
-	int* AddInt(const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
-	double* AddFloat(const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
-	const char** AddStr(const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* Add(bool& value, const char* name, char short_name = 0, const char* help = nullptr);
+	IArg* Add(int& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* Add(double& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* Add(const char*& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
 	//void AddPosition(const char* name, EArgType type = ARG_TYPE_STR, bool is_list = false, const char* help = NULL);
-	CArgParser &AddSub(const char *sub_cmd, CB cb, const char *description = NULL);
+	CArgParser& AddSub(const char *sub_cmd, CB cb, const char *description = nullptr);
 	void ParseArgs();
 
-//	CSmartType &operator [] (const CString &key);
-
 	void PrintHelp();
-	void PrintResult();
 private:
 	bool ParseArgs(int nBeg);
 };
-
 

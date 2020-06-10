@@ -4,28 +4,27 @@
 
 #define NUM_FRAME		10
 
+int dev_id;
+int print_info()
+{
+	Camera cam(dev_id);
+	cam.PrintDevInfo();
+	return 0;
+}
+
 int main(int argc, char ** argv) {
+	int format_index;
+	int W, H;
 	CArgParser arg_parse(argc, argv, "A program to test UVC camera");
-	arg_parse.AddOption("dev_id", 'd', ARG_TYPE_INT, true, false, "/dev/video<dev_id>");
-	arg_parse.AddOption("print_info", 'p', ARG_TYPE_BOOL, true, false, "print supported format and image size");
-	arg_parse.AddOption("format_index", 'f', ARG_TYPE_INT, false, false, "specify which format of image to snap");
-	arg_parse.AddOption("width", 'W', ARG_TYPE_INT, false, false, "specify image width");
-	arg_parse.AddOption("height", 'H', ARG_TYPE_INT, false, false, "specify image height");
+	auto flag_dev_id = arg_parse.Add(dev_id, "dev-id", 'd', true, "/dev/video<dev_id>");
+	arg_parse.AddSub("info", print_info, "print supported format and image size").AddRef(flag_dev_id);
+	arg_parse.Add(format_index, "format-index", 'f', true, "specify which format of image to snap");
+	arg_parse.Add(W, "width", 'W', true, "specify image width");
+	arg_parse.Add(H, "height", 'H', true, "specify image height");
 	arg_parse.ParseArgs();
-	arg_parse.PrintResult();
-	Camera cam((int)arg_parse["dev_id"]);
-	if (arg_parse["print_info"])
-	{
-		cam.PrintDevInfo();
-		exit(0);
-	}
-	if (arg_parse["width"] == NONE || arg_parse["height"] == NONE || arg_parse["format_index"] == NONE)
-	{
-		cout << "please specify --width, --height and --format_index" << endl;
-		exit(-1);
-	}
+	Camera cam(dev_id);
 	cam.SetMemBufCount(4);
-	cam.Init(arg_parse["width"], arg_parse["height"], arg_parse["format_index"]);
+	cam.Init(W, H, format_index);
 	for (int i = 0; i < NUM_FRAME; ++i)
 	{
 		Camera::Frame frame = cam.GetFrame();
@@ -36,4 +35,3 @@ int main(int argc, char ** argv) {
 	}
 	return 0;
 }
-
