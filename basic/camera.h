@@ -56,6 +56,7 @@ public:
 
 	void SetMemBufCount(unsigned n);
 	bool Init(unsigned w, unsigned h, unsigned nDataType = 0);
+	void Restart();
 	unsigned GetImage(void* image);
 	Camera *GetFrame();
 	unsigned GetW();

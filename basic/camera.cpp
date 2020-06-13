@@ -86,6 +86,15 @@ bool Camera::Init(unsigned w, unsigned h, unsigned nDataType)
 	return true;
 }
 
+void Camera::Restart()
+{
+	stop_capturing();
+	uninit_device();
+	close_device();
+	CheckDev();
+	Init(m_nWidth, m_nHeight, m_nDataType);
+}
+
 unsigned Camera::GetImage(void* image)
 {
 	if (wait_frame())
@@ -451,6 +460,7 @@ bool Camera::wait_frame()
 
 	if (0 == r)
 	{
+		perror("select timeout");
 		printf("select timeout\n");
 		return false;
 	}
