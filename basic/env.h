@@ -19,6 +19,11 @@
 
 using namespace std;
 
+struct StrCMP
+{
+	bool operator()(const char* const& left, const char* const& right) const { return strcmp(left, right) < 0; }
+};
+
 struct Printer
 {
 	template<class T>

@@ -1,10 +1,6 @@
 #pragma once
 #include "env.h"
 
-#include "dict.h"
-#include "str.h"
-#include "type.h"
-
 
 class IArg
 {
@@ -52,6 +48,26 @@ public:
 	virtual const char* Type();
 };
 
+class CArgIntList : public IArg
+{
+public:
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
+};
+
+class CArgFloatList : public IArg
+{
+public:
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
+};
+
+class CArgStrList : public IArg
+{
+public:
+	virtual void SetValue(const char* str);
+	virtual const char* Type();
+};
 
 class CArgParser
 {
@@ -60,15 +76,15 @@ class CArgParser
 	static int m_nArg;
 	static char** m_pArgs;
 	bool m_bPrintHelp;
-	int m_nMaxFlagLen;
-	CString m_strName;
-	CString m_strDescription;
+	size_t m_nMaxFlagLen;
+	const char* m_strName;
+	const char* m_strDescription;
 	list<IArg*> m_lsArgInfo;
-	map<CString, IArg*> m_mapKV;
+	map<const char*, IArg*, StrCMP> m_mapKV;
+	map<char, IArg*> m_mapKVc;
 	list<IArg*> m_lsPositional;
-	//SArgInfo* m_pListPosition;
-	map<CString, CArgParser*> m_mapSubParser;
-	CArgParser* m_pSubParser;
+	IArg* m_pListPosition;
+	map<const char*, CArgParser*, StrCMP> m_mapSubParser;
 	list<IArg*> m_lsRefParentFlag;
 
 	CArgParser(const char* sub_cmd, const char* description, CB cb);
@@ -81,7 +97,15 @@ public:
 	IArg* Add(int& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
 	IArg* Add(double& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
 	IArg* Add(const char*& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
-	//void AddPosition(const char* name, EArgType type = ARG_TYPE_STR, bool is_list = false, const char* help = NULL);
+	IArg* Add(list<int>& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* Add(list<double>& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* Add(list<const char*>& value, const char* name, char short_name = 0, bool required = false, const char* help = nullptr);
+	IArg* AddPosition(int& value, const char* name, const char* help = nullptr);
+	IArg* AddPosition(double& value, const char* name, const char* help = nullptr);
+	IArg* AddPosition(const char*& value, const char* name, const char* help = nullptr);
+	IArg* AddPosition(list<int>& value, const char* name, const char* help = nullptr);
+	IArg* AddPosition(list<double>& value, const char* name, const char* help = nullptr);
+	IArg* AddPosition(list<const char*>& value, const char* name, const char* help = nullptr);
 	CArgParser& AddSub(const char *sub_cmd, CB cb, const char *description = nullptr);
 	void ParseArgs();
 
@@ -89,4 +113,3 @@ public:
 private:
 	bool ParseArgs(int nBeg);
 };
-

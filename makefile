@@ -6,7 +6,7 @@ ser : main_ser.cpp basic/stream.* basic/sock.* basic/tick.* basic/thread.h
 cli : main_cli.cpp basic/stream.* basic/sock.*
 	g++ $^ -I ./basic/ -o cli.out
 
-cam : main_camera.cpp camera.o stream.o file.o str.o tick.o type.o args.o
+cam : main_camera.cpp camera.o stream.o file.o str.o tick.o args.o
 	$(CC) $^ -o $@
 %.o : basic/%.cpp
 	$(CO) $@ $^
