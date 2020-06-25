@@ -1,57 +1,85 @@
 #include "jpg.h"
 
-void decompress(jpeg_decompress_struct& cinfo, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+class CJPEGCtxt
 {
-	jpeg_read_header(&cinfo, TRUE);
-
-	cinfo.scale_num = 1;
-	cinfo.scale_denom = scale_denom;
-	cinfo.out_color_space = JCS_EXT_BGRA;
-	jpeg_start_decompress(&cinfo);
-	printf("%d * %d [%d] >> %d * %d [%d]\n", cinfo.image_width, cinfo.image_height, cinfo.num_components,
-		   cinfo.output_width, cinfo.output_height, cinfo.output_components);
-	img = new unsigned char[cinfo.output_width * cinfo.output_height * unsigned(cinfo.output_components)];
-	w = cinfo.output_width;
-	h = cinfo.output_height;
-
-	JSAMPROW row_pointer;
-	while (cinfo.output_scanline < cinfo.output_height)
+	FILE* m_pFile;
+	jpeg_error_mgr m_JPEGErrMgr;
+	jmp_buf m_JmpBuf;
+	jpeg_decompress_struct m_info;
+public:
+	CJPEGCtxt()
 	{
-		row_pointer = &img[(cinfo.output_scanline) * cinfo.output_width * unsigned(cinfo.output_components)];
-		jpeg_read_scanlines(&cinfo, &row_pointer, 1);
+		m_pFile = nullptr;
+		m_info.err = jpeg_std_error(&m_JPEGErrMgr);
+		m_JPEGErrMgr.error_exit = ErrHandler;
+		jpeg_create_decompress(&m_info);
 	}
-}
+	~CJPEGCtxt()
+	{
+		jpeg_destroy_decompress(&m_info);
+		if (m_pFile)
+			fclose(m_pFile);
+	}
+	void Load(unsigned char* buff, unsigned size)
+	{
+		jpeg_mem_src(&m_info, buff, size);
+	}
+	void Load(const char* filename)
+	{
+		m_pFile = fopen(filename, "rb");
+		jpeg_stdio_src(&m_info, m_pFile);
+	}
+	int Decompress(unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+	{
+		img = nullptr;
+		if (setjmp(m_JmpBuf))
+		{
+			if (img)
+				delete []img;
+			return -1;
+		}
+
+		jpeg_read_header(&m_info, true);
+
+		m_info.scale_num = 1;
+		m_info.scale_denom = scale_denom;
+		m_info.out_color_space = JCS_EXT_BGRA;
+		jpeg_start_decompress(&m_info);
+		printf("%d * %d [%d] >> %d * %d [%d]\n", m_info.image_width, m_info.image_height, m_info.num_components,
+			   m_info.output_width, m_info.output_height, m_info.output_components);
+		img = new unsigned char[m_info.output_width * m_info.output_height * unsigned(m_info.output_components)];
+		w = m_info.output_width;
+		h = m_info.output_height;
+
+		JSAMPROW row_pointer;
+		while (m_info.output_scanline < m_info.output_height)
+		{
+			row_pointer = &img[(m_info.output_scanline) * m_info.output_width * unsigned(m_info.output_components)];
+			jpeg_read_scanlines(&m_info, &row_pointer, 1);
+		}
+		jpeg_finish_decompress(&m_info);
+		return 0;
+	}
+	METHODDEF(void) ErrHandler(j_common_ptr p) __attribute__((noreturn))
+	{
+		auto ctxt = reinterpret_cast<CJPEGCtxt*>(p->err);
+		(*p->err->output_message)(p);
+		longjmp(ctxt->m_JmpBuf, 1);
+	}
+};
 
 int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_mem_src(&cinfo, buff, size);
-	decompress(cinfo, img, w, h, scale_denom);
-
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
-	return 0;
+	CJPEGCtxt ctxt;
+	ctxt.Load(buff, size);
+	return ctxt.Decompress(img, w, h, scale_denom);
 }
 
 int jpeg2rgb(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
-	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-
-	FILE* f = fopen(filename, "rb");
-	jpeg_stdio_src(&cinfo, f);
-	decompress(cinfo, img, w, h, scale_denom);
-	fclose(f);
-
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
-	return 0;
+	CJPEGCtxt ctxt;
+	ctxt.Load(filename);
+	return ctxt.Decompress(img, w, h, scale_denom);
 }
 
 void rgb2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h)
