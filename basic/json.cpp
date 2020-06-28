@@ -1,138 +1,180 @@
 #include "json.h"
 
-CString JSON::Dump(const DICT(CString)& dict)
+//CString JSON::Dump(const DICT(CString)& dict)
+//{
+//	CString str = "{";
+//	FOR_DICT_CONST(CString, dict, it)
+//	{
+//		str.AppendFormat("\"%s\": \"%s\", ", (const char*)it->first, (const char*)it->second);
+//	}
+//	str.TrimRight()[-1] = '}';
+//	return str;
+//}
+
+bool StrCMP(const char* key, const char* KEY, const char* key0)
 {
-	CString str = "{";
-	FOR_DICT_CONST(CString, dict, it)
+	while (key != KEY && *key0 && *key == *key0)
 	{
-		str.AppendFormat("\"%s\": \"%s\", ", (const char*)it->first, (const char*)it->second);
+		++key;
+		++key0;
 	}
-	str.TrimRight()[-1] = '}';
-	return str;
+	if (key == KEY && *key0 == 0)
+		return true;
+	return false;
 }
 
-void JSON::LoadFile(CSmartType &json, const char *filename)
+const char* ParseJson(bool& value, const char* p)
 {
-	char* buff = NULL;
-	do {
-		FILE* pf = fopen(filename, "r");
-		fseek(pf, 0, SEEK_END);
-		unsigned nSize = ftell(pf);
-		rewind(pf);
-		buff = new char[nSize + 1];
-		int r = fread(buff, 1, nSize, pf);
-		fclose(pf);
-		if (r < 0)
-			break;
-		buff[r] = 0;
-		//cout << buff << endl;
-		Load(json, buff);
-	} while (0);
-	if (buff)
-		delete[] buff;
-}
-
-void JSON::Load(CSmartType &json, const char *str)
-{
-	char* p = (char*)str;
-
 	while (*p)
 	{
 		switch (*p)
 		{
-		case '{':
-			p = JSON::ParseDict(json, p);
+		case ' ':
+		case '\r':
+		case '\n':
+		case '\t':
 			break;
-		case '[':
-			p = JSON::ParseList(json, p);
+		case 't':
+			value = true;
+			p += 2;
 			break;
-		}
-		++p;
-	}
-}
-
-char* JSON::ParseDict(CSmartType &dict, const char *str)
-{
-	char* p = (char*)str + 1;
-	char* key = p;
-	char* value = NULL;
-	map<CString, CSmartType>& D = dict;
-	CString tmp_key;
-
-	while (*p)
-	{
-		switch (*p)
-		{
-		case ':':
-			value = p+1;
+		case 'f':
+			value = false;
+			p += 3;
 			break;
 		case ',':
 		case '}':
-			if (value)
-			{
-				tmp_key = CString(key, value-key-1).Trim();
-				D[tmp_key.SubStr(1, -1)].SmartInit(CString(value, p-value).Trim());
-			}
-			if (*p == '}')
-				return p;
-			key = p+1;
-			break;
-		case '{':
-			tmp_key = CString(key, value-key-1).Trim();
-			p = JSON::ParseDict(D[tmp_key.SubStr(1, -1)], p);
-			value = NULL;
-			break;
-		case '[':
-			tmp_key = CString(key, value-key-1).Trim();
-			p = JSON::ParseList(D[tmp_key.SubStr(1, -1)], p);
-			value = NULL;
-			break;
+			return p;
 		}
 		++p;
 	}
-	cout << "json parse: unexpected end(dict) >> " << str << endl;
 	return p;
 }
 
-char *JSON::ParseList(CSmartType &list, const char *str)
+const char* ParseJson(int& value, const char* p)
 {
-	char* p = (char*)str + 1;
-	char* beg = p;
-	vector<CSmartType>& L = list;
-
+	value = atoi(p);
 	while (*p)
 	{
 		switch (*p)
 		{
 		case ',':
-		case ']':
-			if (beg)
-			{
-				CString item(beg, p-beg);
-				item.Trim();
-				if (!item.Empty())
-				{
-					L.push_back(CSmartType());
-					L.back().SmartInit(item);
-				}
-			}
-			if (*p == ']')
-				return p;
-			beg = p+1;
-			break;
-		case '[':
-			L.push_back(CSmartType());
-			p = JSON::ParseList(L.back(), p);
-			beg = NULL;
-			break;
-		case '{':
-			L.push_back(CSmartType());
-			p = JSON::ParseDict(L.back(), p);
-			beg = NULL;
-			break;
+		case '}':
+			return p;
 		}
 		++p;
 	}
-	cout << "json parse: unexpected end(list) >> " << str << endl;
 	return p;
 }
+
+const char* ParseJson(double& value, const char* p)
+{
+	value = atof(p);
+	while (*p)
+	{
+		switch (*p)
+		{
+		case ',':
+		case '}':
+			return p;
+		}
+		++p;
+	}
+	return p;
+}
+
+const char* ParseJson(const char*& value, const char* p)
+{
+	value = nullptr;
+	const char* str = nullptr;
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '"':
+			if (str == nullptr)
+			{
+				str = p + 1;
+			}
+			else
+			{
+				auto len = p - str;
+				auto tmp = new char[len + 1];
+				memcpy(tmp, str, size_t(len));
+				tmp[len] = 0;
+				value = tmp;
+				str = nullptr;
+			}
+			break;
+		case ',':
+		case '}':
+			if (str == nullptr)
+				return p;
+		}
+		++p;
+	}
+	return p;
+}
+
+const char* ParseDict(const char* p)
+{
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '[':
+			p = ParseList(p + 1);
+			break;
+		case '{':
+			p = ParseDict(p + 1);
+			break;
+		case '}':
+			return p;
+		}
+		++p;
+	}
+	return p;
+}
+
+const char* ParseList(const char* p)
+{
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '[':
+			p = ParseList(p + 1);
+			break;
+		case '{':
+			p = ParseDict(p + 1);
+			break;
+		case ']':
+			return p;
+		}
+		++p;
+	}
+	return p;
+}
+
+const char* ParseUnknown(const char* p)
+{
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '[':
+			p = ParseList(p + 1);
+			return p + 1;
+		case '{':
+			p = ParseDict(p + 1);
+			return p + 1;
+		case ',':
+		case '}':
+		case ']':
+			return p;
+		}
+		++p;
+	}
+	return p;
+}
+
