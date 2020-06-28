@@ -207,12 +207,9 @@ public:
 };
 
 template <class T>
-const char* ToStr(CVector2<T> v)
+void Output(CVector2<T> v)
 {
-//	static char buff[128];
-//	sprintf(buff, "[%s, %s]", _(v.x), _(v.y));
-//	return buff;
-	return SPRINTF("[%s, %s]", _(v.x), _(v.y));
+	PrintXX('[', v.x, ", ", v.y, ']');
 }
 
 typedef CVector2<int> POINT;

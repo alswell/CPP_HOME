@@ -293,7 +293,7 @@ public:
 };
 
 template <class T>
-const char* ToStr(CVector3<T> v)
+void Output(CVector3<T> v)
 {
-	return SPRINTF("[%s, %s, %s]", _(v.x), _(v.y), _(v.z));
+	PrintXX('[', v.x, ", ", v.y, ", ", v.z, ']');
 }

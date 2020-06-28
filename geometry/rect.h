@@ -52,12 +52,9 @@ public:
 };
 
 template <class T>
-const char* ToStr(CRect<T> rc)
+void Output(CRect<T> rc)
 {
-//	static char buff[128];
-//	sprintf(buff, "[%s, %s]", _(v.x), _(v.y));
-//	return buff;
-	return SPRINTF("{(%s, %s); [%s * %s]}", _(rc.left), _(rc.top), _(rc.Width()), _(rc.Height()));
+	PrintXX("{(", rc.left, ", ", rc.top, ") ", rc.Width(), '*', rc.Height(), "}");
 }
 
 typedef CRect<int> RECT;

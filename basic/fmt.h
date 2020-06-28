@@ -1,27 +1,42 @@
 #pragma once
-#include "str.h"
 
-class CSmartType;
+void Output(void* p);
+void Output(bool b);
+void Output(char c);
+void Output(int x);
+void Output(unsigned int x);
+void Output(unsigned long x);
+void Output(long l);
+void Output(float x);
+void Output(double d);
+void Output(const char* const s);
 
-extern CString g_strFmtBuf;
-extern const char* fmt_str;
-extern const char* fmt_char;
-extern const char* fmt_int;
-extern const char* fmt_uint;
-extern const char* fmt_float;
-extern const char* fmt_double;
-const char* ToStr(bool b);
-const char* ToStr(char c);
-const char* ToStr(int i);
-const char* ToStr(long l);
-const char* ToStr(unsigned int u);
-const char* ToStr(float f);
-const char* ToStr(double d);
-const char* ToStr(const CSmartType &v);
-const char* ToStr(const CSmartType* v);
 
-char* __(float f);
-
-#define _(x) (static_cast<const char*>(CString(ToStr(x))))
-#define SPRINTF(fmt, ...) g_strFmtBuf.Format(fmt, __VA_ARGS__)
-
+struct Printer
+{
+	char sep;
+	Printer();
+	Printer& SetSep(char c)
+	{
+		sep = c;
+		return *this;
+	}
+	template<class T>
+	Printer& operator << (T x)
+	{
+		Output(x);
+		return *this;
+	}
+	template<class T>
+	Printer& operator , (T x)
+	{
+		Output(sep);
+		Output(x);
+		return *this;
+	}
+	void EndLine();
+};
+extern Printer printer;
+#define Println(...) (printer << __VA_ARGS__).EndLine()
+#define Print_(...)  printer << __VA_ARGS__
+#define PrintXX(...) (printer.SetSep(0) << __VA_ARGS__).SetSep(' ')

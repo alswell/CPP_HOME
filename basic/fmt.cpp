@@ -1,74 +1,68 @@
 #include "fmt.h"
-#include "type.h"
+#include "iostream"
+using namespace std;
 
-CString g_strFmtBuf;
-const char* fmt_str = "%s";
-const char* fmt_char = "%c";
-const char* fmt_int = "%d";
-const char* fmt_uint = "%u";
-const char* fmt_float = "%.2f";
+Printer printer;
 
-
-const char * ToStr(bool b)
+void Output(void* p)
 {
-	g_strFmtBuf.Format(fmt_str, b ? "TRUE!" : "FALSE!");
-	return g_strFmtBuf;
+	cout << p;
 }
 
-const char * ToStr(char c)
+void Output(bool b)
 {
-	g_strFmtBuf.Format(fmt_char, c);
-	return g_strFmtBuf;
+	cout << (b ? "TRUE!" : "FALSE!");
 }
 
-const char* ToStr(int i)
+void Output(char c)
 {
-	g_strFmtBuf.Format(fmt_int, i);
-	return g_strFmtBuf;
+	cout << c;
 }
 
-const char *ToStr(long l)
+void Output(int x)
 {
-	g_strFmtBuf.Format(fmt_int, l);
-	return g_strFmtBuf;
+	cout << x;
 }
 
-const char * ToStr(unsigned int u)
+void Output(unsigned int x)
 {
-	g_strFmtBuf.Format(fmt_uint, u);
-	return g_strFmtBuf;
+	cout << x;
 }
 
-const char * ToStr(float f)
+void Output(unsigned long x)
 {
-	g_strFmtBuf.Format(fmt_float, f);
-	return g_strFmtBuf;
+	cout << x;
 }
 
-const char * ToStr(double d)
+void Output(long l)
 {
-	g_strFmtBuf.Format(fmt_float, d);
-	return g_strFmtBuf;
+	cout << l;
 }
 
-
-const char *ToStr(const CSmartType &v)
+void Output(float x)
 {
-	v.ToStr(g_strFmtBuf.GetBuffer(1024), 1024);
-	g_strFmtBuf.ReleaseBuffer();
-	return g_strFmtBuf;
+	cout << x;
 }
 
-const char *ToStr(const CSmartType *v)
+void Output(double d)
 {
-	v->ToStr(g_strFmtBuf.GetBuffer(1024), 1024);
-	g_strFmtBuf.ReleaseBuffer();
-	return g_strFmtBuf;
+	cout << d;
 }
 
-char __buff[128];
-char* __(float f)
+void Output(const char* const s)
 {
-	sprintf(__buff, "%f", f);
-	return __buff;
+	if (s == nullptr)
+		cout << "null";
+	else
+		cout << s;
+}
+
+Printer::Printer()
+{
+	sep = ' ';
+}
+
+void Printer::EndLine()
+{
+	cout << endl;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <hash_map>
 #include <hash_fun.h>
-#include "fmt.h"
+#include "str.h"
 struct _str_hash
 {
 	__gnu_cxx::hash<const char*> _hash;

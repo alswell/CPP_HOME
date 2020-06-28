@@ -2,7 +2,7 @@
 #define __HTTP_H
 #include "thread.h"
 #include "sock.h"
-#include "json.h"
+#include "dict.h"
 
 
 class HttpResponse

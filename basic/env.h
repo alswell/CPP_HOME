@@ -24,17 +24,6 @@ struct StrCMP
 	bool operator()(const char* const& left, const char* const& right) const { return strcmp(left, right) < 0; }
 };
 
-struct Printer
-{
-	template<class T>
-	Printer& operator , (T x)
-	{
-		cout << x << " ";
-		return *this;
-	}
-};
-extern Printer printer;
-#define Println(...) printer , __VA_ARGS__; cout << endl
 
 //#ifndef CONF_THIS_CLS
 //#define CONF_THIS_CLS(cls) typedef cls THIS_CLS
