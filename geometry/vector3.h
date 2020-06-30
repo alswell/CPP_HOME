@@ -295,5 +295,5 @@ public:
 template <class T>
 void Output(CVector3<T> v)
 {
-	PrintXX('[', v.x, ", ", v.y, ", ", v.z, ']');
+	Printf("[%s, %s, %s]", v.x, v.y, v.z);
 }

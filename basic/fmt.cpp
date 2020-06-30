@@ -3,6 +3,7 @@
 using namespace std;
 
 Printer printer;
+FormatPrinter format_printer;
 
 void Output(void* p)
 {
@@ -57,12 +58,33 @@ void Output(const char* const s)
 		cout << s;
 }
 
-Printer::Printer()
+void FormatPrinter::Move()
 {
-	sep = ' ';
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '%':
+			if ((p[1]) != '%')
+			{
+				//fmt = p;
+				while (*(p++) != 's');
+				return;
+			}
+			Output('%');
+			++p;
+			break;
+		default:
+			Output(*p);
+		}
+		++p;
+	}
 }
 
-void Printer::EndLine()
+FormatPrinter& FormatPrinter::Format(const char* str)
 {
-	cout << endl;
+	//fmt = nullptr;
+	p = str;
+	return *this, '\0';
 }
+

@@ -14,13 +14,6 @@ void Output(const char* const s);
 
 struct Printer
 {
-	char sep;
-	Printer();
-	Printer& SetSep(char c)
-	{
-		sep = c;
-		return *this;
-	}
 	template<class T>
 	Printer& operator << (T x)
 	{
@@ -30,13 +23,31 @@ struct Printer
 	template<class T>
 	Printer& operator , (T x)
 	{
-		Output(sep);
+		Output(' ');
 		Output(x);
 		return *this;
 	}
-	void EndLine();
 };
 extern Printer printer;
-#define Println(...) (printer << __VA_ARGS__).EndLine()
-#define Print_(...)  printer << __VA_ARGS__
-#define PrintXX(...) (printer.SetSep(0) << __VA_ARGS__).SetSep(' ')
+
+struct FormatPrinter
+{
+	//const char* fmt;
+	const char* p;
+	void Move();
+	FormatPrinter& Format(const char* str);
+	template<class T>
+	FormatPrinter& operator , (T x)
+	{
+		Output(x);
+		Move();
+		return *this;
+	}
+};
+extern FormatPrinter format_printer;
+
+#define NewLine() printer << '\n'
+#define Println(...) (printer << __VA_ARGS__) << '\n'
+#define Prints(...)  printer << __VA_ARGS__
+#define Printf(fmt, ...) format_printer.Format(fmt) , __VA_ARGS__
+

@@ -54,7 +54,7 @@ public:
 template <class T>
 void Output(CRect<T> rc)
 {
-	PrintXX("{(", rc.left, ", ", rc.top, ") ", rc.Width(), '*', rc.Height(), "}");
+	Printf("{(%s, %s) %s*%s}", rc.left, rc.top, rc.Width(), rc.Height());
 }
 
 typedef CRect<int> RECT;

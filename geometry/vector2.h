@@ -209,7 +209,7 @@ public:
 template <class T>
 void Output(CVector2<T> v)
 {
-	PrintXX('[', v.x, ", ", v.y, ']');
+	Printf("[%s, %s]", v.x, v.y);
 }
 
 typedef CVector2<int> POINT;
