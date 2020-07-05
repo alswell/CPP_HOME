@@ -64,3 +64,69 @@ const char* ParseJson(cls& value, const char* p)\
 	}\
 	return p;\
 }
+
+#define DEF_JSON_ITEM(type, name)\
+	type name;\
+	virtual int Parse_##name(const char* key, const char* KEY, const char*& p)\
+	{\
+		if (key == nullptr)\
+		{\
+			ParseJson(name, "");\
+			return 2;\
+		}\
+		if (!StrCMP(key, KEY, #name))\
+			return 0;\
+		p = ParseJson(name, p+1);\
+		return 1;\
+	}
+#define END_JSON_ITEM() virtual int ParseEnd(const char*, const char*, const char*&) { return -1; }
+
+typedef int(*VF)(void*, const char*, const char*, const char*&);
+template<class T>
+const char* ParseJson(T& value, const char* p)
+{
+	auto pList = reinterpret_cast<VF*>(*reinterpret_cast<int64_t*>(&value));
+	for (int i = 0; pList[i](&value, nullptr, nullptr, p) == 2; ++i);
+
+	while (*p != '{') ++p;
+	const char* key = nullptr;
+	const char* KEY = nullptr;
+	while (*p)
+	{
+		switch (*p)
+		{
+		case '}':
+			return p;
+		case '"':
+			if (key == nullptr)
+			{
+				key = p + 1;
+				break;
+			}
+			KEY = p;
+			break;
+		case ':':
+			do
+			{
+				int i = 0, r = 0;
+				while ((r = pList[i++](&value, key, KEY, p)) == 0);
+				if (r == 1)
+					break;
+				p = ParseUnknown(p + 1);
+				while (*p)
+				{
+					if (*p == ',' || *p == '}')
+						break;
+					++p;
+				}
+			} while (false);
+			key = nullptr;
+			if (*p == '}')
+				return p;
+			break;
+		}
+		++p;
+	}
+	return p;
+}
+
