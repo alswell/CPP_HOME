@@ -2,11 +2,11 @@
 
 class CJPEGCtxt
 {
-	FILE* m_pFile;
-	jpeg_error_mgr m_JPEGErrMgr;
+	jpeg_error_mgr m_JPEGErrMgr; // be sure this is the first member
 	jmp_buf m_JmpBuf;
 	jpeg_decompress_struct m_info;
-public:
+
+	FILE* m_pFile;public:
 	CJPEGCtxt()
 	{
 		m_pFile = nullptr;
