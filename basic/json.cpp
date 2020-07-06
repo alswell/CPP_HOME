@@ -18,9 +18,7 @@ bool StrCMP(const char* key, const char* KEY, const char* key0)
 		++key;
 		++key0;
 	}
-	if (key == KEY && *key0 == 0)
-		return true;
-	return false;
+	return key == KEY && *key0 == 0;
 }
 
 const char* ParseJson(bool& value, const char* p)
@@ -53,34 +51,40 @@ const char* ParseJson(bool& value, const char* p)
 
 const char* ParseJson(int& value, const char* p)
 {
-	value = atoi(p);
-	while (*p)
-	{
-		switch (*p)
-		{
-		case ',':
-		case '}':
-			return p;
-		}
-		++p;
-	}
-	return p;
+	char* tmp;
+	value = int(strtol(p, &tmp, 10));
+	return tmp;
+//	value = atoi(p);
+//	while (*p)
+//	{
+//		switch (*p)
+//		{
+//		case ',':
+//		case '}':
+//			return p;
+//		}
+//		++p;
+//	}
+//	return p;
 }
 
 const char* ParseJson(double& value, const char* p)
 {
-	value = atof(p);
-	while (*p)
-	{
-		switch (*p)
-		{
-		case ',':
-		case '}':
-			return p;
-		}
-		++p;
-	}
-	return p;
+	char* tmp;
+	value = strtod(p, &tmp);
+	return tmp;
+//	value = atof(p);
+//	while (*p)
+//	{
+//		switch (*p)
+//		{
+//		case ',':
+//		case '}':
+//			return p;
+//		}
+//		++p;
+//	}
+//	return p;
 }
 
 const char* ParseJson(const char*& value, const char* p)

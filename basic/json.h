@@ -14,6 +14,31 @@ const char* ParseDict(const char* p);
 const char* ParseList(const char* p);
 const char* ParseUnknown(const char* p);
 
+#define PARSE_JSON_LIST(type) \
+template <class T>\
+const char* ParseJson(type<T>& value, const char* p) {\
+	T tmp;\
+	value.clear();\
+	while (*p)\
+	{\
+		switch (*p)\
+		{\
+			case ',':\
+			case '[':\
+				p = ParseJson(tmp, p + 1);\
+				value.push_back(tmp);\
+				break;\
+			case ']':\
+				return p;\
+			default:\
+				++p;\
+		}\
+	}\
+	return p;\
+}
+PARSE_JSON_LIST(list)
+PARSE_JSON_LIST(vector)
+
 #define PARSE(name) \
 if (StrCMP(key, KEY, #name))\
 {\
