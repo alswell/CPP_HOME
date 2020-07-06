@@ -11,6 +11,24 @@ void Output(float x);
 void Output(double d);
 void Output(const char* const s);
 
+#include <list>
+#include <vector>
+using namespace std;
+#define OUTPUT_LIST(type) \
+template <class T>\
+void Output(type<T> ls)\
+{\
+	Output('[');\
+	for (auto it = ls.begin(); it != ls.end(); ++it)\
+	{\
+		if (it != ls.begin())\
+			Output(", ");\
+		Output(*it);\
+	}\
+	Output(']');\
+}
+OUTPUT_LIST(list)
+OUTPUT_LIST(vector)
 
 struct Printer
 {
