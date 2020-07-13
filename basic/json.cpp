@@ -21,7 +21,7 @@ bool StrCMP(const char* key, const char* KEY, const char* key0)
 	return key == KEY && *key0 == 0;
 }
 
-const char* ParseJson(bool& value, const char* p)
+const char* DoParseJson(bool& value, const char* p)
 {
 	while (*p)
 	{
@@ -49,7 +49,7 @@ const char* ParseJson(bool& value, const char* p)
 	return p;
 }
 
-const char* ParseJson(int& value, const char* p)
+const char* DoParseJson(int& value, const char* p)
 {
 	char* tmp;
 	value = int(strtol(p, &tmp, 10));
@@ -68,7 +68,7 @@ const char* ParseJson(int& value, const char* p)
 //	return p;
 }
 
-const char* ParseJson(double& value, const char* p)
+const char* DoParseJson(double& value, const char* p)
 {
 	char* tmp;
 	value = strtod(p, &tmp);
@@ -87,7 +87,7 @@ const char* ParseJson(double& value, const char* p)
 //	return p;
 }
 
-const char* ParseJson(const char*& value, const char* p)
+const char* DoParseJson(const char*& value, const char* p)
 {
 	value = nullptr;
 	const char* str = nullptr;
@@ -120,17 +120,17 @@ const char* ParseJson(const char*& value, const char* p)
 	return p;
 }
 
-const char* ParseDict(const char* p)
+const char* DoParseJsonDict(const char* p)
 {
 	while (*p)
 	{
 		switch (*p)
 		{
 		case '[':
-			p = ParseList(p + 1);
+			p = DoParseJsonList(p + 1);
 			break;
 		case '{':
-			p = ParseDict(p + 1);
+			p = DoParseJsonDict(p + 1);
 			break;
 		case '}':
 			return p;
@@ -140,17 +140,17 @@ const char* ParseDict(const char* p)
 	return p;
 }
 
-const char* ParseList(const char* p)
+const char* DoParseJsonList(const char* p)
 {
 	while (*p)
 	{
 		switch (*p)
 		{
 		case '[':
-			p = ParseList(p + 1);
+			p = DoParseJsonList(p + 1);
 			break;
 		case '{':
-			p = ParseDict(p + 1);
+			p = DoParseJsonDict(p + 1);
 			break;
 		case ']':
 			return p;
@@ -160,17 +160,17 @@ const char* ParseList(const char* p)
 	return p;
 }
 
-const char* ParseUnknown(const char* p)
+const char* DoParseJsonUnknown(const char* p)
 {
 	while (*p)
 	{
 		switch (*p)
 		{
 		case '[':
-			p = ParseList(p + 1);
+			p = DoParseJsonList(p + 1);
 			return p + 1;
 		case '{':
-			p = ParseDict(p + 1);
+			p = DoParseJsonDict(p + 1);
 			return p + 1;
 		case ',':
 		case '}':
