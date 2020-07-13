@@ -30,6 +30,19 @@ void Output(type<T> ls)\
 OUTPUT_LIST(list)
 OUTPUT_LIST(vector)
 
+template <class T>
+void Output(T* p, unsigned n)
+{
+	Output('[');
+	for (unsigned i = 0; i < n; ++i)
+	{
+		if (i != 0)
+			Output(", ");
+		Output(p[i]);
+	}
+	Output(']');
+}
+
 struct Printer
 {
 	template<class T>
@@ -66,6 +79,6 @@ extern FormatPrinter format_printer;
 
 #define NewLine() printer << '\n'
 #define Println(...) (printer << __VA_ARGS__) << '\n'
-#define Prints(...)  printer << __VA_ARGS__
+#define Prints(...) printer << __VA_ARGS__
 #define Printf(fmt, ...) format_printer.Format(fmt) , __VA_ARGS__
 

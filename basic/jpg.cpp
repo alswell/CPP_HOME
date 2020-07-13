@@ -6,7 +6,8 @@ class CJPEGCtxt
 	jmp_buf m_JmpBuf;
 	jpeg_decompress_struct m_info;
 
-	FILE* m_pFile;public:
+    FILE* m_pFile;
+public:
 	CJPEGCtxt()
 	{
 		m_pFile = nullptr;
