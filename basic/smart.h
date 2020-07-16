@@ -11,10 +11,14 @@ public:
 	{
 		return reinterpret_cast<T*>(this + 1);
 	}
+	unsigned Count()
+	{
+		return m_nCount;
+	}
 	static CMemMgr* GetMgr(void* p)
 	{
 		if (p == nullptr)
-			return New(1);
+			return nullptr; //New(1);
 		return reinterpret_cast<CMemMgr*>(p) - 1;
 	}
 	void AddRef()
@@ -61,35 +65,100 @@ class CSlice
 public:
 	CSlice() : m_nBeg(0), m_nEnd(0), m_pArray(nullptr) {}
 	CSlice(unsigned len, unsigned cap)
-			: m_nBeg(0)
-			, m_nEnd(len)
-			, m_pArray(reinterpret_cast<T*>(CMemMgr<T>::New(cap)->Pointer()))
+		: m_nBeg(0)
+		, m_nEnd(len)
+		, m_pArray(reinterpret_cast<T*>(CMemMgr<T>::New(len > cap ? len : cap)->Pointer()))
 	{}
 	CSlice(const CSlice& slice)
-			: m_nBeg(slice.m_nBeg)
-			, m_nEnd(slice.m_nEnd)
-			, m_pArray(slice.m_pArray)
+		: m_nBeg(slice.m_nBeg)
+		, m_nEnd(slice.m_nEnd)
+		, m_pArray(slice.m_pArray)
 	{
 		CMemMgr<T>::GetMgr(m_pArray)->AddRef();
 	}
 	CSlice(const CSlice& slice, unsigned beg, unsigned end)
-			: m_nBeg(slice.m_nBeg + beg)
-			, m_nEnd(slice.m_nBeg + end)
-			, m_pArray(slice.m_pArray)
+		: m_nBeg(slice.m_nBeg + beg)
+		, m_nEnd(slice.m_nBeg + end)
+		, m_pArray(slice.m_pArray)
 	{
+		auto n = CMemMgr<T>::GetMgr(m_pArray)->Count();
+		if (m_nEnd > n)
+			m_nEnd = n;
 		CMemMgr<T>::GetMgr(m_pArray)->AddRef();
 	}
 	~CSlice()
 	{
-		CMemMgr<T>::GetMgr(m_pArray)->Release();
+		if (m_pArray)
+			CMemMgr<T>::GetMgr(m_pArray)->Release();
 	}
-	unsigned Len()
+	unsigned Len() const
 	{
 		return m_nEnd - m_nBeg;
 	}
-	T& operator[] (unsigned i)
+	unsigned Cap()
 	{
+		return CMemMgr<T>::GetMgr(m_pArray)->Count() - m_nBeg;
+	}
+	void Copy(const CSlice& slice)
+	{
+		auto len1 = Len();
+		auto len2 = slice.Len();
+		memcpy(&m_pArray[m_nBeg], &slice.m_pArray[slice.m_nBeg], sizeof(T) * (len1 < len2 ? len1 : len2));
+	}
+	CSlice& operator=(const CSlice& slice)
+	{
+		m_nBeg = slice.m_nBeg;
+		m_nEnd = slice.m_nEnd;
+		if (slice.m_pArray == m_pArray)
+			return *this;
+		if (m_pArray)
+			CMemMgr<T>::GetMgr(m_pArray)->Release();
+		m_pArray = slice.m_pArray;
+		if (m_pArray)
+			CMemMgr<T>::GetMgr(m_pArray)->AddRef();
+		return *this;
+	}
+	T& operator[](int i)
+	{
+		if (i < 0)
+			i += Len();
 		return (m_pArray+m_nBeg)[i];
+	}
+	CSlice& operator+=(const CSlice& slice)
+	{
+		if (m_nEnd + slice.Len() > CMemMgr<T>::GetMgr(m_pArray)->Count())
+		{
+			CSlice s(Len(), Len() + slice.Len());
+			s.Copy(*this);
+			*this = s;
+		}
+		memcpy(&m_pArray[m_nEnd], &slice.m_pArray[slice.m_nBeg], sizeof(T) * slice.Len());
+		m_nEnd += slice.Len();
+		return *this;
+	}
+	CSlice& operator+(const CSlice& slice)
+	{
+		CSlice s(*this);
+		s += slice;
+		return s;
+	}
+	CSlice& operator+=(const T& x)
+	{
+		if (m_nEnd + 1 > CMemMgr<T>::GetMgr(m_pArray)->Count())
+		{
+			CSlice s(Len(), Len() + 1);
+			s.Copy(*this);
+			*this = s;
+		}
+		memcpy(&m_pArray[m_nEnd], &x, sizeof(T));
+		m_nEnd += 1;
+		return *this;
+	}
+	CSlice& operator+(const T& x)
+	{
+		CSlice s(*this);
+		s += x;
+		return s;
 	}
 	void Print()
 	{
@@ -110,7 +179,7 @@ class CSmartObj
 public:
 	CSmartObj() : m_pObj(nullptr) {}
 	CSmartObj(const CSmartObj& obj)
-			: m_pObj(obj.m_pObj)
+		: m_pObj(obj.m_pObj)
 	{
 		CMemMgr<T>::GetMgr(m_pObj)->AddRef();
 	}
@@ -132,14 +201,13 @@ public:
 	}
 	T* operator=(const CSmartObj& obj)
 	{
-		if (obj.m_pObj == nullptr)
-			return nullptr;
 		if (obj.m_pObj == m_pObj)
 			return m_pObj;
 		if (m_pObj)
 			CMemMgr<T>::GetMgr(m_pObj)->Release();
 		m_pObj = obj.m_pObj;
-		CMemMgr<T>::GetMgr(m_pObj)->AddRef();
+		if (m_pObj)
+			CMemMgr<T>::GetMgr(m_pObj)->AddRef();
 		return m_pObj;
 	}
 	T* operator->() { return m_pObj; }
