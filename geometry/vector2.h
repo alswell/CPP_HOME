@@ -211,6 +211,42 @@ void Output(CVector2<T> v)
 {
 	Printf("[%s, %s]", v.x, v.y);
 }
+template <class T>
+const char* DoParseJson(CVector2<T>& value, const char* p)
+{
+	if (p == nullptr)
+	{
+		value.x = 0;
+		value.y = 0;
+		return nullptr;
+	}
+	char* tmp;
+	while (*p)
+	{
+		switch (*p) {
+		case '[':
+			value.x = strtof(p+1, &tmp);
+			p = tmp;
+			break;
+		case ',':
+			value.y = strtof(p+1, &tmp);
+			p = tmp;
+			break;
+		case ']':
+			return p;
+		default:
+			++p;
+		}
+	}
+	return p;
+}
+class CString;
+template <class T>
+void DoDumpJson(CVector2<T>& value, CString& buff, int)
+{
+	JSON_SEQ(buff, "[", value.x, ", ", value.y, "]");
+}
+
 
 typedef CVector2<int> POINT;
 typedef CVector2<float> PointF;
