@@ -1,16 +1,5 @@
 #include "json.h"
 
-//CString JSON::Dump(const DICT(CString)& dict)
-//{
-//	CString str = "{";
-//	FOR_DICT_CONST(CString, dict, it)
-//	{
-//		str.AppendFormat("\"%s\": \"%s\", ", (const char*)it->first, (const char*)it->second);
-//	}
-//	str.TrimRight()[-1] = '}';
-//	return str;
-//}
-
 bool StrCMP(const char* key, const char* KEY, const char* key0)
 {
 	while (key != KEY && *key0 && *key == *key0)
@@ -23,6 +12,8 @@ bool StrCMP(const char* key, const char* KEY, const char* key0)
 
 const char* DoParseJson(bool& value, const char* p)
 {
+	value = false;
+	if (p == nullptr) return nullptr;
 	while (*p)
 	{
 		switch (*p)
@@ -51,8 +42,8 @@ const char* DoParseJson(bool& value, const char* p)
 
 const char* DoParseJson(int& value, const char* p)
 {
-	char* tmp;
-	value = int(strtol(p, &tmp, 10));
+	char* tmp = nullptr;
+	value = p ? int(strtol(p, &tmp, 10)) : 0;
 	return tmp;
 //	value = atoi(p);
 //	while (*p)
@@ -70,8 +61,8 @@ const char* DoParseJson(int& value, const char* p)
 
 const char* DoParseJson(double& value, const char* p)
 {
-	char* tmp;
-	value = strtod(p, &tmp);
+	char* tmp = nullptr;
+	value = p ? strtod(p, &tmp) : 0;
 	return tmp;
 //	value = atof(p);
 //	while (*p)
@@ -90,6 +81,7 @@ const char* DoParseJson(double& value, const char* p)
 const char* DoParseJson(const char*& value, const char* p)
 {
 	value = nullptr;
+	if (p == nullptr) return nullptr;
 	const char* str = nullptr;
 	while (*p)
 	{
@@ -182,3 +174,23 @@ const char* DoParseJsonUnknown(const char* p)
 	return p;
 }
 
+
+void DoDumpJson(bool value, CString &buff, int)
+{
+	buff += (value ? "true" : "false");
+}
+
+void DoDumpJson(int value, CString& buff, int)
+{
+	buff.AppendFormat("%d", value);
+}
+
+void DoDumpJson(double value, CString& buff, int)
+{
+	buff.AppendFormat("%f", value);
+}
+
+void DoDumpJson(const char *value, CString& buff, int)
+{
+	buff += (value ? value : "null");
+}
