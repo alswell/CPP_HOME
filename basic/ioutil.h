@@ -1,4 +1,5 @@
 #pragma once
 #include "str.h"
 
-bool ReadAll(CString& str, const char *filename);
+bool ReadFile(CString& str, const char *filename);
+bool WriteFile(CString& str, const char *filename);

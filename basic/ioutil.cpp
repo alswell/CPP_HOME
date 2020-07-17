@@ -1,7 +1,7 @@
 #include "ioutil.h"
 
 
-bool ReadAll(CString& str, const char* filename)
+bool ReadFile(CString& str, const char* filename)
 {
 	FILE* pf = fopen(filename, "r");
 	if (pf == nullptr)
@@ -17,4 +17,15 @@ bool ReadAll(CString& str, const char* filename)
 	str.ReleaseBuffer();
 	fclose(pf);
 	return true;
+}
+
+bool WriteFile(CString &str, const char *filename)
+{
+	FILE* pf = fopen(filename, "w");
+	if (pf == nullptr)
+		return false;
+	auto nSize = str.GetLength();
+	auto r = fwrite(str.GetString(), 1, size_t(nSize), pf);
+	fclose(pf);
+	return r == nSize;
 }
