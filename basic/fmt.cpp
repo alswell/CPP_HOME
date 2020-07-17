@@ -3,7 +3,6 @@
 using namespace std;
 
 Printer printer;
-FormatPrinter format_printer;
 
 void Output(void* p)
 {
@@ -79,12 +78,5 @@ void FormatPrinter::Move()
 		}
 		++p;
 	}
-}
-
-FormatPrinter& FormatPrinter::Format(const char* str)
-{
-	//fmt = nullptr;
-	p = str;
-	return *this, '\0';
 }
 

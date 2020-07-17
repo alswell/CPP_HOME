@@ -63,10 +63,8 @@ extern Printer printer;
 
 struct FormatPrinter
 {
-	//const char* fmt;
 	const char* p;
 	void Move();
-	FormatPrinter& Format(const char* str);
 	template<class T>
 	FormatPrinter& operator , (T x)
 	{
@@ -75,10 +73,9 @@ struct FormatPrinter
 		return *this;
 	}
 };
-extern FormatPrinter format_printer;
 
 #define NewLine() printer << '\n'
 #define Println(...) (printer << __VA_ARGS__) << '\n'
 #define Prints(...) printer << __VA_ARGS__
-#define Printf(fmt, ...) format_printer.Format(fmt) , __VA_ARGS__
+#define Printf(fmt, ...) FormatPrinter{fmt}, '\0', __VA_ARGS__
 
