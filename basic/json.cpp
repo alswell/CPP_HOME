@@ -1,6 +1,6 @@
 #include "json.h"
 
-bool StrCMP(const char* key, const char* KEY, const char* key0)
+bool StrCMP_JSON(const char* key, const char* KEY, const char* key0)
 {
 	while (key != KEY && *key0 && *key == *key0)
 	{

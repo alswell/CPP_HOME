@@ -3,7 +3,7 @@
 #include "str.h"
 
 
-bool StrCMP(const char* key, const char* KEY, const char* key0);
+bool StrCMP_JSON(const char* key, const char* KEY, const char* key0);
 const char* DoParseJson(bool& value, const char* p);
 const char* DoParseJson(int& value, const char* p);
 const char* DoParseJson(double& value, const char* p);
@@ -141,7 +141,7 @@ const char* DoParseJson(cls& value, const char* p)\
 			DoParseJson(name, nullptr);\
 			return 2;\
 		}\
-		if (!StrCMP(key, KEY, #name))\
+		if (!StrCMP_JSON(key, KEY, #name))\
 			return 0;\
 		p = DoParseJson(name, p+1);\
 		return 1;\
@@ -224,5 +224,6 @@ const char* DoDumpJson(T& value, CString& buff, int indent)
 template<class T>
 void DumpJson(T& value, CString& buff)
 {
+	buff = "";
 	DoDumpJson(value, buff, 0);
 }
