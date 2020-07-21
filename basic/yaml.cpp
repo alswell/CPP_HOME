@@ -10,29 +10,31 @@ bool StrCMP_YAML(const char* key, const char* KEY, const char* key0)
 	return (key == KEY || *key == ' ') && *key0 == 0;
 }
 
-const char* DoParseYaml(int& value, const char* p)
+int DoParseYaml(int& value, const char *&p, int indent0)
 {
-	char* tmp;
-	value = int(strtol(p, &tmp, 10));
-	return tmp;
+	char* tmp = nullptr;
+	value = p ? int(strtol(p, &tmp, 10)) : 0;
+	p = tmp;
+	return CountIndent(p);
 }
 
-const char* DoParseYaml(double& value, const char* p)
+int DoParseYaml(double& value, const char *&p, int indent0)
 {
-	char* tmp;
-	value = strtod(p, &tmp);
-	return tmp;
+	char* tmp = nullptr;
+	value = p ? strtod(p, &tmp) : 0;
+	p = tmp;
+	return CountIndent(p);
 }
 
-int DoParseYamlUnknown(const char*& p, int indent)
+int DoParseYamlUnknown(const char*& p, int indent0)
 {
 	while (*p)
 	{
 		if (*p == '\n')
 		{
-			auto r = CountIndent(p);
-			if (r <= indent)
-				return r;
+			auto indent = CountIndent(p);
+			if (indent <= indent0)
+				return indent;
 			continue;
 		}
 		++p;
@@ -42,6 +44,7 @@ int DoParseYamlUnknown(const char*& p, int indent)
 
 int CountIndent(const char*& p)
 {
+	if (p == nullptr) return -2;
 	int indent = 0;
 	while (*p)
 	{

@@ -25,15 +25,15 @@ const char* DoParseJson(type<T>& value, const char* p) {\
 	{\
 		switch (*p)\
 		{\
-			case ',':\
-			case '[':\
-				p = DoParseJson(tmp, p + 1);\
-				value.push_back(tmp);\
-				break;\
-			case ']':\
-				return p;\
-			default:\
-				++p;\
+		case ',':\
+		case '[':\
+			p = DoParseJson(tmp, p + 1);\
+			value.push_back(tmp);\
+			break;\
+		case ']':\
+			return p;\
+		default:\
+			++p;\
 		}\
 	}\
 	if (*p == 0) throw 10012;\
