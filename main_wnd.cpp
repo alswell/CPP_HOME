@@ -1,5 +1,7 @@
 #include <iostream>
 #include "wnd.h"
+#include "zoom/IZoom.h"
+#include "zoom/impl/ZoomFigure.h"
 
 using namespace std;
 
@@ -38,6 +40,14 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	nTop += 30;
 	ADD_TXT(10, nTop, 100, 25, "Test Scroll:", STD_TXT_FMT, RGBH(FFFFFF));
 	ADD_SCROLL_HORIZON(120, nTop, 300, 25, 50, StdBtn);
+
+	nTop += 30;
+	auto pZoom = ADD_ZOOM(10, nTop, 640, 360, OnClick);
+	auto pFigure = new CZoomFigure;
+	pFigure->Add(3, 4, CLR_R, "xxx");
+	pFigure->Add(3, 4, CLR_G, "+");
+	pFigure->Add(30, 40, CLR_G, "xyz");
+	pZoom->SetZoomImpl(pFigure);
 }
 
 CLocalImgWnd::~CLocalImgWnd()

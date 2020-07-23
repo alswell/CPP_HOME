@@ -35,6 +35,13 @@ void CZoomFigure::GetPixInfo(char* buff, int r, int c)
 
 }
 
+FigurePt *CZoomFigure::Add(float x, float y, COLORREF clr, const char *c)
+{
+	auto p = new FigurePt{PointF(x, y), clr, c, true};
+	m_lsPt.push_back(p);
+	return p;
+}
+
 void CZoomFigure::Add(FigurePt* pt)
 {
 	m_lsPt.push_back(pt);

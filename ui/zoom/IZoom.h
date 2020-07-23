@@ -15,7 +15,7 @@ public:
 	virtual void Revert(float& x, float& y) = 0;
 };
 
-class IZoom
+class IZoom : public CLiteCtrlBase
 {
 	friend class CZoomView;
 protected:
@@ -30,19 +30,7 @@ public:
 	void Map(float& x, float& y);
 	void Revert(float& x, float& y);
 	void GetMulti(int& nMulti, int& nMultiD);
-};
 
-class CZoomImg : public CLiteCtrlBase
-{
-	friend class CZoomView;
-	friend class CZoom;
-	IZoom* m_implZoom;
-public:
-	CZoomImg();
-	void SetZoomImpl(IZoom* implZoom);
-
-	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
-	void Zoom(int iDelta);
 	void ResetRect();
 };
 
@@ -51,7 +39,7 @@ class CZoomView : public CMouseCapturer
 {
 	friend class CZoom;
 	friend class CMultiView;
-	CZoomImg* m_pZoomImg;
+	IZoom* m_implZoom;
 	bool m_bDown;
 	CColorBlock* m_pRedRect;
 	RECT m_rcRealRedRect;
@@ -69,7 +57,7 @@ public:
 	virtual char* GetTipString();
 	virtual void RBtnDown(POINT pt);
 
-	CZoomImg& GetZoomImg();
+	void SetZoomImpl(IZoom* implZoom);
 	POINT PixCoordinate(const POINT& pt);
 	void SetCoordinate();
 	POINT GetCoordinate();

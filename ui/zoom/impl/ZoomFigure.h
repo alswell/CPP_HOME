@@ -28,6 +28,7 @@ public:
 	virtual RECT GetRect();
 	virtual void GetPixInfo(char *buff, int r, int c);
 
+	FigurePt* Add(float x, float y, COLORREF clr, const char* c);
 	void Add(FigurePt* pt);
 	void Add(FigureLine* line);
 };
