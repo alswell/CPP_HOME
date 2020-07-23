@@ -3,11 +3,8 @@
 
 ILiteDC::~ILiteDC(){}
 
-CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc)
-	: m_implDC(nullptr)
-	, m_rcRelLoc(rcRelLoc)
-	, m_ptScroll(0, 0)
-	, m_pRootCtrl(nullptr)
+CLiteCtrlBase::CLiteCtrlBase()
+	: m_ptScroll(0, 0)
 	, m_pParentCtrl(nullptr)
 	, m_bIsVisible(TRUE)
 	, m_nZOrder(0)
@@ -15,29 +12,16 @@ CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc)
 	m_strDebugName = nullptr;
 }
 
-CLiteCtrlBase::CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl)
-	: CLiteCtrlBase(rcRelLoc)
-{
-	m_pRootCtrl = pParentCtrl->m_pRootCtrl;
-	m_pParentCtrl = pParentCtrl;
-	m_implDC = pParentCtrl->m_implDC;
-}
-
 CLiteCtrlBase::~CLiteCtrlBase()
 {
 }
 
-void CLiteCtrlBase::InitDC(ILiteDC* implDC)
-{
-	m_implDC = implDC;
-}
-
-void CLiteCtrlBase::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
+void CLiteCtrlBase::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
 }
 
 //#define DEBUG_DRAW
-void CLiteCtrlBase::WrapDraw(POINT ptParentPos, RECT rcParentViewRgn)
+void CLiteCtrlBase::WrapDraw(ILiteDC *dc, POINT ptParentPos, RECT rcParentViewRgn)
 {
 	RECT rcLoc = m_rcRelLoc;
 	rcLoc.OffsetRect(ptParentPos);
@@ -45,22 +29,22 @@ void CLiteCtrlBase::WrapDraw(POINT ptParentPos, RECT rcParentViewRgn)
 	rcViewRgn.IntersectRect(rcLoc, rcParentViewRgn);
 	if (rcViewRgn.IsRectEmpty())
 		return;
-	Draw(rcLoc, rcViewRgn);
+	Draw(dc, rcLoc, rcViewRgn);
 	#ifdef DEBUG_DRAW
 	if (m_strDebugName)
 		cout << "DRAW: " << m_strDebugName << endl;
 	#endif
-	DrawChildren(POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
+	DrawChildren(dc, POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
 }
 
-void CLiteCtrlBase::DrawChildren(POINT ptParentPos /*= CPoint(0, 0)*/, RECT rcParentViewRgn /*= RECT()*/)
+void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)*/, RECT rcParentViewRgn /*= RECT()*/)
 {
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
 			if ((**it).m_bIsVisible) 
 			{
 				//OutputDebugString("Draw\n");
-				(**it).WrapDraw(ptParentPos, rcParentViewRgn);
+				(**it).WrapDraw(dc, ptParentPos, rcParentViewRgn);
 			}
 }
 
@@ -107,6 +91,13 @@ void CLiteCtrlBase::InvalidateCtrl2(RECT & rc)
 		m_pParentCtrl->InvalidateCtrl2(rc);
 }
 
+CLiteCtrlBase *CLiteCtrlBase::RootCtrl()
+{
+	if (m_pParentCtrl)
+		return m_pParentCtrl->RootCtrl();
+	return this;
+}
+
 void CLiteCtrlBase::ShowCtrl(BOOL bShow)
 {
 	if (m_bIsVisible == bShow)
@@ -138,8 +129,21 @@ POINT CLiteCtrlBase::ParentToChild(POINT pt)
 
 CLiteCtrlBase* CLiteCtrlBase::AddCtrl(CLiteCtrlBase * pCtrl, int nZOrder/* = 0*/)
 {
+	pCtrl->m_pParentCtrl = this;
 	m_vCtrls[nZOrder].push_back(pCtrl);
 	return pCtrl;
+}
+
+CLiteCtrlBase *CLiteCtrlBase::AddCtrl(CLiteCtrlBase *pCtrl, int left, int top, int width, int height, int nZOrder)
+{
+	pCtrl->SetRelLoc(RECT(left, top, left+width, top+height));
+	return AddCtrl(pCtrl, nZOrder);
+}
+
+CLiteCtrlBase *CLiteCtrlBase::AddCtrl(CLiteCtrlBase *pCtrl, const RECT& rc, int nZOrder)
+{
+	pCtrl->SetRelLoc(rc);
+	return AddCtrl(pCtrl, nZOrder);
 }
 
 POINT CLiteCtrlBase::GetMousePos()

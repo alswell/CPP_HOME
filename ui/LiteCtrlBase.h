@@ -81,17 +81,14 @@ class CMouseCapturer;
 class CLiteCtrlBase
 {
 public:
-	CLiteCtrlBase(const RECT& rcRelLoc);
-	CLiteCtrlBase(const RECT& rcRelLoc, CLiteCtrlBase* pParentCtrl);
+	CLiteCtrlBase();
 	virtual ~CLiteCtrlBase();
 
 	const char* m_strDebugName;
 protected:
-	ILiteDC* m_implDC;
-	void InitDC(ILiteDC* implDC);
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
-	void WrapDraw(POINT ptParentPos, RECT rcParentViewRgn);
-	void DrawChildren(POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
+	void WrapDraw(ILiteDC* dc, POINT ptParentPos, RECT rcParentViewRgn);
+	void DrawChildren(ILiteDC* dc, POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	//virtual CLiteCtrlBase* LBtnDown(CPoint pt);
 	//virtual CLiteCtrlBase* LBtnUp(CPoint pt);
@@ -108,11 +105,11 @@ private:
 protected:
 	UINT m_nTimerID;
 public:
-	CLiteCtrlBase* m_pRootCtrl;
 	CLiteCtrlBase* m_pParentCtrl;
 	void InvalidateCtrl();
 protected:
 	virtual void InvalidateCtrl2(RECT& rc);
+	CLiteCtrlBase* RootCtrl();
 public:
 //	BOOL m_bAlpha;
 	BOOL m_bIsVisible;
@@ -123,6 +120,8 @@ public:
 	POINT WindowToChild(POINT pt);
 	POINT ParentToChild(POINT pt);
 	CLiteCtrlBase* AddCtrl(CLiteCtrlBase* pCtrl, int nZOrder = 0);
+	CLiteCtrlBase* AddCtrl(CLiteCtrlBase* pCtrl, int left, int top, int width, int height, int nZOrder = 0);
+	CLiteCtrlBase* AddCtrl(CLiteCtrlBase* pCtrl, const RECT &rc, int nZOrder = 0);
 	POINT GetMousePos();
 	RECT SetRelLoc(const RECT& rc);
 	RECT GetRelLoc();

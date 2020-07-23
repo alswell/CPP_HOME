@@ -5,9 +5,9 @@ CZoomFigure::CZoomFigure()
 	m_implBmpMapper = new CStdMapper;
 }
 
-void CZoomFigure::Draw(const RECT& rcLoc, const RECT& rcViewRgn)
+void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	CPainHelper helper(this, m_implDC, rcLoc, rcViewRgn);
+	CPainHelper helper(this, dc, rcLoc, rcViewRgn);
 	char c[] = "A";
 	FOR_EACH(itLine, m_lsLine)
 	{

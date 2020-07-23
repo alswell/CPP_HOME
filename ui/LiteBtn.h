@@ -35,8 +35,8 @@ const BtnStyle TipBtn = {
 #define SetHover() Show(1)
 #define SetDownOrSelect() Show(2)
 #define SetDisable() Show(3)
-#define ADD_MAGIC_BOX(l, t, W, H, str, style) dynamic_cast<CLiteMagicBox*>(AddCtrl(new CLiteMagicBox(this, RECT(l, t, l+W, t+H), str, btnStyle)))
-#define ADD_TIP(l, t, W, H) (dynamic_cast<CLiteMagicBox*>(AddCtrl(new CLiteMagicBox(this, RECT(l, t, l+W, t+H), "", TipBtn), 10)))
+#define ADD_MAGIC_BOX(l, t, W, H, str, style) dynamic_cast<CLiteMagicBox*>(AddCtrl(new CLiteMagicBox(RECT(l, t, l+W, t+H), str, btnStyle)))
+#define ADD_TIP(l, t, W, H) (dynamic_cast<CLiteMagicBox*>(AddCtrl(new CLiteMagicBox(RECT(l, t, l+W, t+H), "", TipBtn), 10)))
 class CLiteMagicBox : public CMouseCapturer
 {
 protected:
@@ -46,13 +46,13 @@ protected:
 	//CTextBlock* m_pIconTxt;
 	long m_nCurIndex;
 public:
-	CLiteMagicBox(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc, const char* str, const BtnStyle& btnStyle);
+	CLiteMagicBox(const RECT& rcRelLoc, const char* str, const BtnStyle& btnStyle);
 	void SetText(char* str);
 	void Show(int nIndex, bool refresh = true);
 };
 
 
-#define ADD_BTN(l, t, W, H, str, style, cb) (dynamic_cast<CLiteBtn*>(AddCtrl(new CLiteBtn(this, RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteBtn::NOTIFY>(&this->cb)))))
+#define ADD_BTN(l, t, W, H, str, style, cb) (dynamic_cast<CLiteBtn*>(AddCtrl(new CLiteBtn(RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteBtn::NOTIFY>(&this->cb)))))
 class CLiteBtn : public CLiteMagicBox
 {
 protected:
@@ -60,7 +60,7 @@ protected:
 public:
 	typedef void(*NOTIFY)(void* self);
 	NOTIFY m_cbNotify;
-	CLiteBtn(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
+	CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	virtual void CaptureMouse(bool bDown);
 	virtual void ReleaseMouse(bool bDown);
@@ -69,7 +69,7 @@ public:
 };
 
 
-#define ADD_CHECK_BOX(l, t, W, H, str, style, cb) (dynamic_cast<CLiteCheckBox*>(AddCtrl(new CLiteCheckBox(this, RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteCheckBox::NOTIFY>(&this->cb)))))
+#define ADD_CHECK_BOX(l, t, W, H, str, style, cb) (dynamic_cast<CLiteCheckBox*>(AddCtrl(new CLiteCheckBox(RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteCheckBox::NOTIFY>(&this->cb)))))
 class CLiteCheckBox : public CLiteMagicBox
 {
 	bool m_bSelected;
@@ -77,7 +77,7 @@ class CLiteCheckBox : public CLiteMagicBox
 public:
 	typedef void(*NOTIFY)(void* self, bool bSelected);
 	NOTIFY m_cbNotify;
-	CLiteCheckBox(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
+	CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	virtual void CaptureMouse(bool bDown);
 	virtual void ReleaseMouse(bool bDown);
@@ -86,7 +86,7 @@ public:
 };
 
 
-#define ADD_RADIO_BOX(l, t, W, H, str, style, cb) (dynamic_cast<CLiteRadioBox*>(AddCtrl(new CLiteRadioBox(this, RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteRadioBox::NOTIFY>(&this->cb)))))
+#define ADD_RADIO_BOX(l, t, W, H, str, style, cb) (dynamic_cast<CLiteRadioBox*>(AddCtrl(new CLiteRadioBox(RECT(l, t, l+W, t+H), str, style, reinterpret_cast<CLiteRadioBox::NOTIFY>(&this->cb)))))
 class CLiteRadioBox : public CLiteMagicBox
 {
 protected:
@@ -95,7 +95,7 @@ protected:
 public:
 	typedef void(*NOTIFY)(void* self, int nSelected);
 	NOTIFY m_cbNotify;
-	CLiteRadioBox(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
+	CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
 
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	virtual void CaptureMouse(bool bDown);
@@ -111,7 +111,7 @@ class CLiteScrollBar : public CLiteBtn
 {
 	POINT m_ptDown;
 public:
-	CLiteScrollBar(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle);
+	CLiteScrollBar(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle);
 
 	virtual void Activate(POINT ptWnd);
 	virtual void ActivateMove(POINT ptWnd);
@@ -122,7 +122,7 @@ enum EScrollType
 	SCROLL_HORIZON,
 	SCROLL_VERTICAL,
 };
-#define ADD_SCROLL_HORIZON(l, t, W, H, len, style) (dynamic_cast<CLiteScroll*>(AddCtrl(new CLiteScroll(this, RECT(l, t, l+W, t+H), SCROLL_HORIZON, len, style, nullptr))))
+#define ADD_SCROLL_HORIZON(l, t, W, H, len, style) (dynamic_cast<CLiteScroll*>(AddCtrl(new CLiteScroll(RECT(l, t, l+W, t+H), SCROLL_HORIZON, len, style, nullptr))))
 class CLiteScroll : public CLiteCtrlBase
 {
 protected:
@@ -133,7 +133,7 @@ protected:
 public:
 	typedef void(*NOTIFY)(void* self, int l, int t, unsigned w, unsigned h, unsigned W, unsigned H);
 	NOTIFY m_cbNotify;
-	CLiteScroll(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle, NOTIFY cb);
+	CLiteScroll(RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle, NOTIFY cb);
 
 	void SetBtnLen(unsigned len);
 };

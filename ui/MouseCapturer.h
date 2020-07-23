@@ -4,7 +4,6 @@
 class CMouseCapturer : public CLiteCtrlBase
 {
 public:
-	CMouseCapturer(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc);
 	virtual ~CMouseCapturer();
 
 

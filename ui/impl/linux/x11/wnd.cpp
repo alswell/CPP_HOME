@@ -12,7 +12,7 @@ CX11Global::CX11Global()
 	m_nScreenWidth = DisplayWidth(m_dsp, screen);
 	m_nScreenHeight = DisplayHeight(m_dsp, screen);
 	printf("ScreenCount: %d, DefaultScreen: %d[%d * %d]\n", ScreenCount(m_dsp), screen, m_nScreenWidth, m_nScreenHeight);
-	m_fontDefault = XLoadQueryFont(m_dsp, "-misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso8859-9");
+	m_fontDefault = XLoadQueryFont(m_dsp, "-misc-fixed-medium-r-semicondensed--0-0-75-75-c-0-iso8859-1");
 	g_nKeyMap[37] = KEY_CTRL_L;
 	g_nKeyMap[105] = KEY_CTRL_R;
 	g_nKeyMap[50] = KEY_SHIFT_L;

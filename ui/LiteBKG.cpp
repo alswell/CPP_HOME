@@ -68,13 +68,11 @@ ILiteWnd* ILiteGlobal::NewWnd(CLiteBKG* pBKG)
 }
 
 CLiteBKG::CLiteBKG(int W, int H)
-	: CLiteCtrlBase(RECT(0, 0, W, H))
-	, m_rcPaintRgn(0, 0, W, H)
+	: m_rcPaintRgn(0, 0, W, H)
 {
+	m_rcRelLoc.right = W;
+	m_rcRelLoc.bottom = H;
 	m_implContext = gui->NewWnd(this);
-	InitDC(m_implContext->GetDC());
-
-	m_pRootCtrl = this;
 
 	memset(m_bKeyDown, 0, sizeof(m_bKeyDown));
 	m_pHoverCtrl = nullptr;
@@ -106,7 +104,7 @@ void CLiteBKG::OnPaint()
 {
 	if (m_rcPaintRgn.IsRectEmpty())
 		return;
-	DrawChildren(POINT(0, 0), m_rcRelLoc);
+	DrawChildren(m_implContext->GetDC(), POINT(0, 0), m_rcRelLoc);
 	m_rcPaintRgn.SetRectEmpty();
 }
 

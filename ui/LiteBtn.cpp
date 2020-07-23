@@ -3,11 +3,11 @@
 
 static map<CLiteRadioBox::NOTIFY, vector<void*>> m_mapRadio;
 
-CLiteMagicBox::CLiteMagicBox(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc, const char* str, const BtnStyle& btnStyle)
-	: CMouseCapturer(pParentCtrl, rcRelLoc)
-	, m_stBtnStyle(btnStyle)
+CLiteMagicBox::CLiteMagicBox(const RECT& rcRelLoc, const char* str, const BtnStyle& btnStyle)
+	: m_stBtnStyle(btnStyle)
 	, m_nCurIndex(0)
 {
+	m_rcRelLoc = rcRelLoc;
 	m_pBkg = ADD_BLOCK(0, 0, rcRelLoc.Width(), rcRelLoc.Height(), btnStyle.clrBkgnd[0], btnStyle.clrBorder[0]);
 	int nLeft = 0;
 	//	nLeft = 20;
@@ -41,8 +41,8 @@ void CLiteMagicBox::Show(int nIndex, bool refresh)
 }
 
 
-CLiteBtn::CLiteBtn(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
-	: CLiteMagicBox(pParentCtrl, rcRelLoc, str, btnStyle)
+CLiteBtn::CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bIsDisable(false)
 	, m_cbNotify(cb)
 {
@@ -92,8 +92,8 @@ void CLiteBtn::Inactivate(bool bCapture)
 }
 
 
-CLiteCheckBox::CLiteCheckBox(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
-	: CLiteMagicBox(pParentCtrl, rcRelLoc, str, btnStyle)
+CLiteCheckBox::CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bSelected(false)
 	, m_bIsDisable(false)
 	, m_cbNotify(cb)
@@ -155,8 +155,8 @@ void CLiteCheckBox::Inactivate(bool bCapture)
 	}
 }
 
-CLiteRadioBox::CLiteRadioBox(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
-	: CLiteMagicBox(pParentCtrl, rcRelLoc, str, btnStyle)
+CLiteRadioBox::CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bSelected(false)
 	, m_bIsDisable(false)
 	, m_cbNotify(cb)
@@ -244,8 +244,8 @@ void CLiteRadioBox::Select()
 	Notify(false);
 }
 
-CLiteScrollBar::CLiteScrollBar(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
-	: CLiteBtn(pParentCtrl, rcRelLoc, str, btnStyle, nullptr)
+CLiteScrollBar::CLiteScrollBar(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
+	: CLiteBtn(rcRelLoc, str, btnStyle, nullptr)
 {
 
 }
@@ -279,16 +279,16 @@ void CLiteScrollBar::ActivateMove(POINT ptWnd)
 	MoveTo(x, y);
 }
 
-CLiteScroll::CLiteScroll(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle, CLiteScroll::NOTIFY cb)
-	: CLiteCtrlBase(rcRelLoc, pParentCtrl)
-	, m_typeScroll(type)
+CLiteScroll::CLiteScroll(RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle, CLiteScroll::NOTIFY cb)
+	: m_typeScroll(type)
 	, m_cbNotify(cb)
 {
+	m_rcRelLoc = rcRelLoc;
 	ADD_BLOCK2(GetDrawRect(), RGBH(009900), RGBH(990000));
 	if (m_typeScroll == SCROLL_HORIZON)
-		m_pBtn = new CLiteScrollBar(this, RECT(0, 0, len, rcRelLoc.Height()), nullptr, btnStyle);
+		m_pBtn = new CLiteScrollBar(RECT(0, 0, len, rcRelLoc.Height()), nullptr, btnStyle);
 	else
-		m_pBtn = new CLiteScrollBar(this, RECT(0, 0, rcRelLoc.Width(), len), nullptr, btnStyle);
+		m_pBtn = new CLiteScrollBar(RECT(0, 0, rcRelLoc.Width(), len), nullptr, btnStyle);
 	AddCtrl(m_pBtn);
 }
 

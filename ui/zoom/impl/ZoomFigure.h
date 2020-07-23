@@ -24,7 +24,7 @@ class CZoomFigure : public IZoom
 	list<FigureLine*> m_lsLine;
 public:
 	CZoomFigure();
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 	virtual RECT GetRect();
 	virtual void GetPixInfo(char *buff, int r, int c);
 

@@ -19,15 +19,13 @@ class IZoom
 {
 	friend class CZoomView;
 protected:
-	ILiteDC* m_implDC;
 	IBmpMapper* m_implBmpMapper;
 public:
 	virtual ~IZoom();
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn) = 0;
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn) = 0;
 	virtual RECT GetRect() = 0;
 	virtual void GetPixInfo(char *buff, int x, int y) = 0;
 
-	void Init(ILiteDC* dcImpl);
 	void Zoom(int iDelta);
 	void Map(float& x, float& y);
 	void Revert(float& x, float& y);
@@ -40,10 +38,10 @@ class CZoomImg : public CLiteCtrlBase
 	friend class CZoom;
 	IZoom* m_implZoom;
 public:
-	CZoomImg(CLiteCtrlBase* pParentCtrl);
+	CZoomImg();
 	void SetZoomImpl(IZoom* implZoom);
 
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 	void Zoom(int iDelta);
 	void ResetRect();
 };
@@ -61,7 +59,7 @@ class CZoomView : public CMouseCapturer
 	POINT m_ptCoordinate;
 	char m_strCoordinate[128];
 public:
-	CZoomView(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc);
+	CZoomView();
 
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	virtual void Activate(POINT ptWnd);
@@ -89,7 +87,7 @@ protected:
 	int m_nMulti;
 	int m_nMultiD;
 public:
-	CCoordinate(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc);
+	CCoordinate();
 
 	void Update(int nScroll, int nMulti, int nMultiD);
 	int GetBeginValue();
@@ -100,20 +98,16 @@ public:
 class CCoordinateH : public CCoordinate
 {
 public:
-	CCoordinateH(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc);
-
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 };
 
 class CCoordinateV : public CCoordinate
 {
 public:
-	CCoordinateV(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc);
-
-	virtual void Draw(const RECT& rcLoc, const RECT& rcViewRgn);
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 };
 
-#define ADD_ZOOM(l, t, W, H, cb) ((CZoom*)AddCtrl(new CZoom(this, RECT(l, t, l+W, t+H), reinterpret_cast<CZoom::NOTIFY_RBTN_DOWN>(&this->cb))))
+#define ADD_ZOOM(l, t, W, H, cb) ((CZoom*)AddCtrl(new CZoom(RECT(l, t, l+W, t+H), reinterpret_cast<CZoom::NOTIFY_RBTN_DOWN>(&this->cb))))
 #define REG_RED_RECT_CB(zoom, cb) zoom->RegRedRectCB(reinterpret_cast<CZoom::NOTIFY_RBTN_DOWN>(&this->cb))
 class CZoom : public CLiteCtrlBase
 {
@@ -128,7 +122,7 @@ public:
 	typedef void(*NOTIFY_RED_RECT)(void* self, const RECT& rc);
 	NOTIFY_RED_RECT m_cbNotifyRedRect;
 
-	CZoom(CLiteCtrlBase* pParentCtrl, RECT rcRelLoc, NOTIFY_RBTN_DOWN cb = nullptr);
+	CZoom(RECT rcRelLoc, NOTIFY_RBTN_DOWN cb = nullptr);
 	void RegRedRectCB(NOTIFY_RED_RECT cb);
 
 	void SetZoomImpl(IZoom* implZoom);

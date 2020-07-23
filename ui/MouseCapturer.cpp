@@ -1,10 +1,5 @@
 #include "MouseCapturer.h"
 
-CMouseCapturer::CMouseCapturer(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc)
-	: CLiteCtrlBase(rcRelLoc, pParentCtrl)
-{
-}
-
 CMouseCapturer::~CMouseCapturer()
 {
 
