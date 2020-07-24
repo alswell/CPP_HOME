@@ -2,12 +2,28 @@
 
 void CStdMapper::Map(float& x, float& y)
 {
-	x = x * m_nMultiD / m_nMulti;
-	y = y * m_nMultiD / m_nMulti;
+	if (m_nMulti > 0)
+	{
+		x = x / m_nMulti;
+		y = y / m_nMulti;
+	}
+	else
+	{
+		x = x * -m_nMulti;
+		y = y * -m_nMulti;
+	}
 }
 
 void CStdMapper::Revert(float& x, float& y)
 {
-	x = x * m_nMulti / m_nMultiD;
-	y = y * m_nMulti / m_nMultiD;
+	if (m_nMulti > 0)
+	{
+		x = x * m_nMulti;
+		y = y * m_nMulti;
+	}
+	else
+	{
+		x = x / -m_nMulti;
+		y = y / -m_nMulti;
+	}
 }

@@ -5,12 +5,10 @@ class IBmpMapper
 {
 public:
 	int m_nMulti;
-	int m_nMultiD;
-	IBmpMapper(int nMulti = 1, int nMultiD = 1);
+	IBmpMapper(int nMulti = 1);
 	virtual ~IBmpMapper();
 	void Zoom(int iDelta);
 
-	virtual float GetZoom();
 	virtual void Map(float& x, float& y) = 0;
 	virtual void Revert(float& x, float& y) = 0;
 };
@@ -29,7 +27,7 @@ public:
 	void Zoom(int iDelta);
 	void Map(float& x, float& y);
 	void Revert(float& x, float& y);
-	void GetMulti(int& nMulti, int& nMultiD);
+	int GetMulti();
 
 	void ResetRect();
 };
@@ -73,14 +71,10 @@ protected:
 	char m_strCoordinate[8];
 	int m_nBegin;
 	int m_nMulti;
-	int m_nMultiD;
 public:
 	CCoordinate();
 
-	void Update(int nScroll, int nMulti, int nMultiD);
-	int GetBeginValue();
-	int Multi();
-	int MultiD();
+	void Update(int nScroll, int nMulti);
 };
 
 class CCoordinateH : public CCoordinate

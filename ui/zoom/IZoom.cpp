@@ -1,8 +1,7 @@
 #include "IZoom.h"
 
-IBmpMapper::IBmpMapper(int nMulti /*= 1*/, int nMultiD /*= 1*/)
+IBmpMapper::IBmpMapper(int nMulti /*= 1*/)
 	: m_nMulti(nMulti)
-	, m_nMultiD(nMultiD)
 {
 
 }
@@ -16,23 +15,18 @@ void IBmpMapper::Zoom(int iDelta)
 {
 	if (iDelta > 0)
 	{
-		if (m_nMultiD > 1)
-			m_nMultiD--;
+		if (m_nMulti == -2)
+			m_nMulti = 1;
 		else
-			m_nMulti++;
+			++m_nMulti;
 	}
 	else
 	{
-		if (m_nMulti > 1)
-			m_nMulti--;
+		if (m_nMulti == 1)
+			m_nMulti = -2;
 		else
-			m_nMultiD++;
+			--m_nMulti;
 	}
-}
-
-float IBmpMapper::GetZoom()
-{
-	return float(m_nMulti) / float(m_nMultiD);
 }
 
 IZoom::~IZoom() {}
@@ -53,10 +47,9 @@ void IZoom::Revert(float& x, float& y)
 	m_implBmpMapper->Revert(x, y);
 }
 
-void IZoom::GetMulti(int& nMulti, int& nMultiD)
+int IZoom::GetMulti()
 {
-	nMulti = m_implBmpMapper->m_nMulti;
-	nMultiD = m_implBmpMapper->m_nMultiD;
+	return m_implBmpMapper->m_nMulti;
 }
 
 void IZoom::ResetRect()
@@ -176,10 +169,10 @@ char* CZoomView::StrCoordinate()
 
 void CZoomView::SetRedRect()
 {
-	float multi = m_implZoom->m_implBmpMapper->GetZoom();
+	auto multi = m_implZoom->GetMulti();
 	auto rc = m_rcRealRedRect;
 	//Println(multi, rc);
-	rc *= multi;
+	rc *= multi > 0 ? multi : 1.0 / -multi;
 	m_pRedRect->SetRelLoc(rc);
 }
 
@@ -200,40 +193,24 @@ void CZoomView::ResetScroll()
 CCoordinate::CCoordinate()
 	: m_nBegin(0)
 	, m_nMulti(1)
-	, m_nMultiD(1)
 {
 }
 
-void CCoordinate::Update(int nScroll, int nMulti, int nMultiD)
+void CCoordinate::Update(int nScroll, int nMulti)
 {
 	m_nBegin = nScroll;
 	m_nMulti = nMulti;
-	m_nMultiD = nMultiD;
-}
-
-int CCoordinate::GetBeginValue()
-{
-	return m_nBegin / m_nMulti * m_nMultiD;
-}
-
-int CCoordinate::Multi()
-{
-	return m_nMulti;
-}
-
-int CCoordinate::MultiD()
-{
-	return m_nMultiD;
 }
 
 void CCoordinateH::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
+	int tmp = m_nMulti > 0 ? 100*m_nMulti : 100/-m_nMulti;
 	for (int i = rcLoc.left, x = m_nBegin; i < rcLoc.right; i++, x++)
 	{
-		if (x % (100 * m_nMulti / m_nMultiD) == 0)
+		if (x % tmp == 0)
 		{
 			dc->Line(i, rcLoc.top, i, rcLoc.bottom, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", x / m_nMulti * m_nMultiD);
+			sprintf(m_strCoordinate, "%d", m_nMulti > 0 ? x/m_nMulti : x*-m_nMulti);
 			dc->TextStd(rcViewRgn, RectW(i, rcLoc.top, 40, 20), m_strCoordinate, CLR_DEFAULT);
 		}
 	}
@@ -241,12 +218,13 @@ void CCoordinateH::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 
 void CCoordinateV::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
+	int tmp = m_nMulti > 0 ? 100*m_nMulti : 100/-m_nMulti;
 	for (int i = rcLoc.top, y = m_nBegin; i < rcLoc.bottom; i++, y++)
 	{
-		if (y % (100 * m_nMulti / m_nMultiD) == 0)
+		if (y % tmp == 0)
 		{
 			dc->Line(rcLoc.left, i, rcLoc.right, i, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", y / m_nMulti * m_nMultiD);
+			sprintf(m_strCoordinate, "%d", m_nMulti > 0 ? y/m_nMulti : y*-m_nMulti);
 			dc->TextStd(rcViewRgn, RectW(rcLoc.left, i, 40, 20), m_strCoordinate, CLR_DEFAULT);
 		}
 	}
@@ -278,10 +256,9 @@ void CZoom::SetZoomImpl(IZoom* implZoom)
 
 void CZoom::NotifyOffset()
 {
-	int nMulti, nMultiD;
-	m_pZoomView->m_implZoom->GetMulti(nMulti, nMultiD);
-	m_pCoordinateH->Update(m_pZoomView->m_ptScroll.x, nMulti, nMultiD);
-	m_pCoordinateV->Update(m_pZoomView->m_ptScroll.y, nMulti, nMultiD);
+	auto nMulti = m_pZoomView->m_implZoom->GetMulti();
+	m_pCoordinateH->Update(m_pZoomView->m_ptScroll.x, nMulti);
+	m_pCoordinateV->Update(m_pZoomView->m_ptScroll.y, nMulti);
 	InvalidateCtrl();
 }
 
