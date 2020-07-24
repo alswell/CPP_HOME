@@ -44,9 +44,10 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	nTop += 30;
 	auto pZoom = ADD_ZOOM(10, nTop, 640, 360, OnClick);
 	auto pFigure = new CZoomFigure;
-	pFigure->Add(3, 4, CLR_R, "xxx");
-	pFigure->Add(3, 4, CLR_G, "+");
-	pFigure->Add(30, 40, CLR_G, "xyz");
+	pFigure->AddPoint(3, 4, CLR_R, "xxx");
+	pFigure->AddPoint(3, 4, CLR_G, "+");
+	pFigure->AddPoint(30, 100, CLR_G, "xyz");
+	pFigure->AddRect(100, 30, 20, 30, CLR_G);
 	pZoom->SetZoomImpl(pFigure);
 }
 

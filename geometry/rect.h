@@ -10,6 +10,8 @@ public:
 	T bottom;
 	CRect() : left(0), top(0), right(0), bottom(0) {}
 	CRect(T l, T t, T r, T b) : left(l), top(t), right(r), bottom(b) {}
+	template<class T2>
+	CRect(const CRect<T2> rc) : left(rc.left), top(rc.top), right(rc.right), bottom(rc.bottom) {}
 	T Width() const { return right - left; }
 	T Height() const { return bottom - top; }
 	bool IsRectEmpty() const { return (right - left <= 0) || (bottom - top <= 0 ); }

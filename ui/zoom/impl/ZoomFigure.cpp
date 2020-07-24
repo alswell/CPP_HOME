@@ -22,7 +22,9 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 		}
 	}
 	FOR_EACH(it, m_lsPt)
-	helper.Point((**it).pt, (**it).clr, (**it).c);
+		helper.Point((**it).pt, (**it).clr, (**it).c);
+	FOR_EACH(it, m_lsRect)
+		helper.Rect((**it).rc, (**it).clr);
 }
 
 RECT CZoomFigure::GetRect()
@@ -35,10 +37,17 @@ void CZoomFigure::GetPixInfo(char* buff, int r, int c)
 
 }
 
-FigurePt *CZoomFigure::Add(float x, float y, COLORREF clr, const char *c)
+FigurePt *CZoomFigure::AddPoint(float x, float y, COLORREF clr, const char *c)
 {
-	auto p = new FigurePt{PointF(x, y), clr, c, true};
+	auto p = new FigurePt{PointF(x, y), c, clr, true};
 	m_lsPt.push_back(p);
+	return p;
+}
+
+FigureRect *CZoomFigure::AddRect(float l, float t, float W, float H, COLORREF clr)
+{
+	auto p = new FigureRect{CRect<float>(l, t, l+W, t+H), clr, true};
+	m_lsRect.push_back(p);
 	return p;
 }
 
@@ -58,6 +67,13 @@ CPainHelper::CPainHelper(CZoomFigure* pZoom, ILiteDC* implDC, const RECT& rcLoc,
 		, m_rcLoc(rcLoc)
 		, m_rcViewRgn(rcViewRgn)
 {
+}
+
+void CPainHelper::PtRevert(float &x, float &y)
+{
+	m_pZoom->Revert(y, x);
+	y += m_rcLoc.top;
+	x += m_rcLoc.left;
 }
 
 void CPainHelper::PtRevert(PointF& pt)
@@ -88,6 +104,13 @@ void CPainHelper::Line(PointF pt1, PointF pt2, COLORREF clr)
 	m_implDC->Line(m_rcViewRgn, int(pt1.x), int(pt1.y), int(pt2.x), int(pt2.y), clr);
 	//m_dcImpl.TextStd(RECT(), RectW(pt1.x - 4, pt1.y - 4, 10, 10), "*", RGBH(0000ff));
 	//m_dcImpl.TextStd(RECT(), RectW(pt2.x - 4, pt2.y - 4, 10, 10), "*", RGBH(0000ff));
+}
+
+void CPainHelper::Rect(CRect<float> rc, COLORREF clr)
+{
+	PtRevert(rc.left, rc.top);
+	PtRevert(rc.right, rc.bottom);
+	m_implDC->Rectangle(m_rcViewRgn, RECT(rc), clr, CLR_NONE);
 }
 
 void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, const char* c)
