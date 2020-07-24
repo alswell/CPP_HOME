@@ -28,8 +28,10 @@ public:
 	void Map(float& x, float& y);
 	void Revert(float& x, float& y);
 	int GetMulti();
-
 	void ResetRect();
+
+	void NotifyEvent(int nMsgID, const Point<int>& pt);
+	void NotifyEvent(int nMsgID, const RECT& rc);
 };
 
 
@@ -112,4 +114,11 @@ public:
 	void NotifyRedRect(const RECT& rc);
 	void NotifyRBtnDown();
 	POINT GetCoordinate();
+
+	typedef void(*EVENT_PT)(void* self, int nMsgID, const Point<int>& pt);
+	EVENT_PT m_cbEventPt;
+	void NotifyEvent(int nMsgID, const Point<int>& pt);
+	typedef void(*EVENT_RECT)(void* self, int nMsgID, const RECT& rc);
+	EVENT_RECT m_cbEventRect;
+	void NotifyEvent(int nMsgID, const RECT& rc);
 };
