@@ -1,6 +1,8 @@
 #pragma once
 #include "LiteBKG.h"
 
+#define ZOOM_MULTI(x, m) (m > 0 ? x * m : x / -m)
+#define ZOOM_DIVID(x, m) (m > 0 ? x / m : x * -m)
 class IBmpMapper
 {
 public:
@@ -9,6 +11,7 @@ public:
 	virtual ~IBmpMapper();
 	void Zoom(int iDelta);
 
+	virtual float GetZoom();
 	virtual void Map(float& x, float& y) = 0;
 	virtual void Revert(float& x, float& y) = 0;
 };

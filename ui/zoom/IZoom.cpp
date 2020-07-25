@@ -29,6 +29,11 @@ void IBmpMapper::Zoom(int iDelta)
 	}
 }
 
+float IBmpMapper::GetZoom()
+{
+	return m_nMulti > 0 ? m_nMulti : 1.0f / -m_nMulti;
+}
+
 IZoom::~IZoom() {}
 
 void IZoom::Zoom(int iDelta)
@@ -72,7 +77,8 @@ CZoomView::CZoomView()
 {
 	m_bDown = false;
 	m_implZoom = nullptr;
-	m_pRedRect = ADD_BLOCK(0, 0, 0, 0, CLR_NONE, CLR_R);
+	m_pRedRect = new CColorBlock(CLR_NONE, CLR_R);
+	AddCtrl(m_pRedRect, 0, 0, 0, 0, 1);
 	m_pRedRect->ShowCtrl(false);
 }
 
@@ -179,10 +185,10 @@ char* CZoomView::StrCoordinate()
 
 void CZoomView::SetRedRect()
 {
-	auto multi = m_implZoom->GetMulti();
+	float multi = m_implZoom->m_implBmpMapper->GetZoom();
 	auto rc = m_rcRealRedRect;
 	//Println(multi, rc);
-	rc *= multi > 0 ? multi : 1.0 / -multi;
+	rc *= multi;
 	m_pRedRect->SetRelLoc(rc);
 }
 
@@ -214,13 +220,13 @@ void CCoordinate::Update(int nScroll, int nMulti)
 
 void CCoordinateH::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	int tmp = m_nMulti > 0 ? 100*m_nMulti : 100/-m_nMulti;
+	int tmp = ZOOM_MULTI(100, m_nMulti);
 	for (int i = rcLoc.left, x = m_nBegin; i < rcLoc.right; i++, x++)
 	{
 		if (x % tmp == 0)
 		{
 			dc->Line(i, rcLoc.top, i, rcLoc.bottom, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", m_nMulti > 0 ? x/m_nMulti : x*-m_nMulti);
+			sprintf(m_strCoordinate, "%d", ZOOM_DIVID(x, m_nMulti));
 			dc->TextStd(rcViewRgn, RectW(i, rcLoc.top, 40, 20), m_strCoordinate, CLR_DEFAULT);
 		}
 	}
@@ -228,13 +234,13 @@ void CCoordinateH::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 
 void CCoordinateV::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	int tmp = m_nMulti > 0 ? 100*m_nMulti : 100/-m_nMulti;
+	int tmp = ZOOM_MULTI(100, m_nMulti);
 	for (int i = rcLoc.top, y = m_nBegin; i < rcLoc.bottom; i++, y++)
 	{
 		if (y % tmp == 0)
 		{
 			dc->Line(rcLoc.left, i, rcLoc.right, i, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", m_nMulti > 0 ? y/m_nMulti : y*-m_nMulti);
+			sprintf(m_strCoordinate, "%d", ZOOM_DIVID(y, m_nMulti));
 			dc->TextStd(rcViewRgn, RectW(rcLoc.left, i, 40, 20), m_strCoordinate, CLR_DEFAULT);
 		}
 	}
