@@ -113,7 +113,10 @@ void CLiteBKG::OnMouseMove(const POINT& pt)
 	m_pTip->MoveTo(pt.x + 20, pt.y + 20);
 	if (m_pDownCtrl)
 		m_pDownCtrl->ActivateMove(pt);
+
+	m_ptMousePos = pt;
 	CMouseCapturer* pHandler = WantCapture(pt);
+
 	if (m_pHoverCtrl != pHandler)
 	{
 		if (m_pHoverCtrl)
@@ -140,9 +143,10 @@ void CLiteBKG::OnMouseMove(const POINT& pt)
 
 void CLiteBKG::OnLBtnDown(const POINT& pt)
 {
-	if (m_pHoverCtrl)
+	CMouseCapturer* pHandler = WantCapture(pt);
+	if (pHandler)
 	{
-		m_pDownCtrl = m_pHoverCtrl;
+		m_pDownCtrl = pHandler;
 		m_pDownCtrl->Activate(pt);
 	}
 }

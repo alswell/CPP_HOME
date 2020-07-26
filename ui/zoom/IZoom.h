@@ -16,12 +16,14 @@ public:
 	virtual void Revert(float& x, float& y) = 0;
 };
 
-class IZoom : public CLiteCtrlBase
+class IZoom : public CMouseCapturer
 {
 	friend class CZoomView;
 protected:
+	int m_nCtrlID;
 	IBmpMapper* m_implBmpMapper;
 public:
+	IZoom(int nCtrlID = 0);
 	virtual ~IZoom();
 	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn) = 0;
 	virtual RECT GetRect() = 0;
@@ -42,10 +44,9 @@ class CZoomView : public CMouseCapturer
 {
 	friend class CZoom;
 	friend class CMultiView;
+	IZoom* m_vZooms[2];
 	IZoom* m_implZoom;
-	bool m_bDown;
-	CColorBlock* m_pRedRect;
-	RECT m_rcRealRedRect;
+	IZoom* m_implEdit;
 	POINT m_ptDown;
 	POINT m_ptCoordinate;
 	char m_strCoordinate[128];
@@ -55,7 +56,6 @@ public:
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
 	virtual void Activate(POINT ptWnd);
 	virtual void ActivateMove(POINT ptWnd);
-	virtual void Inactivate(bool bCapture);
 	virtual void MouseWheel(int zDelta);
 	virtual char* GetTipString();
 	virtual void RBtnDown(POINT pt);
@@ -66,7 +66,6 @@ public:
 	POINT GetCoordinate();
 	char* StrCoordinate();
 private:
-	void SetRedRect();
 	void ResetScroll();
 };
 
@@ -94,8 +93,8 @@ public:
 	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 };
 
-#define ADD_ZOOM(l, t, W, H, cb) ((CZoom*)AddCtrl(new CZoom(RECT(l, t, l+W, t+H), reinterpret_cast<CZoom::NOTIFY_RBTN_DOWN>(&this->cb))))
-#define REG_RED_RECT_CB(zoom, cb) zoom->RegRedRectCB(reinterpret_cast<CZoom::NOTIFY_RBTN_DOWN>(&this->cb))
+#define ADD_ZOOM(l, t, W, H) ((CZoom*)AddCtrl(new CZoom(RECT(l, t, l+W, t+H))))
+#define REG_ZOOM_EVENT(func_type, cb) RegEventHandler(reinterpret_cast<CZoom::func_type>(&this->cb))
 class CZoom : public CLiteCtrlBase
 {
 	friend class CMultiView;
@@ -104,24 +103,18 @@ protected:
 	CCoordinateV* m_pCoordinateV;
 	CZoomView* m_pZoomView;
 public:
-	typedef void(*NOTIFY_RBTN_DOWN)(void* self, Point<int> pt);
-	NOTIFY_RBTN_DOWN m_cbNotifyRBtnDown;
-	typedef void(*NOTIFY_RED_RECT)(void* self, const RECT& rc);
-	NOTIFY_RED_RECT m_cbNotifyRedRect;
-
-	CZoom(RECT rcRelLoc, NOTIFY_RBTN_DOWN cb = nullptr);
-	void RegRedRectCB(NOTIFY_RED_RECT cb);
+	CZoom(RECT rcRelLoc);
 
 	void SetZoomImpl(IZoom* implZoom);
 	void NotifyOffset();
-	void NotifyRedRect(const RECT& rc);
-	void NotifyRBtnDown();
 	POINT GetCoordinate();
 
 	typedef void(*EVENT_PT)(void* self, int nMsgID, const Point<int>& pt);
 	EVENT_PT m_cbEventPt;
+	void RegEventHandler(EVENT_PT cb);
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
 	typedef void(*EVENT_RECT)(void* self, int nMsgID, const RECT& rc);
 	EVENT_RECT m_cbEventRect;
+	void RegEventHandler(EVENT_RECT cb);
 	void NotifyEvent(int nMsgID, const RECT& rc);
 };

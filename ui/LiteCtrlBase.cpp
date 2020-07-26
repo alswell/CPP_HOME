@@ -32,7 +32,7 @@ void CLiteCtrlBase::WrapDraw(ILiteDC *dc, POINT ptParentPos, RECT rcParentViewRg
 	Draw(dc, rcLoc, rcViewRgn);
 	#ifdef DEBUG_DRAW
 	if (m_strDebugName)
-		cout << "DRAW: " << m_strDebugName << endl;
+		printf("DRAW: %s[%d, %d]%d*%d\n", m_strDebugName, rcLoc.left, rcLoc.top, rcLoc.Width(), rcLoc.Height());
 	#endif
 	DrawChildren(dc, POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
 }
@@ -48,15 +48,14 @@ void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)
 			}
 }
 
-CMouseCapturer* CLiteCtrlBase::WantCapture(POINT ptParent)
+CMouseCapturer* CLiteCtrlBase::WantCapture(POINT /*ptParent*/)
 {
-	m_bIsMouseIn = CG::PtInRect(m_rcRelLoc, ptParent);
-	m_ptMousePos = ParentToChild(ptParent);
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
-			if ((**it).m_bIsVisible)
+			if ((**it).m_bIsVisible && CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos))
 			{
 				//OutputDebugString("MouseMove\n");
+				(**it).m_ptMousePos = (**it).ParentToChild(m_ptMousePos);
 				CMouseCapturer* pHandler = (**it).WantCapture(m_ptMousePos);
 				if (pHandler)
 					return pHandler;

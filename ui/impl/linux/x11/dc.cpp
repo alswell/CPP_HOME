@@ -170,7 +170,9 @@ void CX11DC::Rectangle(const RECT rcRgn, const RECT rcDraw, COLORREF clrBorder, 
 	if (clrBorder != CLR_NONE)
 	{
 		XSetForeground(X11_DSP, m_gc, clrBorder);
-		XDrawRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, unsigned(rcDraw.Width()) - 1, unsigned(rcDraw.Height()) - 1);
+		auto W = unsigned(rcDraw.Width());
+		auto H = unsigned(rcDraw.Height());
+		XDrawRectangle(X11_DSP, m_hPixmap, m_gc, rcDraw.left, rcDraw.top, W == 0 ? 0 : W-1, H == 0 ? 0 : H-1);
 	}
 }
 

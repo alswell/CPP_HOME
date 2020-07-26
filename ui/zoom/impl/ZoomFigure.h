@@ -31,6 +31,9 @@ class CZoomFigure : public IZoom
 	list<FigurePt*> m_lsPt;
 	list<FigureLine*> m_lsLine;
 	list<FigureRect*> m_lsRect;
+
+	PointF m_ptDown;
+	FigureRect* m_pActiveRect;
 public:
 	CZoomFigure();
 	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
@@ -41,6 +44,10 @@ public:
 	FigureRect* AddRect(float l, float t, float W, float H, COLORREF clr);
 	void Add(FigurePt* pt);
 	void Add(FigureLine* line);
+
+	virtual void Activate(POINT ptWnd);
+	virtual void ActivateMove(POINT ptWnd);
+	virtual void Inactivate(bool bCapture);
 };
 
 class CPainHelper

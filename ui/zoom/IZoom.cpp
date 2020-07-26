@@ -1,4 +1,5 @@
 #include "IZoom.h"
+#include "zoom/impl/ZoomFigure.h"
 
 IBmpMapper::IBmpMapper(int nMulti /*= 1*/)
 	: m_nMulti(nMulti)
@@ -34,6 +35,8 @@ float IBmpMapper::GetZoom()
 	return m_nMulti > 0 ? m_nMulti : 1.0f / -m_nMulti;
 }
 
+IZoom::IZoom(int nCtrlID) : m_nCtrlID(nCtrlID), m_implBmpMapper(nullptr) {}
+
 IZoom::~IZoom() {}
 
 void IZoom::Zoom(int iDelta)
@@ -64,27 +67,27 @@ void IZoom::ResetRect()
 
 void IZoom::NotifyEvent(int nMsgID, const Point<int> &pt)
 {
-	dynamic_cast<CZoom*>(m_pParentCtrl->m_pParentCtrl)->NotifyEvent(nMsgID, pt);
+	dynamic_cast<CZoom*>(m_pParentCtrl->m_pParentCtrl)->NotifyEvent(m_nCtrlID * 10000 + nMsgID, pt);
 }
 
 void IZoom::NotifyEvent(int nMsgID, const RECT &rc)
 {
-	dynamic_cast<CZoom*>(m_pParentCtrl->m_pParentCtrl)->NotifyEvent(nMsgID, rc);
+	dynamic_cast<CZoom*>(m_pParentCtrl->m_pParentCtrl)->NotifyEvent(m_nCtrlID * 10000 + nMsgID, rc);
 }
-
 
 CZoomView::CZoomView()
 {
-	m_bDown = false;
 	m_implZoom = nullptr;
-	m_pRedRect = new CColorBlock(CLR_NONE, CLR_R);
-	AddCtrl(m_pRedRect, 0, 0, 0, 0, 1);
-	m_pRedRect->ShowCtrl(false);
+	m_implEdit = new CZoomFigure;
+	m_implEdit->ResetRect();
+	AddCtrl(m_implEdit, 1);
 }
 
 CMouseCapturer* CZoomView::WantCapture(POINT ptParent)
 {
-	auto p = CMouseCapturer::WantCapture(ptParent);
+	CMouseCapturer* p = this;
+	if (ROOT_CTRL(RootCtrl())->KeyDown(KEY_CTRL_L))
+		p = CMouseCapturer::WantCapture(ptParent);
 	if (p)
 		SetCoordinate();
 	return p;
@@ -92,49 +95,21 @@ CMouseCapturer* CZoomView::WantCapture(POINT ptParent)
 
 void CZoomView::Activate(POINT ptWnd)
 {
-	m_bDown = ROOT_CTRL(RootCtrl())->KeyDown(KEY_CTRL_L);
-	m_pRedRect->ShowCtrl(true);
 	m_ptDown = WindowToChild(ptWnd);
-
-	if (m_bDown)
-	{
-		auto ptReal = PixCoordinate(m_ptDown);
-		m_rcRealRedRect.left = ptReal.x;
-		m_rcRealRedRect.top = ptReal.y;
-		m_rcRealRedRect.right = ptReal.x;
-		m_rcRealRedRect.bottom = ptReal.y;
-	}
 }
 
 void CZoomView::ActivateMove(POINT ptWnd)
 {
 	auto pt = WindowToChild(ptWnd);
-	if (m_bDown)
-	{
-		auto ptReal = PixCoordinate(pt);
-		m_rcRealRedRect.right = ptReal.x;
-		m_rcRealRedRect.bottom = ptReal.y;
-		SetRedRect();
-		InvalidateCtrl();
-	}
-	else
-	{
-		m_ptScroll.x -= pt.x - m_ptDown.x;
-		m_ptScroll.y -= pt.y - m_ptDown.y;
-		dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
-	}
-}
-
-void CZoomView::Inactivate(bool bCapture)
-{
-	if (m_bDown)
-		dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyRedRect(m_rcRealRedRect);
+	m_ptScroll.x -= pt.x - m_ptDown.x;
+	m_ptScroll.y -= pt.y - m_ptDown.y;
+	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
 }
 
 void CZoomView::MouseWheel(int zDelta)
 {
-	m_implZoom->Zoom(zDelta > 0 ? 1 : -1);
-	SetRedRect();
+	m_implZoom->Zoom(zDelta);
+	m_implEdit->Zoom(zDelta);
 	ResetScroll();
 	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
 }
@@ -146,7 +121,7 @@ char* CZoomView::GetTipString()
 
 void CZoomView::RBtnDown(POINT pt)
 {
-	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyRBtnDown();
+	m_implZoom->RBtnDown(pt); //TODO: notify all zoom impl
 }
 
 void CZoomView::SetZoomImpl(IZoom *implZoom)
@@ -181,15 +156,6 @@ POINT CZoomView::GetCoordinate()
 char* CZoomView::StrCoordinate()
 {
 	return m_strCoordinate;
-}
-
-void CZoomView::SetRedRect()
-{
-	float multi = m_implZoom->m_implBmpMapper->GetZoom();
-	auto rc = m_rcRealRedRect;
-	//Println(multi, rc);
-	rc *= multi;
-	m_pRedRect->SetRelLoc(rc);
 }
 
 void CZoomView::ResetScroll()
@@ -246,10 +212,8 @@ void CCoordinateV::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 	}
 }
 
-CZoom::CZoom(RECT rcRelLoc, NOTIFY_RBTN_DOWN cb)
-	: m_cbNotifyRBtnDown(cb)
-	, m_cbNotifyRedRect(nullptr)
-	, m_cbEventPt(nullptr)
+CZoom::CZoom(RECT rcRelLoc)
+	: m_cbEventPt(nullptr)
 	, m_cbEventRect(nullptr)
 {
 	m_rcRelLoc = rcRelLoc;
@@ -260,11 +224,6 @@ CZoom::CZoom(RECT rcRelLoc, NOTIFY_RBTN_DOWN cb)
 	AddCtrl(m_pCoordinateH, RECT(0, rcRelLoc.Height() - 20, rcRelLoc.Width() - 40, rcRelLoc.Height()));
 	m_pCoordinateV = new CCoordinateV;
 	AddCtrl(m_pCoordinateV, RECT(rcRelLoc.Width() - 40, 0, rcRelLoc.Width(), rcRelLoc.Height()));
-}
-
-void CZoom::RegRedRectCB(CZoom::NOTIFY_RED_RECT cb)
-{
-	m_cbNotifyRedRect = cb;
 }
 
 void CZoom::SetZoomImpl(IZoom* implZoom)
@@ -280,27 +239,25 @@ void CZoom::NotifyOffset()
 	InvalidateCtrl();
 }
 
-void CZoom::NotifyRedRect(const RECT& rc)
-{
-	if (m_cbNotifyRedRect)
-		m_cbNotifyRedRect(m_pParentCtrl, rc);
-}
-
-void CZoom::NotifyRBtnDown()
-{
-	if (m_cbNotifyRBtnDown)
-		m_cbNotifyRBtnDown(m_pParentCtrl, Point<int>(GetCoordinate()));
-}
-
 POINT CZoom::GetCoordinate()
 {
 	return m_pZoomView->m_ptCoordinate;
+}
+
+void CZoom::RegEventHandler(CZoom::EVENT_PT cb)
+{
+	m_cbEventPt = cb;
 }
 
 void CZoom::NotifyEvent(int nMsgID, const Point<int> &pt)
 {
 	if (m_cbEventPt)
 		m_cbEventPt(m_pParentCtrl, nMsgID, pt);
+}
+
+void CZoom::RegEventHandler(CZoom::EVENT_RECT cb)
+{
+	m_cbEventRect = cb;
 }
 
 void CZoom::NotifyEvent(int nMsgID, const RECT &rc)

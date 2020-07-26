@@ -7,11 +7,10 @@ CMouseCapturer::~CMouseCapturer()
 
 CMouseCapturer* CMouseCapturer::WantCapture(POINT ptParent)
 {
-	m_bIsMouseIn = CG::PtInRect(m_rcRelLoc, ptParent);
-	m_ptMousePos = ParentToChild(ptParent);
-	if (m_bIsMouseIn)
-		return this;
-	return nullptr;
+	auto p = CLiteCtrlBase::WantCapture(ptParent);
+	return p ? p : this;
+//	m_ptMousePos = ParentToChild(ptParent);
+//	return this;
 }
 
 //CapturerMove::CapturerMove(CLiteCtrlBase* pParentCtrl, const RECT& rcRelLoc)

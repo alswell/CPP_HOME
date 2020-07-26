@@ -77,6 +77,7 @@ public:
 	virtual void EndData() = 0;
 };
 
+#define IS_MOUSE_IN(ptParent) CG::PtInRect(m_rcRelLoc, ptParent)
 class CMouseCapturer;
 class CLiteCtrlBase
 {
@@ -94,7 +95,6 @@ protected:
 	//virtual CLiteCtrlBase* LBtnUp(CPoint pt);
 
 protected:
-	BOOL m_bIsMouseIn;
 	POINT m_ptMousePos;
 	RECT m_rcRelLoc;
 	POINT m_ptScroll;
