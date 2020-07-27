@@ -1,11 +1,12 @@
 #include <iostream>
+#include "fmt.h"
 #include "wnd.h"
 #include "zoom/IZoom.h"
 #include "zoom/impl/ZoomFigure.h"
 
 using namespace std;
 
-class CLocalImgWnd : public CLiteBKG
+class CLocalImgWnd : public CLiteBKG, public IZoomEventHandler
 {
 public:
 	CLocalImgWnd(int x, int y, int W, int H);
@@ -15,6 +16,8 @@ public:
 	void OnSelected(bool bSel);
 	void OnRadio(int n);
 	void OnRadio2(int n);
+
+	void NotifyEvent(int nMsgID, const RECT& rc);
 };
 
 CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
@@ -42,7 +45,7 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	ADD_SCROLL_HORIZON(120, nTop, 300, 25, 50, StdBtn);
 
 	nTop += 30;
-	auto pZoom = ADD_ZOOM(10, nTop, 640, 360, OnClick);
+	auto pZoom = ADD_ZOOM(10, nTop, 640, 360);
 	auto pFigure = new CZoomFigure;
 	pFigure->AddPoint(3, 4, CLR_R, "xxx");
 	pFigure->AddPoint(3, 4, CLR_G, "+");
@@ -74,6 +77,11 @@ void CLocalImgWnd::OnRadio(int n)
 void CLocalImgWnd::OnRadio2(int n)
 {
 	cout << "OnRadio2: " << n << endl;
+}
+
+void CLocalImgWnd::NotifyEvent(int nMsgID, const RECT &rc)
+{
+	Println("NotifyEvent:", nMsgID, rc);
 }
 
 int main()

@@ -101,7 +101,7 @@ void CZoomFigure::ActivateMove(POINT ptWnd)
 
 void CZoomFigure::Inactivate(bool bCapture)
 {
-	NotifyEvent(111, m_pActiveRect->rc);
+	NotifyEvent(ZOOM_NOTIFY_RECT, m_pActiveRect->rc);
 }
 
 CPainHelper::CPainHelper(CZoomFigure* pZoom, ILiteDC* implDC, const RECT& rcLoc, const RECT& rcViewRgn)

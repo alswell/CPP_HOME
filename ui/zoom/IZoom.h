@@ -94,7 +94,12 @@ public:
 };
 
 #define ADD_ZOOM(l, t, W, H) ((CZoom*)AddCtrl(new CZoom(RECT(l, t, l+W, t+H))))
-#define REG_ZOOM_EVENT(func_type, cb) RegEventHandler(reinterpret_cast<CZoom::func_type>(&this->cb))
+class IZoomEventHandler
+{
+public:
+	virtual void NotifyEvent(int nMsgID, const Point<int>& pt);
+	virtual void NotifyEvent(int nMsgID, const RECT& rc);
+};
 class CZoom : public CLiteCtrlBase
 {
 	friend class CMultiView;
@@ -109,12 +114,6 @@ public:
 	void NotifyOffset();
 	POINT GetCoordinate();
 
-	typedef void(*EVENT_PT)(void* self, int nMsgID, const Point<int>& pt);
-	EVENT_PT m_cbEventPt;
-	void RegEventHandler(EVENT_PT cb);
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
-	typedef void(*EVENT_RECT)(void* self, int nMsgID, const RECT& rc);
-	EVENT_RECT m_cbEventRect;
-	void RegEventHandler(EVENT_RECT cb);
 	void NotifyEvent(int nMsgID, const RECT& rc);
 };

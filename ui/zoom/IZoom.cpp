@@ -212,9 +212,10 @@ void CCoordinateV::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 	}
 }
 
+void IZoomEventHandler::NotifyEvent(int /*nMsgID*/, const Point<int> &/*pt*/){}
+void IZoomEventHandler::NotifyEvent(int /*nMsgID*/, const RECT &/*rc*/){}
+
 CZoom::CZoom(RECT rcRelLoc)
-	: m_cbEventPt(nullptr)
-	, m_cbEventRect(nullptr)
 {
 	m_rcRelLoc = rcRelLoc;
 	rcRelLoc.MoveToXY(0, 0);
@@ -244,24 +245,15 @@ POINT CZoom::GetCoordinate()
 	return m_pZoomView->m_ptCoordinate;
 }
 
-void CZoom::RegEventHandler(CZoom::EVENT_PT cb)
-{
-	m_cbEventPt = cb;
-}
-
 void CZoom::NotifyEvent(int nMsgID, const Point<int> &pt)
 {
-	if (m_cbEventPt)
-		m_cbEventPt(m_pParentCtrl, nMsgID, pt);
-}
-
-void CZoom::RegEventHandler(CZoom::EVENT_RECT cb)
-{
-	m_cbEventRect = cb;
+	auto p = dynamic_cast<IZoomEventHandler*>(m_pParentCtrl);
+	if (p) p->NotifyEvent(nMsgID, pt);
 }
 
 void CZoom::NotifyEvent(int nMsgID, const RECT &rc)
 {
-	if (m_cbEventRect)
-		m_cbEventRect(m_pParentCtrl, nMsgID, rc);
+	auto p = dynamic_cast<IZoomEventHandler*>(m_pParentCtrl);
+	if (p) p->NotifyEvent(nMsgID, rc);
 }
+

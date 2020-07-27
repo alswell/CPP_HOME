@@ -2,6 +2,8 @@
 #include "zoom/IZoom.h"
 #include "StdMapper.h"
 
+#define ZOOM_NOTIFY_RECT 111
+
 #define FIGURE_BASE \
 	COLORREF clr;\
 	bool visible;
