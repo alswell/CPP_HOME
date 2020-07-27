@@ -17,6 +17,8 @@ class CX11Global : public ILiteGlobal
 	XFontStruct* m_fontDefault;
 public:
 	CX11Global();
+	void ListFonts();
+	void PrintFontPath();
 	virtual void Start();
 	virtual ILiteWnd* CreateWindow();
 	virtual int ScreenWidth();

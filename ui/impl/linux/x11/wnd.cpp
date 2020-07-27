@@ -20,6 +20,27 @@ CX11Global::CX11Global()
 	g_nKeyMap[38] = KEY_A;
 }
 
+void CX11Global::ListFonts()
+{
+	int count = 1024;
+	auto p = XListFonts(m_dsp, "*", count, &count);
+	cout << "ListFonts: " << count << endl;
+	for (int i = 0; i < count; ++i)
+		cout << p[i] << endl;
+	XFreeFontNames(p);
+}
+
+void CX11Global::PrintFontPath()
+{
+	int count = 1024;
+	auto p = XGetFontPath(m_dsp, &count);
+	cout << "PrintFontPath: " << count << endl;
+	for (int i = 0; i < count; ++i)
+		cout << p[i] << endl;
+	//"catalogue:/etc/X11/fontpath.d";
+	XFreeFontPath(p);
+}
+
 void CX11Global::Start()
 {
 	// MessageLoop:
