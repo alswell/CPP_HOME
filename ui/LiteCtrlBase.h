@@ -66,6 +66,7 @@ class ILiteDC
 {
 public:
 	virtual ~ILiteDC();
+	virtual ILiteDC* NewCopy() = 0;
 	virtual void Point(int x, int y, COLORREF clr) = 0;
 	virtual void Line(int x1, int y1, int x2, int y2, COLORREF clr) = 0;
 	virtual void Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr) = 0;

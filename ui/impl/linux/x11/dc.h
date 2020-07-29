@@ -21,11 +21,11 @@ public:
 	CX11DC(Window wnd);
 	virtual ~CX11DC();
 	void Init(Window wnd);
-	void CreateCompatible(const CX11DC& dc, unsigned w = 0, unsigned h = 0);
 	void SelectPen(unsigned long color);
 	void Rectangle(int x, int y, unsigned W, unsigned H);
 	void TextOut(const char* str, int x, int y, int W, int H);
 
+	virtual ILiteDC* NewCopy();
 	virtual void Point(int x, int y, COLORREF clr);
 	virtual void Line(int x1, int y1, int x2, int y2, COLORREF clr);
 	virtual void Line(const RECT rcRgn, int x1, int y1, int x2, int y2, COLORREF clr);

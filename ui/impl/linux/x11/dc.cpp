@@ -44,18 +44,18 @@ void CX11DC::Init(Window wnd)
 	m_gc = XCreateGC(X11_DSP, m_hPixmap, 0, nullptr);
 }
 
-void CX11DC::CreateCompatible(const CX11DC &dc, unsigned w, unsigned h)
-{
-	if (w == 0)
-		w = dc.m_nWidth;
-	if (h == 0)
-		h = dc.m_nHeight;
-	m_nWidth = w;
-	m_nHeight = h;
-	m_nDepth = dc.m_nDepth;
-	m_hPixmap = XCreatePixmap(X11_DSP, dc.m_hPixmap, w, h, dc.m_nDepth);
-	m_gc = XCreateGC(X11_DSP, m_hPixmap, 0, nullptr);
-}
+//void CX11DC::CreateCompatible(const CX11DC &dc, unsigned w, unsigned h)
+//{
+//	if (w == 0)
+//		w = dc.m_nWidth;
+//	if (h == 0)
+//		h = dc.m_nHeight;
+//	m_nWidth = w;
+//	m_nHeight = h;
+//	m_nDepth = dc.m_nDepth;
+//	m_hPixmap = XCreatePixmap(X11_DSP, dc.m_hPixmap, w, h, dc.m_nDepth);
+//	m_gc = XCreateGC(X11_DSP, m_hPixmap, 0, nullptr);
+//}
 
 void CX11DC::SelectPen(unsigned long color)
 {
@@ -114,6 +114,17 @@ void CX11DC::TextOut(const char *str, int x, int y, int W, int H)
 	}
 	XDrawString(X11_DSP, m_hPixmap, m_gc, x, (H + string_height) / 2 + y, str, n);
 	XDrawString(X11_DSP, m_hPixmap, m_gc, x + real_width, (H + string_height) / 2 + y, "...", 3);
+}
+
+ILiteDC *CX11DC::NewCopy()
+{
+	auto p = new CX11DC;
+	p->m_nWidth = m_nWidth;
+	p->m_nHeight = m_nHeight;
+	p->m_nDepth = m_nDepth;
+	p->m_hPixmap = XCreatePixmap(X11_DSP, m_hPixmap, m_nWidth, m_nHeight, m_nDepth);
+	p->m_gc = XCreateGC(X11_DSP, p->m_hPixmap, 0, nullptr);
+	return p;
 }
 
 void CX11DC::Point(int x, int y, COLORREF clr)

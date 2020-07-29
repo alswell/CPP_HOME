@@ -22,7 +22,7 @@ public:
 	virtual ~ILiteWnd();
 	virtual void Init() = 0;
 	virtual ILiteDC* GetDC() = 0;
-	virtual void Refresh(RECT& rc) = 0;
+	virtual void Refresh() = 0;
 	virtual void OnClose() = 0;
 
 	void SetBkgAndInit(CLiteBKG* pBKG);
@@ -61,6 +61,8 @@ protected:
 	//static map<CBJICtrlBase*, BOOL> m_pActiveMenu;
 
 	ILiteWnd* m_implContext;
+	ILiteDC* m_dcWnd;
+	ILiteDC* m_dcMem;
 	RECT m_rcPaintRgn;
 public:
 	CLiteBKG(int W, int H);

@@ -117,9 +117,10 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		cout << "ClientMessage: " << count++ << endl;
 		break;
 	case MapNotify:
-		break;
+		cout << "MapNotify" << endl;
+		return;
 	case Expose:
-		cout << "Expose: " << count++ << endl;
+		//cout << "Expose: " << count++ << endl;
 		break;
 	case GraphicsExpose:
 		cout << "GraphicsExpose: " << count++ << endl;
@@ -184,36 +185,17 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		return;
 	}
 	pX11Wnd->OnPaint();
-	pX11Wnd->Flush();
 }
 
 void CX11Wnd::CenterWindow()
 {
 	XMoveWindow(X11_DSP, m_hWnd,
-				(X11_GUI(m_nScreenWidth) - m_rcInvalidate.Width()) / 2,
-				(X11_GUI(m_nScreenHeight) - m_rcInvalidate.Height()) / 2);
-}
-
-
-void CX11Wnd::SendRefreshEvent()
-{
-	static XEvent event;
-	event.type = Expose;
-	event.xany.window = m_hWnd;
-	cout << "XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event): " << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
-//	cout << XPending(g_dsp) << endl;
-	cout << "XSync(X11_DSP, false): " << XSync(X11_DSP, false) << endl;
-}
-
-void CX11Wnd::Flush()
-{
-	m_dcWnd.BitBlt(m_dcMem, m_rcInvalidate.left, m_rcInvalidate.top, unsigned(m_rcInvalidate.Width()), unsigned(m_rcInvalidate.Height()), m_rcInvalidate.left, m_rcInvalidate.top);
-	m_rcInvalidate.SetRectEmpty();
+				(X11_GUI(m_nScreenWidth) - m_pBKG->Width()) / 2,
+				(X11_GUI(m_nScreenHeight) - m_pBKG->Height()) / 2);
 }
 
 void CX11Wnd::Init()
 {
-	m_rcInvalidate = RECT(0, 0, m_pBKG->Width(), m_pBKG->Height());
 	//	unsigned long white = WhitePixel(g_dsp, screenNumber);
 	//	unsigned long black = BlackPixel(g_dsp, screenNumber);
 	m_hWnd = XCreateSimpleWindow(X11_DSP, DefaultRootWindow(X11_DSP),
@@ -223,20 +205,25 @@ void CX11Wnd::Init()
 	long eventMask =  ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
 	XSelectInput(X11_DSP, m_hWnd, eventMask);
 
-	m_dcWnd.Init(m_hWnd);
-	m_dcMem.CreateCompatible(m_dcWnd);
 	X11_GUI(m_mapWnd)[m_hWnd] = this;
 }
 
 ILiteDC* CX11Wnd::GetDC()
 {
-	return &m_dcMem;
+	auto p = new CX11DC;
+	p->Init(m_hWnd);
+	return p;
 }
 
-void CX11Wnd::Refresh(RECT &rc)
+void CX11Wnd::Refresh()
 {
-	m_rcInvalidate.UnionRect(m_rcInvalidate, rc);
-	SendRefreshEvent();
+	static XEvent event;
+	event.type = Expose;
+	event.xany.window = m_hWnd;
+	XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event);
+//	cout << "XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event): " << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
+//	cout << XPending(g_dsp) << endl;
+//	cout << "XSync(X11_DSP, false): " << XSync(X11_DSP, false) << endl;
 }
 
 void CX11Wnd::OnClose()

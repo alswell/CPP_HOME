@@ -73,6 +73,8 @@ CLiteBKG::CLiteBKG(int W, int H)
 	m_rcRelLoc.right = W;
 	m_rcRelLoc.bottom = H;
 	m_implContext = gui->NewWnd(this);
+	m_dcWnd = m_implContext->GetDC();
+	m_dcMem = m_dcWnd->NewCopy();
 
 	memset(m_bKeyDown, 0, sizeof(m_bKeyDown));
 	m_pHoverCtrl = nullptr;
@@ -97,14 +99,15 @@ void CLiteBKG::OnClose()
 void CLiteBKG::InvalidateCtrl2(RECT& rc)
 {
 	m_rcPaintRgn.UnionRect(RECT(m_rcPaintRgn), rc);
-	m_implContext->Refresh(rc);
+	m_implContext->Refresh();
 }
 
 void CLiteBKG::OnPaint()
 {
 	if (m_rcPaintRgn.IsRectEmpty())
 		return;
-	DrawChildren(m_implContext->GetDC(), POINT(0, 0), m_rcRelLoc);
+	DrawChildren(m_dcMem, POINT(0, 0), m_rcPaintRgn);
+	m_dcWnd->BitBlt(*m_dcMem, m_rcPaintRgn.left, m_rcPaintRgn.top, unsigned(m_rcPaintRgn.Width()), unsigned(m_rcPaintRgn.Height()), m_rcPaintRgn.left, m_rcPaintRgn.top);
 	m_rcPaintRgn.SetRectEmpty();
 }
 

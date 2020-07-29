@@ -31,16 +31,11 @@ class CX11Wnd : public ILiteWnd
 {
 public:
 	Window m_hWnd;
-	CX11DC m_dcWnd;
-	CX11DC m_dcMem;
-	RECT m_rcInvalidate;
 public:
 	void CenterWindow();
-	void SendRefreshEvent();
-	void Flush();
 
 	virtual void Init();
 	virtual ILiteDC* GetDC();
-	virtual void Refresh(RECT& rc);
+	virtual void Refresh();
 	virtual void OnClose();
 };
