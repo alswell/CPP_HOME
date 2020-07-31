@@ -96,7 +96,7 @@ void CLiteBKG::OnClose()
 	m_implContext->OnClose();
 }
 
-void CLiteBKG::InvalidateCtrl2(RECT& rc)
+void CLiteBKG::InvalidateCtrl(RECT& rc, bool /*bHyper*/)
 {
 	m_rcPaintRgn.UnionRect(RECT(m_rcPaintRgn), rc);
 	m_implContext->Refresh();

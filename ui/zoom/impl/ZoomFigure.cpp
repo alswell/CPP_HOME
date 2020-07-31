@@ -2,6 +2,7 @@
 
 CZoomFigure::CZoomFigure()
 {
+	m_bHyperCtrl = true;
 	m_implBmpMapper = new CStdMapper;
 }
 
@@ -29,9 +30,7 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 
 RECT CZoomFigure::GetRect()
 {
-	if (m_implBmpMapper->m_nMulti > 0)
-		return RECT(0, 0, 1000 * m_implBmpMapper->m_nMulti, 1000 * m_implBmpMapper->m_nMulti);
-	return RECT(0, 0, 1000 / -m_implBmpMapper->m_nMulti, 1000 / -m_implBmpMapper->m_nMulti);
+	return RECT();
 }
 
 void CZoomFigure::GetPixInfo(char* buff, int r, int c)

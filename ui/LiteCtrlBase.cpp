@@ -4,7 +4,7 @@
 ILiteDC::~ILiteDC(){}
 
 CLiteCtrlBase::CLiteCtrlBase()
-	: m_bForceCapture(false)
+	: m_bHyperCtrl(false)
 	, m_pParentCtrl(nullptr)
 	, m_bIsVisible(TRUE)
 	, m_nZOrder(0)
@@ -25,8 +25,9 @@ void CLiteCtrlBase::WrapDraw(ILiteDC *dc, POINT ptParentPos, RECT rcParentViewRg
 {
 	RECT rcLoc = m_rcRelLoc;
 	rcLoc.OffsetRect(ptParentPos);
-	RECT rcViewRgn;
-	rcViewRgn.IntersectRect(rcLoc, rcParentViewRgn);
+	RECT rcViewRgn = rcParentViewRgn;
+	if (!m_bHyperCtrl)
+		rcViewRgn.IntersectRect(rcLoc, rcParentViewRgn);
 	if (rcViewRgn.IsRectEmpty())
 		return;
 	Draw(dc, rcLoc, rcViewRgn);
@@ -49,7 +50,7 @@ CMouseCapturer* CLiteCtrlBase::WantCapture()
 {
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
-			if ((**it).m_bIsVisible && ((**it).m_bForceCapture || CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos)))
+			if ((**it).m_bIsVisible && ((**it).m_bHyperCtrl || CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos)))
 			{
 				(**it).m_ptMousePos = (**it).ParentToChild(m_ptMousePos);
 				CMouseCapturer* pHandler = (**it).WantCapture();
@@ -59,11 +60,11 @@ CMouseCapturer* CLiteCtrlBase::WantCapture()
 	return nullptr;
 }
 
-void CLiteCtrlBase::LocInParent(RECT& rcChild)
+void CLiteCtrlBase::AbsLoc(RECT& rcChild)
 {
 	rcChild.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
 	if (m_pParentCtrl)
-		m_pParentCtrl->LocInParent(rcChild);
+		m_pParentCtrl->AbsLoc(rcChild);
 }
 
 void CLiteCtrlBase::InvalidateCtrl()
@@ -71,17 +72,17 @@ void CLiteCtrlBase::InvalidateCtrl()
 	if (!m_bIsVisible)
 		return;
 	RECT rc(m_rcRelLoc);
-	if (m_pParentCtrl)
-		m_pParentCtrl->InvalidateCtrl2(rc);
-	else
-		this->InvalidateCtrl2(rc);
+	m_pParentCtrl->InvalidateCtrl(rc, m_bHyperCtrl);
 }
 
-void CLiteCtrlBase::InvalidateCtrl2(RECT & rc)
+void CLiteCtrlBase::InvalidateCtrl(RECT & rc, bool bHyper)
 {
-	rc.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
+	if (bHyper && !m_bHyperCtrl)
+		rc = m_rcRelLoc;
+	else
+		rc.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
 	if (m_pParentCtrl)
-		m_pParentCtrl->InvalidateCtrl2(rc);
+		m_pParentCtrl->InvalidateCtrl(rc, bHyper && m_bHyperCtrl);
 }
 
 CLiteCtrlBase *CLiteCtrlBase::RootCtrl()
@@ -103,7 +104,7 @@ void CLiteCtrlBase::ShowCtrl(BOOL bShow)
 RECT CLiteCtrlBase::AbsLoc()
 {
 	RECT rc(m_rcRelLoc);
-	m_pParentCtrl->LocInParent(rc);
+	m_pParentCtrl->AbsLoc(rc);
 	return rc;
 }
 

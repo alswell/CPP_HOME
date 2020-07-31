@@ -70,7 +70,7 @@ public:
 
 private:
 	void OnClose();
-	virtual void InvalidateCtrl2(RECT& rc);
+	virtual void InvalidateCtrl(RECT& rc, bool bHyper);
 
 public:
 	void OnPaint();

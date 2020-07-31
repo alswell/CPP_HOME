@@ -70,7 +70,7 @@ void IZoom::NotifyEvent(int nMsgID, const RECT &rc)
 
 CZoomView::CZoomView()
 {
-	m_bForceCapture = true;
+	m_bHyperCtrl = true;
 	m_implZoom = nullptr;
 	m_implEdit = new CZoomFigure;
 	m_implEdit->ResetRect();
@@ -191,7 +191,7 @@ CZoom::CZoom(RECT rcRelLoc)
 	m_rcRelLoc = rcRelLoc;
 	rcRelLoc.MoveToXY(0, 0);
 	m_pZoomView = new CZoomView;
-	AddCtrl(m_pZoomView, rcRelLoc);
+	AddCtrl(m_pZoomView);
 	m_pCoordinateH = new CCoordinateH;
 	AddCtrl(m_pCoordinateH, RECT(0, rcRelLoc.Height() - 20, rcRelLoc.Width() - 40, rcRelLoc.Height()));
 	m_pCoordinateV = new CCoordinateV;

@@ -92,20 +92,20 @@ protected:
 	void WrapDraw(ILiteDC* dc, POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(ILiteDC* dc, POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture();
-	BOOL m_bForceCapture;
+	BOOL m_bHyperCtrl;
 protected:
 	POINT m_ptMousePos;
 	RECT m_rcRelLoc;
 	map<int, vector<CLiteCtrlBase*>> m_vCtrls;
 private:
-	void LocInParent(RECT& rcChild);
+	void AbsLoc(RECT& rcChild);
 protected:
 	UINT m_nTimerID;
 public:
 	CLiteCtrlBase* m_pParentCtrl;
 	void InvalidateCtrl();
 protected:
-	virtual void InvalidateCtrl2(RECT& rc);
+	virtual void InvalidateCtrl(RECT& rc, bool bHyper);
 	CLiteCtrlBase* RootCtrl();
 public:
 //	BOOL m_bAlpha;
