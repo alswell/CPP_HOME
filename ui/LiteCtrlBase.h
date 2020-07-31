@@ -91,7 +91,7 @@ protected:
 	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 	void WrapDraw(ILiteDC* dc, POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(ILiteDC* dc, POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
-	virtual CMouseCapturer* WantCapture(POINT ptParent);
+	virtual CMouseCapturer* WantCapture();
 	BOOL m_bForceCapture;
 protected:
 	POINT m_ptMousePos;

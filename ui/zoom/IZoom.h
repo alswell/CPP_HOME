@@ -53,7 +53,7 @@ class CZoomView : public CMouseCapturer
 public:
 	CZoomView();
 
-	virtual CMouseCapturer* WantCapture(POINT ptParent);
+	virtual CMouseCapturer* WantCapture();
 	virtual void Activate(POINT ptWnd);
 	virtual void ActivateMove(POINT ptWnd);
 	virtual void MouseWheel(int zDelta);

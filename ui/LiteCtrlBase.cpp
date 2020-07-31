@@ -45,14 +45,14 @@ void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)
 				(**it).WrapDraw(dc, ptParentPos, rcParentViewRgn);
 }
 
-CMouseCapturer* CLiteCtrlBase::WantCapture(POINT /*ptParent*/)
+CMouseCapturer* CLiteCtrlBase::WantCapture()
 {
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
 			if ((**it).m_bIsVisible && ((**it).m_bForceCapture || CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos)))
 			{
 				(**it).m_ptMousePos = (**it).ParentToChild(m_ptMousePos);
-				CMouseCapturer* pHandler = (**it).WantCapture(m_ptMousePos);
+				CMouseCapturer* pHandler = (**it).WantCapture();
 				if (pHandler)
 					return pHandler;
 			}

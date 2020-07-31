@@ -120,7 +120,7 @@ void CX11Global::DispatchMessage(const XEvent& evt)
 		cout << "MapNotify" << endl;
 		return;
 	case Expose:
-		//cout << "Expose: " << count++ << endl;
+		//cout << "Expose: " << evt.xexpose.count << endl;
 		break;
 	case GraphicsExpose:
 		cout << "GraphicsExpose: " << count++ << endl;
@@ -219,7 +219,7 @@ void CX11Wnd::Refresh()
 {
 	static XEvent event;
 	event.type = Expose;
-	event.xany.window = m_hWnd;
+	event.xexpose.window = m_hWnd;
 	XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event);
 //	cout << "XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event): " << XSendEvent(X11_DSP, m_hWnd, 1, ExposureMask, &event) << endl;
 //	cout << XPending(g_dsp) << endl;

@@ -77,11 +77,11 @@ CZoomView::CZoomView()
 	AddCtrl(m_implEdit, 1);
 }
 
-CMouseCapturer* CZoomView::WantCapture(POINT ptParent)
+CMouseCapturer* CZoomView::WantCapture()
 {
 	CMouseCapturer* p = this;
 	if (ROOT_CTRL(RootCtrl())->KeyDown(KEY_CTRL_L))
-		p = CMouseCapturer::WantCapture(ptParent);
+		p = CMouseCapturer::WantCapture();
 	if (p)
 		SetCoordinate();
 	return p;

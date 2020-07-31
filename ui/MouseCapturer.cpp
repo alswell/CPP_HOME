@@ -5,9 +5,9 @@ CMouseCapturer::~CMouseCapturer()
 
 }
 
-CMouseCapturer* CMouseCapturer::WantCapture(POINT ptParent)
+CMouseCapturer* CMouseCapturer::WantCapture()
 {
-	auto p = CLiteCtrlBase::WantCapture(ptParent);
+	auto p = CLiteCtrlBase::WantCapture();
 	return p ? p : this;
 //	m_ptMousePos = ParentToChild(ptParent);
 //	return this;

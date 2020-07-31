@@ -61,7 +61,7 @@ public:
 	typedef void(*NOTIFY)(void* self);
 	NOTIFY m_cbNotify;
 	CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
-	virtual CMouseCapturer* WantCapture(POINT ptParent);
+	virtual CMouseCapturer* WantCapture();
 	virtual void CaptureMouse(bool bDown);
 	virtual void ReleaseMouse(bool bDown);
 	virtual void Activate(POINT);
@@ -78,7 +78,7 @@ public:
 	typedef void(*NOTIFY)(void* self, bool bSelected);
 	NOTIFY m_cbNotify;
 	CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
-	virtual CMouseCapturer* WantCapture(POINT ptParent);
+	virtual CMouseCapturer* WantCapture();
 	virtual void CaptureMouse(bool bDown);
 	virtual void ReleaseMouse(bool bDown);
 	virtual void Activate(POINT);
@@ -97,7 +97,7 @@ public:
 	NOTIFY m_cbNotify;
 	CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb);
 
-	virtual CMouseCapturer* WantCapture(POINT ptParent);
+	virtual CMouseCapturer* WantCapture();
 	virtual void CaptureMouse(bool bDown);
 	virtual void ReleaseMouse(bool bDown);
 	virtual void Activate(POINT);

@@ -49,11 +49,11 @@ CLiteBtn::CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOT
 
 }
 
-CMouseCapturer* CLiteBtn::WantCapture(POINT ptParent)
+CMouseCapturer* CLiteBtn::WantCapture()
 {
 	if (m_bIsDisable)
 		return nullptr;
-	return CMouseCapturer::WantCapture(ptParent);
+	return CMouseCapturer::WantCapture();
 }
 
 void CLiteBtn::CaptureMouse(bool bDown)
@@ -100,13 +100,13 @@ CLiteCheckBox::CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btn
 {
 }
 
-CMouseCapturer* CLiteCheckBox::WantCapture(POINT ptParent)
+CMouseCapturer* CLiteCheckBox::WantCapture()
 {
 	if (m_bIsDisable)
 		return nullptr;
 //	if (m_bIsSelected)
 //		return NULL;
-	return CMouseCapturer::WantCapture(ptParent);
+	return CMouseCapturer::WantCapture();
 }
 
 void CLiteCheckBox::CaptureMouse(bool bDown)
@@ -164,13 +164,13 @@ CLiteRadioBox::CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btn
 	m_mapRadio[m_cbNotify].push_back(this);
 }
 
-CMouseCapturer* CLiteRadioBox::WantCapture(POINT ptParent)
+CMouseCapturer* CLiteRadioBox::WantCapture()
 {
 	if (m_bIsDisable)
 		return nullptr;
 	//		if (m_bIsSelected)
 	//			return NULL;
-	return CMouseCapturer::WantCapture(ptParent);
+	return CMouseCapturer::WantCapture();
 }
 
 void CLiteRadioBox::CaptureMouse(bool bDown)
