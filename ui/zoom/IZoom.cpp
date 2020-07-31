@@ -1,16 +1,9 @@
 #include "IZoom.h"
 #include "zoom/impl/ZoomFigure.h"
 
-IBmpMapper::IBmpMapper(int nMulti /*= 1*/)
-	: m_nMulti(nMulti)
-{
+IBmpMapper::IBmpMapper(int nMulti /*= 1*/) : m_nMulti(nMulti) {}
 
-}
-
-IBmpMapper::~IBmpMapper()
-{
-
-}
+IBmpMapper::~IBmpMapper() {}
 
 void IBmpMapper::Zoom(int iDelta)
 {
@@ -77,6 +70,7 @@ void IZoom::NotifyEvent(int nMsgID, const RECT &rc)
 
 CZoomView::CZoomView()
 {
+	m_bForceCapture = true;
 	m_implZoom = nullptr;
 	m_implEdit = new CZoomFigure;
 	m_implEdit->ResetRect();
@@ -101,8 +95,7 @@ void CZoomView::Activate(POINT ptWnd)
 void CZoomView::ActivateMove(POINT ptWnd)
 {
 	auto pt = WindowToChild(ptWnd);
-	m_ptScroll.x -= pt.x - m_ptDown.x;
-	m_ptScroll.y -= pt.y - m_ptDown.y;
+	m_rcRelLoc.OffsetRect(pt.x - m_ptDown.x, pt.y - m_ptDown.y);
 	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
 }
 
@@ -116,7 +109,7 @@ void CZoomView::MouseWheel(int zDelta)
 
 char* CZoomView::GetTipString()
 {
-	return StrCoordinate();
+	return m_strCoordinate;
 }
 
 void CZoomView::RBtnDown(POINT pt)
@@ -131,45 +124,23 @@ void CZoomView::SetZoomImpl(IZoom *implZoom)
 	AddCtrl(m_implZoom);
 }
 
-POINT CZoomView::PixCoordinate(const POINT& pt)
-{
-	float x = pt.x, y = pt.y;
-	m_implZoom->Map(y, x);
-	return POINT(int(x), int(y));
-}
-
 void CZoomView::SetCoordinate()
 {
-	m_ptCoordinate = PixCoordinate(m_ptMousePos);
-	//m_ptCoordinate.x = pt.x / m_pZoomImg->m_nMulti * m_pZoomImg->m_nMultiD;
-	//m_ptCoordinate.y = pt.y / m_pZoomImg->m_nMulti * m_pZoomImg->m_nMultiD;
+	float x = m_ptMousePos.x, y = m_ptMousePos.y;
+	m_implZoom->Map(y, x);
+	m_ptCoordinate.x = x;
+	m_ptCoordinate.y = y;
 
 	sprintf(m_strCoordinate, "(%d, %d)", m_ptCoordinate.x, m_ptCoordinate.y);
 	m_implZoom->GetPixInfo(&m_strCoordinate[strlen(m_strCoordinate)], m_ptCoordinate.y, m_ptCoordinate.x);
 }
 
-POINT CZoomView::GetCoordinate()
-{
-	return m_ptCoordinate;
-}
-
-char* CZoomView::StrCoordinate()
-{
-	return m_strCoordinate;
-}
-
 void CZoomView::ResetScroll()
 {
-	//pt.Offset(-m_rcRelLoc.left, -m_rcRelLoc.top);
-
 	float x = m_ptCoordinate.x, y = m_ptCoordinate.y;
 	m_implZoom->Revert(y, x);
 	auto ptParent = m_pParentCtrl->GetMousePos();
-	m_ptScroll.x = int(x) - ptParent.x;
-	m_ptScroll.y = int(y) - ptParent.y;
-
-	//m_ptScroll.x = m_ptCoordinate.x * m_pZoomImg->m_nMulti / m_pZoomImg->m_nMultiD - pt.x;
-	//m_ptScroll.y = m_ptCoordinate.y * m_pZoomImg->m_nMulti / m_pZoomImg->m_nMultiD - pt.y;
+	m_rcRelLoc.MoveToXY(ptParent.x - x, ptParent.y - y);
 }
 
 CCoordinate::CCoordinate()
@@ -180,7 +151,7 @@ CCoordinate::CCoordinate()
 
 void CCoordinate::Update(int nScroll, int nMulti)
 {
-	m_nBegin = nScroll;
+	m_nBegin = -nScroll;
 	m_nMulti = nMulti;
 }
 
@@ -235,14 +206,9 @@ void CZoom::SetZoomImpl(IZoom* implZoom)
 void CZoom::NotifyOffset()
 {
 	auto nMulti = m_pZoomView->m_implZoom->GetMulti();
-	m_pCoordinateH->Update(m_pZoomView->m_ptScroll.x, nMulti);
-	m_pCoordinateV->Update(m_pZoomView->m_ptScroll.y, nMulti);
+	m_pCoordinateH->Update(m_pZoomView->m_rcRelLoc.left, nMulti);
+	m_pCoordinateV->Update(m_pZoomView->m_rcRelLoc.top, nMulti);
 	InvalidateCtrl();
-}
-
-POINT CZoom::GetCoordinate()
-{
-	return m_pZoomView->m_ptCoordinate;
 }
 
 void CZoom::NotifyEvent(int nMsgID, const Point<int> &pt)

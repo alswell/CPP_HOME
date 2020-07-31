@@ -284,11 +284,12 @@ CLiteScroll::CLiteScroll(RECT rcRelLoc, EScrollType type, unsigned len, const Bt
 	, m_cbNotify(cb)
 {
 	m_rcRelLoc = rcRelLoc;
-	ADD_BLOCK2(GetDrawRect(), RGBH(009900), RGBH(990000));
+	rcRelLoc.MoveToXY(0, 0);
+	ADD_BLOCK2(rcRelLoc, RGBH(009900), RGBH(990000));
 	if (m_typeScroll == SCROLL_HORIZON)
-		m_pBtn = new CLiteScrollBar(RECT(0, 0, len, rcRelLoc.Height()), nullptr, btnStyle);
+		m_pBtn = new CLiteScrollBar(RECT(0, 0, len, m_rcRelLoc.Height()), nullptr, btnStyle);
 	else
-		m_pBtn = new CLiteScrollBar(RECT(0, 0, rcRelLoc.Width(), len), nullptr, btnStyle);
+		m_pBtn = new CLiteScrollBar(RECT(0, 0, m_rcRelLoc.Width(), len), nullptr, btnStyle);
 	AddCtrl(m_pBtn);
 }
 

@@ -61,10 +61,7 @@ public:
 	virtual void RBtnDown(POINT pt);
 
 	void SetZoomImpl(IZoom* implZoom);
-	POINT PixCoordinate(const POINT& pt);
 	void SetCoordinate();
-	POINT GetCoordinate();
-	char* StrCoordinate();
 private:
 	void ResetScroll();
 };
@@ -112,7 +109,6 @@ public:
 
 	void SetZoomImpl(IZoom* implZoom);
 	void NotifyOffset();
-	POINT GetCoordinate();
 
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
 	void NotifyEvent(int nMsgID, const RECT& rc);

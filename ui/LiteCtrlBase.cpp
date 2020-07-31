@@ -4,7 +4,7 @@
 ILiteDC::~ILiteDC(){}
 
 CLiteCtrlBase::CLiteCtrlBase()
-	: m_ptScroll(0, 0)
+	: m_bForceCapture(false)
 	, m_pParentCtrl(nullptr)
 	, m_bIsVisible(TRUE)
 	, m_nZOrder(0)
@@ -16,7 +16,7 @@ CLiteCtrlBase::~CLiteCtrlBase()
 {
 }
 
-void CLiteCtrlBase::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
+void CLiteCtrlBase::Draw(ILiteDC* /*dc*/, const RECT& /*rcLoc*/, const RECT& /*rcViewRgn*/)
 {
 }
 
@@ -34,7 +34,7 @@ void CLiteCtrlBase::WrapDraw(ILiteDC *dc, POINT ptParentPos, RECT rcParentViewRg
 	if (m_strDebugName)
 		printf("DRAW: %s[%d, %d]%d*%d\n", m_strDebugName, rcLoc.left, rcLoc.top, rcLoc.Width(), rcLoc.Height());
 	#endif
-	DrawChildren(dc, POINT(rcLoc.left - m_ptScroll.x, rcLoc.top - m_ptScroll.y), rcViewRgn);
+	DrawChildren(dc, POINT(rcLoc.left, rcLoc.top), rcViewRgn);
 }
 
 void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)*/, RECT rcParentViewRgn /*= RECT()*/)
@@ -42,19 +42,15 @@ void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
 			if ((**it).m_bIsVisible) 
-			{
-				//OutputDebugString("Draw\n");
 				(**it).WrapDraw(dc, ptParentPos, rcParentViewRgn);
-			}
 }
 
 CMouseCapturer* CLiteCtrlBase::WantCapture(POINT /*ptParent*/)
 {
 	for (map<int, vector<CLiteCtrlBase*>>::iterator itCtrl = m_vCtrls.begin(); itCtrl != m_vCtrls.end(); ++itCtrl)
 		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
-			if ((**it).m_bIsVisible && CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos))
+			if ((**it).m_bIsVisible && ((**it).m_bForceCapture || CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos)))
 			{
-				//OutputDebugString("MouseMove\n");
 				(**it).m_ptMousePos = (**it).ParentToChild(m_ptMousePos);
 				CMouseCapturer* pHandler = (**it).WantCapture(m_ptMousePos);
 				if (pHandler)
@@ -66,7 +62,6 @@ CMouseCapturer* CLiteCtrlBase::WantCapture(POINT /*ptParent*/)
 void CLiteCtrlBase::LocInParent(RECT& rcChild)
 {
 	rcChild.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
-	rcChild.OffsetRect(-m_ptScroll);
 	if (m_pParentCtrl)
 		m_pParentCtrl->LocInParent(rcChild);
 }
@@ -85,7 +80,6 @@ void CLiteCtrlBase::InvalidateCtrl()
 void CLiteCtrlBase::InvalidateCtrl2(RECT & rc)
 {
 	rc.OffsetRect(m_rcRelLoc.left, m_rcRelLoc.top);
-	rc.OffsetRect(-m_ptScroll);
 	if (m_pParentCtrl)
 		m_pParentCtrl->InvalidateCtrl2(rc);
 }
@@ -116,13 +110,13 @@ RECT CLiteCtrlBase::AbsLoc()
 POINT CLiteCtrlBase::WindowToChild(POINT pt)
 {
 	auto rc = AbsLoc();
-	pt.Offset(-rc.left + m_ptScroll.x, -rc.top + m_ptScroll.y);
+	pt.Offset(-rc.left, -rc.top);
 	return pt;
 }
 
 POINT CLiteCtrlBase::ParentToChild(POINT pt)
 {
-	pt.Offset(-m_rcRelLoc.left + m_ptScroll.x, -m_rcRelLoc.top + m_ptScroll.y);
+	pt.Offset(-m_rcRelLoc.left, -m_rcRelLoc.top);
 	return pt;
 }
 
@@ -160,13 +154,6 @@ RECT CLiteCtrlBase::SetRelLoc(const RECT& rc)
 RECT CLiteCtrlBase::GetRelLoc()
 {
 	return m_rcRelLoc;
-}
-
-RECT CLiteCtrlBase::GetDrawRect()
-{
-	RECT rc = m_rcRelLoc;
-	rc.MoveToXY(m_ptScroll.x, m_ptScroll.y);
-	return rc;
 }
 
 void CLiteCtrlBase::MoveToX(int x)

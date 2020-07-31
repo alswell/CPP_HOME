@@ -92,16 +92,12 @@ protected:
 	void WrapDraw(ILiteDC* dc, POINT ptParentPos, RECT rcParentViewRgn);
 	void DrawChildren(ILiteDC* dc, POINT ptParentPos = POINT(0, 0), RECT rcParentViewRgn = RECT());
 	virtual CMouseCapturer* WantCapture(POINT ptParent);
-	//virtual CLiteCtrlBase* LBtnDown(CPoint pt);
-	//virtual CLiteCtrlBase* LBtnUp(CPoint pt);
-
+	BOOL m_bForceCapture;
 protected:
 	POINT m_ptMousePos;
 	RECT m_rcRelLoc;
-	POINT m_ptScroll;
 	map<int, vector<CLiteCtrlBase*>> m_vCtrls;
 private:
-//	RECT* m_pOldRect;
 	void LocInParent(RECT& rcChild);
 protected:
 	UINT m_nTimerID;
@@ -126,7 +122,6 @@ public:
 	POINT GetMousePos();
 	RECT SetRelLoc(const RECT& rc);
 	RECT GetRelLoc();
-	RECT GetDrawRect();
 	void MoveToX(int x);
 	void MoveToY(int y);
 	void MoveTo(int x, int y);
