@@ -3,7 +3,6 @@
 CZoomFigure::CZoomFigure()
 {
 	m_bHyperCtrl = true;
-	m_implBmpMapper = new CStdMapper;
 }
 
 void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)

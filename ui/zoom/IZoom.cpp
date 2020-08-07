@@ -32,6 +32,11 @@ IZoom::IZoom(int nCtrlID) : m_nCtrlID(nCtrlID), m_implBmpMapper(nullptr) {}
 
 IZoom::~IZoom() {}
 
+void IZoom::SetMapper(IBmpMapper *p)
+{
+	m_implBmpMapper = p;
+}
+
 void IZoom::Zoom(int iDelta)
 {
 	m_implBmpMapper->Zoom(iDelta);
@@ -71,10 +76,7 @@ void IZoom::NotifyEvent(int nMsgID, const RECT &rc)
 CZoomView::CZoomView()
 {
 	m_bHyperCtrl = true;
-	m_implZoom = nullptr;
-	m_implEdit = new CZoomFigure;
-	m_implEdit->ResetRect();
-	AddCtrl(m_implEdit, 1);
+	m_implBmpMapper = nullptr;
 }
 
 CMouseCapturer* CZoomView::WantCapture()
@@ -101,8 +103,8 @@ void CZoomView::ActivateMove(POINT ptWnd)
 
 void CZoomView::MouseWheel(int zDelta)
 {
-	m_implZoom->Zoom(zDelta);
-	m_implEdit->Zoom(zDelta);
+	for (unsigned i = 0; i < m_vZooms.size(); ++i)
+		m_vZooms[i]->Zoom(zDelta);
 	ResetScroll();
 	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
 }
@@ -114,31 +116,33 @@ char* CZoomView::GetTipString()
 
 void CZoomView::RBtnDown(POINT pt)
 {
-	m_implZoom->RBtnDown(pt); //TODO: notify all zoom impl
+	for (unsigned i = 0; i < m_vZooms.size(); ++i)
+		m_vZooms[i]->RBtnDown(pt);
 }
 
-void CZoomView::SetZoomImpl(IZoom *implZoom)
+void CZoomView::AddZoomImpl(IZoom *implZoom)
 {
-	m_implZoom = implZoom;
-	m_implZoom->ResetRect();
-	AddCtrl(m_implZoom);
+	m_vZooms.push_back(implZoom);
+	implZoom->SetMapper(m_implBmpMapper);
+	implZoom->ResetRect();
+	AddCtrl(implZoom);
 }
 
 void CZoomView::SetCoordinate()
 {
 	float x = m_ptMousePos.x, y = m_ptMousePos.y;
-	m_implZoom->Map(y, x);
+	m_vZooms[0]->Map(y, x); // m_vZooms[0]
 	m_ptCoordinate.x = x;
 	m_ptCoordinate.y = y;
 
 	sprintf(m_strCoordinate, "(%d, %d)", m_ptCoordinate.x, m_ptCoordinate.y);
-	m_implZoom->GetPixInfo(&m_strCoordinate[strlen(m_strCoordinate)], m_ptCoordinate.y, m_ptCoordinate.x);
+	m_vZooms[0]->GetPixInfo(&m_strCoordinate[strlen(m_strCoordinate)], m_ptCoordinate.y, m_ptCoordinate.x);  // m_vZooms[0]
 }
 
 void CZoomView::ResetScroll()
 {
 	float x = m_ptCoordinate.x, y = m_ptCoordinate.y;
-	m_implZoom->Revert(y, x);
+	m_vZooms[0]->Revert(y, x); // m_vZooms[0]
 	auto ptParent = m_pParentCtrl->GetMousePos();
 	m_rcRelLoc.MoveToXY(ptParent.x - x, ptParent.y - y);
 }
@@ -198,14 +202,19 @@ CZoom::CZoom(RECT rcRelLoc)
 	AddCtrl(m_pCoordinateV, RECT(rcRelLoc.Width() - 40, 0, rcRelLoc.Width(), rcRelLoc.Height()));
 }
 
-void CZoom::SetZoomImpl(IZoom* implZoom)
+void CZoom::SetMapper(IBmpMapper *p)
 {
-	m_pZoomView->SetZoomImpl(implZoom);
+	m_pZoomView->m_implBmpMapper = p;
+}
+
+void CZoom::AddZoomImpl(IZoom* implZoom)
+{
+	m_pZoomView->AddZoomImpl(implZoom);
 }
 
 void CZoom::NotifyOffset()
 {
-	auto nMulti = m_pZoomView->m_implZoom->GetMulti();
+	auto nMulti = m_pZoomView->m_vZooms[0]->GetMulti(); // m_vZooms[0]
 	m_pCoordinateH->Update(m_pZoomView->m_rcRelLoc.left, nMulti);
 	m_pCoordinateV->Update(m_pZoomView->m_rcRelLoc.top, nMulti);
 	InvalidateCtrl();

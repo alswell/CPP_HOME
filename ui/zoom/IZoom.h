@@ -29,6 +29,7 @@ public:
 	virtual RECT GetRect() = 0;
 	virtual void GetPixInfo(char *buff, int x, int y) = 0;
 
+	void SetMapper(IBmpMapper* p);
 	void Zoom(int iDelta);
 	void Map(float& x, float& y);
 	void Revert(float& x, float& y);
@@ -44,9 +45,8 @@ class CZoomView : public CMouseCapturer
 {
 	friend class CZoom;
 	friend class CMultiView;
-	IZoom* m_vZooms[2];
-	IZoom* m_implZoom;
-	IZoom* m_implEdit;
+	IBmpMapper* m_implBmpMapper;
+	vector<IZoom*> m_vZooms;
 	POINT m_ptDown;
 	POINT m_ptCoordinate;
 	char m_strCoordinate[128];
@@ -60,7 +60,7 @@ public:
 	virtual char* GetTipString();
 	virtual void RBtnDown(POINT pt);
 
-	void SetZoomImpl(IZoom* implZoom);
+	void AddZoomImpl(IZoom* implZoom);
 	void SetCoordinate();
 private:
 	void ResetScroll();
@@ -107,7 +107,8 @@ protected:
 public:
 	CZoom(RECT rcRelLoc);
 
-	void SetZoomImpl(IZoom* implZoom);
+	void SetMapper(IBmpMapper* p);
+	void AddZoomImpl(IZoom* implZoom);
 	void NotifyOffset();
 
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
