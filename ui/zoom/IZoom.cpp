@@ -28,6 +28,42 @@ float IBmpMapper::GetZoom()
 	return m_nMulti > 0 ? m_nMulti : 1.0f / -m_nMulti;
 }
 
+void IBmpMapper::Map(int& x, int& y)
+{
+	float fX = x, fY = y;
+	Map(fX, fY);
+	x = int(fX);
+	y = int(fY);
+}
+
+void IBmpMapper::Map(POINT& pt)
+{
+	Map(pt.x, pt.y);
+}
+
+void IBmpMapper::Map(PointF& pt)
+{
+	Map(pt.x, pt.y);
+}
+
+void IBmpMapper::Revert(int& x, int& y)
+{
+	float fX = x, fY = y;
+	Revert(fX, fY);
+	x = int(fX);
+	y = int(fY);
+}
+
+void IBmpMapper::Revert(POINT& pt)
+{
+	Revert(pt.x, pt.y);
+}
+
+void IBmpMapper::Revert(PointF& pt)
+{
+	Revert(pt.x, pt.y);
+}
+
 IZoom::IZoom(int nCtrlID) : m_nCtrlID(nCtrlID), m_implBmpMapper(nullptr) {}
 
 IZoom::~IZoom() {}
@@ -103,8 +139,9 @@ void CZoomView::ActivateMove(POINT ptWnd)
 
 void CZoomView::MouseWheel(int zDelta)
 {
+	m_implBmpMapper->Zoom(zDelta);
 	for (unsigned i = 0; i < m_vZooms.size(); ++i)
-		m_vZooms[i]->Zoom(zDelta);
+		m_vZooms[i]->ResetRect();
 	ResetScroll();
 	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
 }

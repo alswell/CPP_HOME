@@ -1,6 +1,9 @@
 #pragma once
 #include "LiteBKG.h"
 
+#define ZOOM_NOTIFY_PT   110
+#define ZOOM_NOTIFY_RECT 111
+
 #define ZOOM_MULTI(x, m) (m > 0 ? x * m : x / -m)
 #define ZOOM_DIVID(x, m) (m > 0 ? x / m : x * -m)
 class IBmpMapper
@@ -14,6 +17,12 @@ public:
 	virtual float GetZoom();
 	virtual void Map(float& x, float& y) = 0;
 	virtual void Revert(float& x, float& y) = 0;
+	void Map(int& x, int& y);
+	void Map(POINT& pt);
+	void Map(PointF& pt);
+	void Revert(int& x, int& y);
+	void Revert(POINT& pt);
+	void Revert(PointF& pt);
 };
 
 class IZoom : public CMouseCapturer

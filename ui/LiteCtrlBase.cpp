@@ -49,7 +49,7 @@ void CLiteCtrlBase::DrawChildren(ILiteDC *dc, POINT ptParentPos /*= CPoint(0, 0)
 CMouseCapturer* CLiteCtrlBase::WantCapture()
 {
 	for (map<int, vector<CLiteCtrlBase*>>::reverse_iterator itCtrl = m_vCtrls.rbegin(); itCtrl != m_vCtrls.rend(); ++itCtrl)
-		for (vector<CLiteCtrlBase*>::iterator it = itCtrl->second.begin(); it != itCtrl->second.end(); ++it)
+		for (vector<CLiteCtrlBase*>::reverse_iterator it = itCtrl->second.rbegin(); it != itCtrl->second.rend(); ++it)
 			if ((**it).m_bIsVisible && ((**it).m_bHyperCtrl || CG::PtInRect((**it).m_rcRelLoc, m_ptMousePos)))
 			{
 				(**it).m_ptMousePos = (**it).ParentToChild(m_ptMousePos);
