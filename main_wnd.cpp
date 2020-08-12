@@ -2,7 +2,9 @@
 #include "fmt.h"
 #include "wnd.h"
 #include "zoom/IZoom.h"
+#include "zoom/impl/StdMapper.h"
 #include "zoom/impl/ZoomFigure.h"
+#include "zoom/impl/ZoomKLine.h"
 
 using namespace std;
 
@@ -51,9 +53,12 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	pFigure->AddPoint(3, 4, CLR_R, "xxx");
 	pFigure->AddPoint(3, 4, CLR_G, "+");
 	pFigure->AddPoint(30, 100, CLR_G, "xyz");
-	pFigure->AddRect(100, 30, 20, 30, CLR_G);
 	pZoom->AddZoomImpl(pFigure);
-	pZoom->AddZoomImpl(new CZoomFigure);
+	auto pKLine = new CZoomKLine;
+	pKLine->Add(1.1, 1.2, 1.0, 1.2);
+	pKLine->Add(1.22, 1.25, 1.18, 1.27);
+	pKLine->Add(1.26, 1.21, 1.18, 1.27);
+	pZoom->AddZoomImpl(pKLine);
 }
 
 CLocalImgWnd::~CLocalImgWnd()

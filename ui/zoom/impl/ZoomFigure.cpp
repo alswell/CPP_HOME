@@ -13,16 +13,25 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 	{
 		if ((**itLine).c != nullptr)
 		{
-			helper.Plot((**itLine).line, (**itLine).clr, (**itLine).c);
+			if ((**itLine).c[0] == '$' && (**itLine).c[1] == 0)
+			{
+				helper.Plot((**itLine).line, (**itLine).clr, c);
+				++c[0];
+			}
+			else
+			{
+				helper.Plot((**itLine).line, (**itLine).clr, (**itLine).c);
+			}
 		}
 		else
 		{
-			helper.Plot((**itLine).line, (**itLine).clr, c);
-			++c[0];
+			helper.Plot((**itLine).line, (**itLine).clr, nullptr);
 		}
 	}
 	FOR_EACH(it, m_lsPt)
 		helper.Point((**it).pt, (**it).clr, (**it).c);
+	FOR_EACH(it, m_lsRect)
+		helper.Rect((**it).rc, (**it).clr, (**it).clr_fill);
 }
 
 RECT CZoomFigure::GetRect()
@@ -39,6 +48,13 @@ FigurePt *CZoomFigure::AddPoint(float x, float y, COLORREF clr, const char *c)
 {
 	auto p = new FigurePt{PointF(x, y), c, clr, true};
 	m_lsPt.push_back(p);
+	return p;
+}
+
+FigureRect *CZoomFigure::AddRect(float l, float t, float W, float H, COLORREF clr)
+{
+	auto p = new FigureRect{CRect<float>(l, t, l+W, t+H), clr, true};
+	m_lsRect.push_back(p);
 	return p;
 }
 

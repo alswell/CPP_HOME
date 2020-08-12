@@ -45,11 +45,11 @@ void CPainHelper::Line(PointF pt1, PointF pt2, COLORREF clr)
 	//m_dcImpl.TextStd(RECT(), RectW(pt2.x - 4, pt2.y - 4, 10, 10), "*", RGBH(0000ff));
 }
 
-void CPainHelper::Rect(CRect<float> rc, COLORREF clr)
+void CPainHelper::Rect(CRect<float> rc, COLORREF clr, COLORREF clr_fill)
 {
 	PtRevert(rc.left, rc.top);
 	PtRevert(rc.right, rc.bottom);
-	m_implDC->Rectangle(m_rcViewRgn, RECT(rc), clr, CLR_NONE);
+	m_implDC->Rectangle(m_rcViewRgn, RECT(rc), clr, clr_fill);
 }
 
 void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, const char* c)

@@ -22,6 +22,7 @@ struct FigureLine
 struct FigureRect
 {
 	CRect<float> rc;
+	COLORREF clr_fill;
 	FIGURE_BASE
 };
 
@@ -39,7 +40,7 @@ public:
 
 	void Point(PointF pt0, COLORREF clr = CLR_DEFAULT, const char* c = "0");
 	void Line(PointF pt1, PointF pt2, COLORREF clr = CLR_G);
-	void Rect(CRect<float> rc, COLORREF clr);
+	void Rect(CRect<float> rc, COLORREF clr, COLORREF clr_fill);
 	void Plot(const list<PointF>& ls, COLORREF clr = CLR_G, const char* c = nullptr);
 };
 
