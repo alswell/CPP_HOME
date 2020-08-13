@@ -10,9 +10,9 @@ protected:
 	list<FigureRect*> m_lsRect;
 public:
 	CZoomFigure();
-	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
-	virtual RECT GetRect();
-	virtual void GetPixInfo(char *buff, int r, int c);
+	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn) override;
+	virtual RECT GetRect() override;
+	virtual void GetPixInfo(char *buff, int r, int c) override;
 
 	FigurePt* AddPoint(float x, float y, COLORREF clr, const char* c);
 	FigureRect* AddRect(float l, float t, float W, float H, COLORREF clr);

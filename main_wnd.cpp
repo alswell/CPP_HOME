@@ -59,6 +59,7 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	pKLine->Add(1.22, 1.25, 1.18, 1.27);
 	pKLine->Add(1.26, 1.21, 1.18, 1.27);
 	pZoom->AddZoomImpl(pKLine);
+	pZoom->SetScroll(pKLine->m_posRT, POINT(630, 10));
 }
 
 CLocalImgWnd::~CLocalImgWnd()

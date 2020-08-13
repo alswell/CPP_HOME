@@ -8,6 +8,9 @@ void CZoomKLine::Add(float begin, float end, float low, float high)
 	high  *= -100;
 	COLORREF clr = end >= begin ? CLR_G : CLR_R;
 	int x = m_lsLine.size() * 10;
+	if (m_posRT.y > high)
+		m_posRT.y = high;
+	m_posRT.x = x;
 	auto pLine = new FigureLine{};
 	pLine->line.push_back(PointF(x, low));
 	pLine->line.push_back(PointF(x, high));

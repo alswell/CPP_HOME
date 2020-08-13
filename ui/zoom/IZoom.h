@@ -71,8 +71,7 @@ public:
 
 	void AddZoomImpl(IZoom* implZoom);
 	void SetCoordinate();
-private:
-	void ResetScroll();
+	void SetScroll(const POINT &ptTarget, const POINT &ptPos);
 };
 
 class CCoordinate : public CLiteCtrlBase
@@ -118,6 +117,7 @@ public:
 
 	void SetMapper(IBmpMapper* p);
 	void AddZoomImpl(IZoom* implZoom);
+	void SetScroll(const POINT &ptTarget, const POINT &ptPos);
 	void NotifyOffset();
 
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
