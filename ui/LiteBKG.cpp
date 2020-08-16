@@ -98,7 +98,10 @@ void CLiteBKG::OnClose()
 
 void CLiteBKG::InvalidateCtrl(RECT& rc, bool /*bHyper*/)
 {
-	m_rcPaintRgn.UnionRect(RECT(m_rcPaintRgn), rc);
+	if (m_rcPaintRgn.IsRectEmpty())
+		m_rcPaintRgn = rc;
+	else
+		m_rcPaintRgn += rc;
 	m_implContext->Refresh();
 }
 

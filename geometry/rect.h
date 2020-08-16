@@ -14,6 +14,7 @@ public:
 	CRect(const CRect<T2> rc) : left(rc.left), top(rc.top), right(rc.right), bottom(rc.bottom) {}
 	T Width() const { return right - left; }
 	T Height() const { return bottom - top; }
+	void SetRectEmpty() { left = right = top = bottom = 0; }
 	bool IsRectEmpty() const { return (right - left <= 0) || (bottom - top <= 0 ); }
 	bool IsPtInside(CVector2<T> pt) const { return pt.x >= left && pt.x <= right && pt.y >= top && pt.y <= bottom; }
 	void OffsetRect(T x, T y) { left += x; right += x; top += y; bottom += y; }
@@ -21,36 +22,22 @@ public:
 	void MoveToX(T x) { right += x - left; left = x; }
 	void MoveToY(T y) { bottom += y - top; top = y; }
 	void OffsetRect(CVector2<T> pt) { left += pt.x; right += pt.x; top += pt.y; bottom += pt.y; }
-	void IntersectRect(const CRect& rc1, const CRect& rc2)
+	void operator *= (const CRect& rc)
 	{
-		left = rc1.left > rc2.left ? rc1.left : rc2.left;
-		right = rc1.right < rc2.right ? rc1.right : rc2.right;
-		top = rc1.top > rc2.top ? rc1.top : rc2.top;
-		bottom = rc1.bottom < rc2.bottom ? rc1.bottom : rc2.bottom;
+		left = left > rc.left ? left : rc.left;
+		right = right < rc.right ? right : rc.right;
+		top = top > rc.top ? top : rc.top;
+		bottom = bottom < rc.bottom ? bottom : rc.bottom;
 	}
-	void UnionRect(const CRect& rc1, const CRect& rc2)
+	void operator += (const CRect& rc)
 	{
-		left = rc1.left < rc2.left ? rc1.left : rc2.left;
-		right = rc1.right > rc2.right ? rc1.right : rc2.right;
-		top = rc1.top < rc2.top ? rc1.top : rc2.top;
-		bottom = rc1.bottom > rc2.bottom ? rc1.bottom : rc2.bottom;
+		left = left < rc.left ? left : rc.left;
+		right = right > rc.right ? right : rc.right;
+		top = top < rc.top ? top : rc.top;
+		bottom = bottom > rc.bottom ? bottom : rc.bottom;
 	}
-	void SetRectEmpty()
-	{
-		left = 0;
-		right = 0;
-		top = 0;
-		bottom = 0;
-	}
-
 	template<class T2>
-	void operator *= (T2 x)
-	{
-		left *= x;
-		top *= x;
-		right *= x;
-		bottom *= x;
-	}
+	void operator *= (T2 x) { left *= x; top *= x; right *= x; bottom *= x; }
 };
 
 template <class T>

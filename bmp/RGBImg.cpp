@@ -1,5 +1,4 @@
 #include "RGBImg.h"
-#include "common.h"
 #include "pix.h"
 
 CRGBImg::CRGBImg()
@@ -65,32 +64,6 @@ void CRGBImg::DrawOutline(IIterator<PointF*>& iter)
 {
 	ITER(p, iter)
 		(*this)[int(p->x)][int(p->y)] = PIX32_B;
-}
-
-void CRGBImg::GetDiff(CRGBImg &imgDiff)
-{
-	imgDiff.Init(m_uRow, m_uColumn);
-	int row = int(m_uRow - 2);
-	int column = int(m_uColumn - 2);
-	FOR_SQUARE(1, r, row, 1, c, column)
-	{
-		auto pixMin = (*this)[r][c], pixMax = pixMin;
-		for (int i = r - 1; i <= r + 1; ++i)
-		{
-			for (int j = c - 1; j <= c + 1; ++j)
-			{
-				PIX_RANGE_UPDATE3(pixMin, pixMax, (*this)[i][j]);
-			}
-		}
-		imgDiff[r][c].g = static_cast<unsigned char>(Distance(pixMin, pixMax) / 1.6);
-	}
-}
-
-CRGBImg CRGBImg::GetDiff()
-{
-	CRGBImg imgDiff;
-	GetDiff(imgDiff);
-	return imgDiff;
 }
 
 

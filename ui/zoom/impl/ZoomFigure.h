@@ -14,7 +14,7 @@ public:
 	virtual RECT GetRect() override;
 	virtual void GetPixInfo(char *buff, int r, int c) override;
 
-	FigurePt* AddPoint(float x, float y, COLORREF clr, const char* c);
+	FigurePt* AddPoint(float x, float y, COLORREF clr, char c);
 	FigureRect* AddRect(float l, float t, float W, float H, COLORREF clr);
 	void Add(FigurePt* pt);
 	void Add(FigureLine* line);

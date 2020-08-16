@@ -8,14 +8,14 @@
 struct FigurePt
 {
 	PointF pt;
-	const char* c;
+	char c;
 	FIGURE_BASE
 };
 
 struct FigureLine
 {
 	list<PointF> line;
-	const char* c;
+	char c;
 	FIGURE_BASE
 };
 
@@ -38,9 +38,10 @@ public:
 	void PtRevert(float& x, float& y);
 	void PtRevert(PointF& pt);
 
+	void Point(PointF pt0, COLORREF clr = CLR_DEFAULT, char c = '*');
 	void Point(PointF pt0, COLORREF clr = CLR_DEFAULT, const char* c = "0");
 	void Line(PointF pt1, PointF pt2, COLORREF clr = CLR_G);
 	void Rect(CRect<float> rc, COLORREF clr, COLORREF clr_fill);
-	void Plot(const list<PointF>& ls, COLORREF clr = CLR_G, const char* c = nullptr);
+	void Plot(const list<PointF>& ls, COLORREF clr = CLR_G, char c = 0);
 };
 

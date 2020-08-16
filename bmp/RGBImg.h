@@ -111,9 +111,6 @@ public:
 	void DrawCross(int r, int c);
 	void DrawOutline(IIterator<PointF*>& iter);
 
-	void GetDiff(CRGBImg& imgDiff);
-	CRGBImg GetDiff();
-
 	//CGradient Gradient(int r, int c, int channel = CHANNEL_B);
 	//void Gradients(CMatrix<CGradient>& _out_grad, int channel = CHANNEL_B);
 };

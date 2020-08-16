@@ -8,15 +8,15 @@ CZoomFigure::CZoomFigure()
 void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
 	CPainHelper helper(this->m_implBmpMapper, dc, rcLoc, rcViewRgn);
-	char c[] = "A";
+	char c = 'A';
 	FOR_EACH(itLine, m_lsLine)
 	{
-		if ((**itLine).c != nullptr)
+		if ((**itLine).c != 0)
 		{
-			if ((**itLine).c[0] == '$' && (**itLine).c[1] == 0)
+			if ((**itLine).c == '$')
 			{
 				helper.Plot((**itLine).line, (**itLine).clr, c);
-				++c[0];
+				++c;
 			}
 			else
 			{
@@ -25,7 +25,7 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 		}
 		else
 		{
-			helper.Plot((**itLine).line, (**itLine).clr, nullptr);
+			helper.Plot((**itLine).line, (**itLine).clr, 0);
 		}
 	}
 	FOR_EACH(it, m_lsPt)
@@ -44,7 +44,7 @@ void CZoomFigure::GetPixInfo(char* buff, int r, int c)
 
 }
 
-FigurePt *CZoomFigure::AddPoint(float x, float y, COLORREF clr, const char *c)
+FigurePt *CZoomFigure::AddPoint(float x, float y, COLORREF clr, char c)
 {
 	auto p = new FigurePt{PointF(x, y), c, clr, true};
 	m_lsPt.push_back(p);
@@ -53,7 +53,7 @@ FigurePt *CZoomFigure::AddPoint(float x, float y, COLORREF clr, const char *c)
 
 FigureRect *CZoomFigure::AddRect(float l, float t, float W, float H, COLORREF clr)
 {
-	auto p = new FigureRect{CRect<float>(l, t, l+W, t+H), clr, true};
+	auto p = new FigureRect{CRect<float>(l, t, l+W, t+H), CLR_NONE, clr, true};
 	m_lsRect.push_back(p);
 	return p;
 }

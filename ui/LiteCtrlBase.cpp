@@ -27,7 +27,7 @@ void CLiteCtrlBase::WrapDraw(ILiteDC *dc, POINT ptParentPos, RECT rcParentViewRg
 	rcLoc.OffsetRect(ptParentPos);
 	RECT rcViewRgn = rcParentViewRgn;
 	if (!m_bHyperCtrl)
-		rcViewRgn.IntersectRect(rcLoc, rcParentViewRgn);
+		rcViewRgn *= rcLoc;
 	if (rcViewRgn.IsRectEmpty())
 		return;
 	Draw(dc, rcLoc, rcViewRgn);

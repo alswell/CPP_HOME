@@ -22,6 +22,13 @@ void CPainHelper::PtRevert(PointF& pt)
 	pt.x += m_rcLoc.left;
 }
 
+void CPainHelper::Point(PointF pt0, COLORREF clr, char c)
+{
+	char str[2] = {0};
+	str[0] = c;
+	Point(pt0, clr, str);
+}
+
 void CPainHelper::Point(PointF pt0, COLORREF clr, const char* c)
 {
 	PtRevert(pt0);
@@ -52,15 +59,15 @@ void CPainHelper::Rect(CRect<float> rc, COLORREF clr, COLORREF clr_fill)
 	m_implDC->Rectangle(m_rcViewRgn, RECT(rc), clr, clr_fill);
 }
 
-void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, const char* c)
+void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, char c)
 {
 	auto it = ls.begin();
 	auto it0 = it; ++it;
 	for (; it != ls.end(); ++it0, ++it)
 		Line(*it0, *it, clr);
-	if (c != nullptr)
+	if (c != 0)
 	{
-		if (c[0] == '!')
+		if (c == '!')
 		{
 			char buff[8];
 			int i = 0;
