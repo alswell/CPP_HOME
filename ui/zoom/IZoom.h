@@ -76,14 +76,13 @@ public:
 
 class CCoordinate : public CLiteCtrlBase
 {
+	friend class CZoom;
 protected:
 	char m_strCoordinate[8];
-	int m_nBegin;
-	int m_nMulti;
+	int* m_nBegin;
+	IBmpMapper* m_implBmpMapper;
 public:
 	CCoordinate();
-
-	void Update(int nScroll, int nMulti);
 };
 
 class CCoordinateH : public CCoordinate
@@ -118,7 +117,6 @@ public:
 	void SetMapper(IBmpMapper* p);
 	void AddZoomImpl(IZoom* implZoom);
 	void SetScroll(const POINT &ptTarget, const POINT &ptPos);
-	void NotifyOffset();
 
 	void NotifyEvent(int nMsgID, const Point<int>& pt);
 	void NotifyEvent(int nMsgID, const RECT& rc);

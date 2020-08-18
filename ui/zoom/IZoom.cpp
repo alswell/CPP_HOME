@@ -134,7 +134,7 @@ void CZoomView::ActivateMove(POINT ptWnd)
 {
 	auto pt = WindowToChild(ptWnd);
 	m_rcRelLoc.OffsetRect(pt.x - m_ptDown.x, pt.y - m_ptDown.y);
-	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
+	InvalidateCtrl();
 }
 
 void CZoomView::MouseWheel(int zDelta)
@@ -143,7 +143,7 @@ void CZoomView::MouseWheel(int zDelta)
 	for (unsigned i = 0; i < m_vZooms.size(); ++i)
 		m_vZooms[i]->ResetRect();
 	SetScroll(m_ptCoordinate, m_pParentCtrl->GetMousePos());
-	dynamic_cast<CZoom*>(m_pParentCtrl)->NotifyOffset();
+	InvalidateCtrl();
 }
 
 char* CZoomView::GetTipString()
@@ -184,42 +184,36 @@ void CZoomView::SetScroll(const POINT& ptTarget, const POINT& ptPos)
 }
 
 CCoordinate::CCoordinate()
-	: m_nBegin(0)
-	, m_nMulti(1)
+	: m_nBegin(nullptr)
+	, m_implBmpMapper(nullptr)
 {
-}
-
-void CCoordinate::Update(int nScroll, int nMulti)
-{
-	m_nBegin = -nScroll;
-	m_nMulti = nMulti;
 }
 
 void CCoordinateH::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	int tmp = ZOOM_MULTI(100, m_nMulti);
-	for (int i = rcLoc.left, x = m_nBegin; i < rcLoc.right; i++, x++)
+	int beg = *m_nBegin % 100;
+	beg < 0 && (beg += 100);
+	for (int i = beg+rcLoc.left, x = beg-*m_nBegin; i < rcLoc.right; i+=100, x+=100)
 	{
-		if (x % tmp == 0)
-		{
-			dc->Line(i, rcLoc.top, i, rcLoc.bottom, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", ZOOM_DIVID(x, m_nMulti));
-			dc->TextStd(rcViewRgn, RectW(i, rcLoc.top, 40, 20), m_strCoordinate, CLR_DEFAULT);
-		}
+		dc->Line(i, rcLoc.top, i, rcLoc.bottom, CLR_DEFAULT);
+		int X = x, Y = 0;
+		m_implBmpMapper->Map(Y, X);
+		sprintf(m_strCoordinate, "%d", X);
+		dc->TextStd(rcViewRgn, RectW(i, rcLoc.top, 40, 20), m_strCoordinate, CLR_DEFAULT);
 	}
 }
 
 void CCoordinateV::Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
-	int tmp = ZOOM_MULTI(100, m_nMulti);
-	for (int i = rcLoc.top, y = m_nBegin; i < rcLoc.bottom; i++, y++)
+	int beg = *m_nBegin % 100;
+	beg < 0 && (beg += 100);
+	for (int i = beg+rcLoc.top, y = beg-*m_nBegin; i < rcLoc.bottom; i+=100, y+=100)
 	{
-		if (y % tmp == 0)
-		{
-			dc->Line(rcLoc.left, i, rcLoc.right, i, CLR_DEFAULT);
-			sprintf(m_strCoordinate, "%d", ZOOM_DIVID(y, m_nMulti));
-			dc->TextStd(rcViewRgn, RectW(rcLoc.left, i, 40, 20), m_strCoordinate, CLR_DEFAULT);
-		}
+		dc->Line(rcLoc.left, i, rcLoc.right, i, CLR_DEFAULT);
+		int X = 0, Y = y;
+		m_implBmpMapper->Map(Y, X);
+		sprintf(m_strCoordinate, "%d", Y);
+		dc->TextStd(rcViewRgn, RectW(rcLoc.left, i, 40, 20), m_strCoordinate, CLR_DEFAULT);
 	}
 }
 
@@ -233,14 +227,18 @@ CZoom::CZoom(RECT rcRelLoc)
 	m_pZoomView = new CZoomView;
 	AddCtrl(m_pZoomView);
 	m_pCoordinateH = new CCoordinateH;
+	m_pCoordinateH->m_nBegin = &m_pZoomView->m_rcRelLoc.left;
 	AddCtrl(m_pCoordinateH, RECT(0, rcRelLoc.Height() - 20, rcRelLoc.Width() - 40, rcRelLoc.Height()));
 	m_pCoordinateV = new CCoordinateV;
+	m_pCoordinateV->m_nBegin = &m_pZoomView->m_rcRelLoc.top;
 	AddCtrl(m_pCoordinateV, RECT(rcRelLoc.Width() - 40, 0, rcRelLoc.Width(), rcRelLoc.Height()));
 }
 
 void CZoom::SetMapper(IBmpMapper *p)
 {
 	m_pZoomView->m_implBmpMapper = p;
+	m_pCoordinateH->m_implBmpMapper = p;
+	m_pCoordinateV->m_implBmpMapper = p;
 }
 
 void CZoom::AddZoomImpl(IZoom* implZoom)
@@ -251,17 +249,6 @@ void CZoom::AddZoomImpl(IZoom* implZoom)
 void CZoom::SetScroll(const POINT &ptTarget, const POINT &ptPos)
 {
 	m_pZoomView->SetScroll(ptTarget, ptPos);
-	auto nMulti = m_pZoomView->m_implBmpMapper->m_nMulti;
-	m_pCoordinateH->Update(m_pZoomView->m_rcRelLoc.left, nMulti);
-	m_pCoordinateV->Update(m_pZoomView->m_rcRelLoc.top, nMulti);
-}
-
-void CZoom::NotifyOffset()
-{
-	auto nMulti = m_pZoomView->m_implBmpMapper->m_nMulti;
-	m_pCoordinateH->Update(m_pZoomView->m_rcRelLoc.left, nMulti);
-	m_pCoordinateV->Update(m_pZoomView->m_rcRelLoc.top, nMulti);
-	InvalidateCtrl();
 }
 
 void CZoom::NotifyEvent(int nMsgID, const Point<int> &pt)
