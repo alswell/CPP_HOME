@@ -7,52 +7,52 @@ template <class T>
 class CLine2
 {
 public:
-	CVector2<T> m_pts[2];
+	CVector2<T> A, B;
 	CLine2() {}
 	CLine2(const CVector2<T>& pt1, const CVector2<T>& pt2)
 	{
-		m_pts[0] = pt1;
-		m_pts[1] = pt2;
+		A = pt1;
+		B = pt2;
 	}
 	CLine2(CVector2<T> pts[])
 	{
-		m_pts[0] = pts[0];
-		m_pts[1] = pts[1];
+		A = pts[0];
+		B = pts[1];
 	}
 	CLine2(const CVector2<T>& pt1, const T k)
 	{
-		m_pts[0] = pt1;
-		m_pts[1].x = m_pts[0].x + ACCURACY;
-		m_pts[1].y = m_pts[0].y + ACCURACY * k;
+		A = pt1;
+		B.x = A.x + ACCURACY;
+		B.y = A.y + ACCURACY * k;
 	}
 	CLine2(const CVector2<T>& pt1, const CDirection<T>& dir)
 	{
-		m_pts[0] = pt1;
+		A = pt1;
 		//T k = tan((T)dir);
 		T k = dir.y / dir.x;
-		m_pts[1].x = m_pts[0].x + ACCURACY;
-		m_pts[1].y = m_pts[0].y + ACCURACY * k;
+		B.x = A.x + ACCURACY;
+		B.y = A.y + ACCURACY * k;
 	}
-	bool IsValid()
+	operator bool ()
 	{
-		return m_pts[0] != m_pts[1];
+		return A != B;
 	}
 
 	T k()
 	{
-		return (m_pts[1].y - m_pts[0].y) / (m_pts[1].x - m_pts[0].x);
+		return (B.y - A.y) / (B.x - A.x);
 	}
 	T b()
 	{
-		return m_pts[0].y - k() * m_pts[0].x;
+		return A.y - k() * A.x;
 	}
 	CDirection<T> Direction()
 	{
-		return CDirection<T>(m_pts[0], m_pts[1]);
+		return CDirection<T>(A, B);
 	}
 	bool IsVertical()
 	{
-		if (m_pts[0].x == m_pts[1].x)
+		if (A.x == B.x)
 			return true;
 		return false;
 	}

@@ -256,6 +256,21 @@ bool PtInRect(const CRect<T> &rc, int r, int c)
 }
 
 template<class T>
+bool SegInRect(const CRect<T>& rc, const CLine2<T>& line)
+{
+	auto deltaX = line.A.x - line.B.x;
+	auto deltaY = line.A.y - line.B.y;
+	auto b = line.A.x < line.B.x;
+	PointF pt1 = b ? line.A : line.B;
+	PointF pt2 = b ? line.B : line.A;
+	if (pt1.x < rc.left && rc.left < pt2.x)
+		pt1.y += (rc.left - pt1.x) * deltaY / deltaX;
+	if (pt1.x < rc.right && rc.right < pt2.x)
+		pt2.y += (rc.right - pt2.x) * deltaY / deltaX;
+	return !(pt1.y > rc.bottom && pt2.y > rc.bottom) && !(pt1.y < rc.top && pt2.y < rc.top);
+}
+
+template<class T>
 CVector2<T> PtAtSeg(CVector2<T> ptA, CVector2<T> ptB, T theta)
 {
 	auto x = (ptB.x - ptA.x) * theta + ptA.x;

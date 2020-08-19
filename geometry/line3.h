@@ -6,24 +6,20 @@ template <class T>
 class CLine3
 {
 public:
-	CVector3<T> m_pts[2];
-	CVector3<T>& A;
-	CVector3<T>& B;
+	CVector3<T> A, B;
 	CLine3(const CVector3<T>& pt1, const CVector3<T>& pt2)
-		: A(m_pts[0])
-		, B(m_pts[1])
 	{
-		m_pts[0] = pt1;
-		m_pts[1] = pt2;
+		A = pt1;
+		B = pt2;
 	}
 
 	int m_bIsZValid;
 	T Z(T x, T y)
 	{
-		if (m_pts[1].x == m_pts[0].x)
-			return (m_pts[1].z - m_pts[0].z) / (m_pts[1].y - m_pts[0].y) * (y - m_pts[0].y) + m_pts[0].z;
+		if (B.x == A.x)
+			return (B.z - A.z) / (B.y - A.y) * (y - A.y) + A.z;
 		else
-			return (m_pts[1].z - m_pts[0].z) / (m_pts[1].x - m_pts[0].x) * (x - m_pts[0].x) + m_pts[0].z;
+			return (B.z - A.z) / (B.x - A.x) * (x - A.x) + A.z;
 	}
 	T Z(CVector2<T> pt)
 	{
@@ -39,6 +35,6 @@ public:
 
 	CVector3<T> DirectionVector() const
 	{
-		return CVector3<T>(m_pts[1].x - m_pts[0].x, m_pts[1].y - m_pts[0].y, m_pts[1].z - m_pts[0].z);
+		return CVector3<T>(B.x - A.x, B.y - A.y, B.z - A.z);
 	}
 };
