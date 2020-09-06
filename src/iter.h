@@ -76,26 +76,29 @@ class CCyclIter : public IIterator<T_RETURN*>
 {
 protected:
 	cycl<T_ELEM>& m_ls;
-	typename::cycl<T_ELEM>::iterator_ex m_it;
+	typename::cycl<T_ELEM>::iterator m_it;
+	unsigned m_nCount;
 public:
-	CCyclIter(cycl<T_ELEM>& ls) : m_ls(ls), m_it(ls) {}
+	CCyclIter(cycl<T_ELEM>& ls) : m_ls(ls), m_nCount(0) {}
 	virtual unsigned Size()
 	{
 		return m_ls.size();
 	}
 	virtual T_RETURN* Start()
 	{
-		m_it = m_ls.entry_ex();
+		m_nCount = 0;
+		m_it = m_ls.entry();
 		return GetIterItem(*m_it);
 	}
 	virtual T_RETURN* operator++()
 	{
+		++m_nCount;
 		++m_it;
 		return GetIterItem(*m_it);
 	}
 	virtual operator bool()
 	{
-		return m_it;
+		return m_nCount < m_ls.size();
 	}
 };
 

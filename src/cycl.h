@@ -98,67 +98,6 @@ public:
 			return m_pListNode;
 		}
 	};
-	class iterator_ex : public iterator
-	{
-		unsigned m_nListSize;
-		unsigned m_nCount;
-	public:
-		iterator_ex() : iterator(), m_nListSize(0), m_nCount(0) {}
-		iterator_ex(const cycl<T>& pList) : iterator(pList.entry()), m_nListSize(pList.size()), m_nCount(0) {}
-		iterator_ex(const cycl<T>& pList, iterator it) : iterator(it), m_nListSize(pList.size()), m_nCount(0) {}
-		iterator& operator++ ()
-		{
-			++m_nCount;
-			iterator::m_pListNode = iterator::m_pListNode->m_pNext;
-			return *this;
-		}
-		operator bool()
-		{
-			return m_nCount < m_nListSize;
-		}
-		void rewind()
-		{
-			m_nCount = 0;
-		}
-	};
-	struct iterator3
-	{
-		iterator itA;
-		iterator it0;
-		iterator itB;
-		iterator3(iterator it)
-		{
-			reset(it);
-		}
-		void reset(iterator it)
-		{
-			it0 = it;
-			itA = it; --itA;
-			itB = it; ++itB;
-		}
-		iterator3& operator++ ()
-		{
-			++itA; ++it0; ++itB;
-			return *this;
-		}
-		iterator3 operator++ (int)
-		{
-			auto old = *this;
-			++itA; ++it0; ++itB;
-			return old;
-		}
-		iterator3& operator-- ()
-		{
-			--itA; --it0; --itB;
-			return *this;
-		}
-		iterator3 operator-- (int)
-		{
-			auto old = *this;
-			--itA; --it0; --itB;
-			return old;
-		}
-	};
 
 //	class const_iterator_ex : public iterator_ex
 //	{
@@ -183,9 +122,9 @@ public:
 	}
 	cycl<T>& operator= (const cycl<T>& cl)
 	{
+		clear();
 		if (cl.size() == 0)
 			return *this;
-		clear();
 		cycl<T>::iterator it = cl.entry();
 		do
 		{
@@ -207,10 +146,10 @@ public:
 	{
 		if (check)
 		{
-			iterator_ex _it = *this;
-			for (; _it; ++_it)
+			auto _it = entry(); do {
 				if (_it == it)
 					break;
+			++_it; } while (_it != entry());
 			assert(_it);
 		}
 		CNode* old_node = m_pNode;
@@ -229,10 +168,6 @@ public:
 			it.m_pListNode = old_node;
 		}
 		return it;
-	}
-	iterator_ex entry_ex() const
-	{
-		return iterator_ex(*this);
 	}
 
 	unsigned int size() const
@@ -402,17 +337,19 @@ public:
 
 	iterator find(const T& t)
 	{
-		for (iterator_ex it = *this; it; ++it)
+		auto it = entry(); do {
 			if (t == *it)
 				return it;
+		++it; } while (it != entry());
 		return iterator();
 	}
 	template<class T_KEY, class CMP>
 	iterator find(const T_KEY& key, CMP cmp)
 	{
-		for (iterator_ex it = *this; it; ++it)
+		auto it = entry(); do {
 			if (cmp(key, *it))
 				return it;
+		++it; } while (it != entry());
 		return iterator();
 	}
 private:
@@ -428,3 +365,6 @@ private:
 		CNode(): m_pNext(0), m_pPrior(0) {}
 	};
 };
+#define FOR_CYCLIST(it, beg, ...) auto it=beg; do{__VA_ARGS__ ++it;}while(it!=beg)
+#define IT3_CYCLIST(itA, it, itB) auto itA = it; --itA; auto itB = it; ++itB
+#define FOR_CYCL3(itA, it, itB, beg, ...) auto itA=beg,it=beg,itB=beg;--itA;++itB; do{__VA_ARGS__ ++itA;++it;++itB;}while(it!=beg)

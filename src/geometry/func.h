@@ -56,7 +56,7 @@ T Distance(const CVector2<T>& pt0, const CVector2<T>& ptA, const CVector2<T>& pt
 template<class T>
 T Distance(const CVector2<T>& pt0, CLine2<T>& line)
 {
-	return Distance(pt0, line.m_pts[0], line.m_pts[1]);
+	return Distance(pt0, line.A, line.B);
 }
 // vector 0A's projection on AB
 template<class T>
@@ -159,17 +159,17 @@ template<class T>
 CVector2<T> CrossPoint(CLine2<T> line1, CLine2<T> line2)
 {
 	//T A, B;
-	//(line1.m_pts[0].x - line1.m_pts[1].x) * A + line1.m_pts[0].x = (line2.m_pts[0].x - line2.m_pts[1].x) * B + line2.m_pts[0].x;
-	//(line1.m_pts[0].y - line1.m_pts[1].y) * A + line1.m_pts[0].y = (line2.m_pts[0].y - line2.m_pts[1].y) * B + line2.m_pts[0].y;
-	T l1xx = line1.m_pts[0].x - line1.m_pts[1].x;
-	T l1yy = line1.m_pts[0].y - line1.m_pts[1].y;
-	T l2xx = line2.m_pts[0].x - line2.m_pts[1].x;
-	T l2yy = line2.m_pts[0].y - line2.m_pts[1].y;
-	T l21xx = line2.m_pts[0].x - line1.m_pts[0].x;
-	T l21yy = line2.m_pts[0].y - line1.m_pts[0].y;
+	//(line1.A.x - line1.B.x) * A + line1.A.x = (line2.A.x - line2.B.x) * B + line2.A.x;
+	//(line1.A.y - line1.B.y) * A + line1.A.y = (line2.A.y - line2.B.y) * B + line2.A.y;
+	T l1xx = line1.A.x - line1.B.x;
+	T l1yy = line1.A.y - line1.B.y;
+	T l2xx = line2.A.x - line2.B.x;
+	T l2yy = line2.A.y - line2.B.y;
+	T l21xx = line2.A.x - line1.A.x;
+	T l21yy = line2.A.y - line1.A.y;
 	T B = (l21xx * l1yy - l21yy * l1xx) / (l2yy * l1xx - l2xx * l1yy);
 	T A = l1xx == 0 ? ((l2yy * B + l21yy) / l1yy) : ((l2xx * B + l21xx) / l1xx);
-	return CVector2<T>(l1xx * A + line1.m_pts[0].x, l1yy * A + line1.m_pts[0].y);
+	return CVector2<T>(l1xx * A + line1.A.x, l1yy * A + line1.A.y);
 }
 
 template<class T>
@@ -184,9 +184,9 @@ CVector3<T> CrossPoint(const CLine3<T>& seg, const CPointNormalPlain<T>& plain)
 	T n = seg_v.y;
 	T p = seg_v.z;
 
-	T t = (A*(plain.m_M0.x - seg.m_pts[0].x) + B*(plain.m_M0.y - seg.m_pts[0].y) + C*(plain.m_M0.z - seg.m_pts[0].z)) / (A*m + B*n + C*p);
+	T t = (A*(plain.m_M0.x - seg.A.x) + B*(plain.m_M0.y - seg.A.y) + C*(plain.m_M0.z - seg.A.z)) / (A*m + B*n + C*p);
 
-	return CVector3<T>(seg.m_pts[0].x + m * t, seg.m_pts[0].y + n * t, seg.m_pts[0].z + p * t);
+	return CVector3<T>(seg.A.x + m * t, seg.A.y + n * t, seg.A.z + p * t);
 }
 
 template<class T>

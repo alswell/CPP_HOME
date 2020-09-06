@@ -97,7 +97,7 @@ public:
 	virtual void Draw(ILiteDC* dc, const RECT& rcLoc, const RECT& rcViewRgn);
 };
 
-#define ADD_ZOOM(l, t, W, H) ((CZoom*)AddCtrl(new CZoom(RECT(l, t, l+W, t+H))))
+#define ADD_ZOOM(l, t, W, H) (dynamic_cast<CZoom*>(AddCtrl(new CZoom(RECT(l, t, l+W, t+H)))))
 class IZoomEventHandler
 {
 public:
