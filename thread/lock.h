@@ -1,21 +1,5 @@
-#ifndef __SYNC_OBJ_H
-#define __SYNC_OBJ_H
-
-#include <semaphore.h>
+#pragma once
 #include <pthread.h>
-
-class CSemaphore
-{
-	sem_t m_sem;
-public:
-	CSemaphore(int nInit = 0);
-	~CSemaphore();
-	
-	int Lock(int nTimeout = -1);
-	int Unlock();
-	
-	int GetValue();
-};
 
 class CMutex
 {
@@ -40,4 +24,3 @@ public:
 	int Unlock();
 };
 
-#endif

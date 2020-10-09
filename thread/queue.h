@@ -2,7 +2,7 @@
 #define __QUEUE_H
 
 #include "../env.h"
-#include "sync.h"
+#include "lock.h"
 
 template <class T>
 class CArrayQueue
