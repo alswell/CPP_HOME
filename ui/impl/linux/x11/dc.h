@@ -1,6 +1,6 @@
 #pragma once
 #include <X11/Xlib.h>
-#include "LiteCtrlBase.h"
+#include "../../../LiteCtrlBase.h"
 
 class CX11Wnd;
 class CX11DC : public ILiteDC

@@ -1,6 +1,6 @@
-#include "thread.h"
-#include "sock.h"
-#include "tick.h"
+#include "thread/thread.h"
+#include "io/sock.h"
+#include "datetime.h"
 #include <signal.h>
 
 
@@ -18,7 +18,7 @@ public:
 		while (1)
 		{
 			sleep(1);
-			int r = m_sock.Write("hello", 5);
+			int r = m_sock.Write("hello\n", 6);
 			if (r != -1)
 				printf("thread ID: %lu: %d; tick count: %d\n", m_tid, r, GetTickCount());
 			else

@@ -1,5 +1,5 @@
 #pragma once
-#include "zoom/FigurePainter.h"
+#include "../FigurePainter.h"
 
 
 class CZoomFigure : public IZoom

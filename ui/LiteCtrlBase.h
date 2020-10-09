@@ -1,5 +1,5 @@
 #pragma once
-#include "func.h"
+#include "geometry/func.h"
 
 //struct CSize
 //{

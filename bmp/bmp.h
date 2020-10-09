@@ -1,6 +1,6 @@
 #pragma once
 #include "cycl.h"
-#include "direction.h"
+#include "geometry/direction.h"
 
 extern int g_OrderX[8];
 extern int g_OrderY[8];

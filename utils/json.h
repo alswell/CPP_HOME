@@ -1,6 +1,6 @@
 #pragma once
-#include "env.h"
-#include "str.h"
+#include "../env.h"
+#include "../str.h"
 
 
 bool StrCMP_JSON(const char* key, const char* KEY, const char* key0);

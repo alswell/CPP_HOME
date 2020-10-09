@@ -1,6 +1,6 @@
 #pragma once
 #include "stream.h"
-#include "str.h"
+#include "../str.h"
 
 class CFile : public IStream
 {

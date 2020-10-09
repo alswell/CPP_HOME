@@ -1,6 +1,6 @@
-#include "args.h"
-#include "file.h"
-#include "camera.h"
+#include "utils/args.h"
+#include "io/file.h"
+#include "io/camera.h"
 
 #define NUM_FRAME		10
 

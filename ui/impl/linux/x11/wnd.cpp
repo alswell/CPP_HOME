@@ -3,6 +3,7 @@
 #include <map>
 using namespace std;
 
+ILiteGlobal* gui = new CX11Global;
 
 CX11Global::CX11Global()
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include <X11/Xlib.h>
 #include "dc.h"
-#include "LiteBKG.h"
+#include "../../../LiteBKG.h"
 
 #define X11_GUI(x) dynamic_cast<CX11Global*>(gui)->x
 #define X11_DSP X11_GUI(m_dsp)

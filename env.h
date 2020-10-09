@@ -37,43 +37,21 @@ struct StrCMP
 #define PTYX_INT(pt) int(pt.y), int(pt.x)
 #define PTYX_FLOAT(pt) float(pt.y), float(pt.x)
 
-#ifndef DWORD
-#define DWORD long
-#endif
+//#ifndef DWORD
+//#define DWORD long
+//#endif
 
-#define FOR(cls, i, a, b) \
-	for (cls i = a; i < b; ++i)
-
-#define FOR_EACH(it, obj) \
-	for (auto it = (obj).begin(); it != (obj).end(); ++it)
-
-//#define FOR_LIST(cls, obj, it) \
-//	for (typename list<cls>::iterator it = obj.begin(); it != obj.end(); ++it)
-
-#define FOR_MAP(cls1, cls2, obj, it) \
-	for (typename map<cls1, cls2>::iterator it = obj.begin(); it != obj.end(); ++it)
-
-#define FOR_(a, b) \
-	for (int i = a; i < b; ++i)
-#define FOR_I(a, i, b) \
-	for (int i = int(a); i < int(b); ++i)
-
-#define FOR_IJ(i_beg, i, i_end, j_beg, j, j_end) \
-	for (int i = i_beg; i < i_end; ++i)\
-	for (int j = j_beg; j < j_end; ++j)
-
-#define FOR_U(a, i, b) \
-	for (unsigned i = a; i < b; ++i)
-#define FOR_SIZE(a, i, b) \
-	for (size_t i = a; i < b; ++i)
-
-#define FOR_MX(mx, r, c) \
-	for (int r = 0; r < int((mx).m_uRow); ++r)\
-	for (int c = 0; c < int((mx).m_uColumn); ++c)
-
-#define FOR_SQUARE(i_beg, i, i_end, j_beg, j, j_end) \
-	for (int i = i_beg; i <= i_end; ++i)\
-	for (int j = j_beg; j <= j_end; ++j)
+//#define FOR_IJ(i_beg, i, i_end, j_beg, j, j_end) \
+//	for (int i = i_beg; i < i_end; ++i)\
+//	for (int j = j_beg; j < j_end; ++j)
+//
+//#define FOR_MX(mx, r, c) \
+//	for (int r = 0; r < int((mx).m_uRow); ++r)\
+//	for (int c = 0; c < int((mx).m_uColumn); ++c)
+//
+//#define FOR_SQUARE(i_beg, i, i_end, j_beg, j, j_end) \
+//	for (int i = i_beg; i <= i_end; ++i)\
+//	for (int j = j_beg; j <= j_end; ++j)
 
 #define VA_HELPER(first, func) \
 va_list ap;\
@@ -143,7 +121,7 @@ template <class T>
 list<T> VectorToList(vector<T> v)
 {
 	list<T> l;
-	FOR_EACH(it, v)
+	for (auto it = v.begin(); it != v.end(); ++it)
 		l.push_back(*it);
 	return l;
 }
@@ -151,7 +129,7 @@ template <class T>
 vector<T> ListToVector(list<T> l)
 {
 	vector<T> v;
-	FOR_EACH(it, l)
+	for (auto it = l.begin(); it != l.end(); ++it)
 		v.push_back(*it);
 	return v;
 }

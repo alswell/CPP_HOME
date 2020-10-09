@@ -1,7 +1,6 @@
 #include "LiteBKG.h"
 
 
-ILiteGlobal* gui;
 KEYBOARD g_nKeyMap[256];
 
 

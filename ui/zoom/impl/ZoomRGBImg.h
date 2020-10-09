@@ -1,5 +1,5 @@
 #pragma once
-#include "zoom/IZoom.h"
+#include "../IZoom.h"
 #include "bmp/RGBImg.h"
 
 class CZoomRGBImg : public IZoom

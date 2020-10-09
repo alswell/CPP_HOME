@@ -1,7 +1,7 @@
 #pragma once
 #include "env.h"
 #include "pix.h"
-#include "func.h"
+#include "geometry/func.h"
 
 struct SHueSI
 {

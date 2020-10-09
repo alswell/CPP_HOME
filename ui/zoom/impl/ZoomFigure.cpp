@@ -9,7 +9,7 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 {
 	CPainHelper helper(this->m_implBmpMapper, dc, rcLoc, rcViewRgn);
 	char c = 'A';
-	FOR_EACH(itLine, m_lsLine)
+	for (auto itLine = m_lsLine.begin(); itLine != m_lsLine.end(); ++itLine)
 	{
 		if ((**itLine).c != 0)
 		{
@@ -28,9 +28,9 @@ void CZoomFigure::Draw(ILiteDC *dc, const RECT& rcLoc, const RECT& rcViewRgn)
 			helper.Plot((**itLine).line, (**itLine).clr, 0);
 		}
 	}
-	FOR_EACH(it, m_lsPt)
+	for (auto it = m_lsPt.begin(); it != m_lsPt.end(); ++it)
 		helper.Point((**it).pt, (**it).clr, (**it).c);
-	FOR_EACH(it, m_lsRect)
+	for (auto it = m_lsRect.begin(); it != m_lsRect.end(); ++it)
 		helper.Rect((**it).rc, (**it).clr, (**it).clr_fill);
 }
 

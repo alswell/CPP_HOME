@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <termios.h>
 
-#include "str.h"
+#include "../str.h"
 
 //  CUART uart("/dev/ttySAC3", 115200, 8, 'N', 1);
 //  uart.Write("hello uart!");

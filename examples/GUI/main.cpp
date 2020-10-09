@@ -1,18 +1,17 @@
-#include <iostream>
 #include "fmt.h"
-#include "wnd.h"
-#include "zoom/IZoom.h"
-#include "zoom/impl/StdMapper.h"
-#include "zoom/impl/ZoomFigure.h"
-#include "zoom/impl/ZoomKLine.h"
+#include "env.h"
+#include "ui/LiteBKG.h"
+#include "ui/zoom/IZoom.h"
+#include "ui/zoom/impl/StdMapper.h"
+#include "ui/zoom/impl/ZoomFigure.h"
+#include "ui/zoom/impl/ZoomKLine.h"
 
-using namespace std;
 
-class CLocalImgWnd : public CLiteBKG, public IZoomEventHandler
+class CMainWnd : public CLiteBKG, public IZoomEventHandler
 {
 public:
-	CLocalImgWnd(int x, int y, int W, int H);
-	~CLocalImgWnd();
+	CMainWnd(int x, int y, int W, int H);
+	~CMainWnd();
 
 	void OnClick();
 	void OnSelected(bool bSel);
@@ -22,7 +21,7 @@ public:
 	void NotifyEvent(int nMsgID, const RECT& rc);
 };
 
-CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
+CMainWnd::CMainWnd(int x, int y, int W, int H)
 	: CLiteBKG(W, H)
 {
 	int nTop = 10;
@@ -62,32 +61,32 @@ CLocalImgWnd::CLocalImgWnd(int x, int y, int W, int H)
 	pZoom->SetScroll(pKLine->m_posRT, POINT(630, 10));
 }
 
-CLocalImgWnd::~CLocalImgWnd()
+CMainWnd::~CMainWnd()
 {
 
 }
 
-void CLocalImgWnd::OnClick()
+void CMainWnd::OnClick()
 {
 	cout << "OnClick" << endl;
 }
 
-void CLocalImgWnd::OnSelected(bool bSel)
+void CMainWnd::OnSelected(bool bSel)
 {
 	cout << "OnSelected: " << bSel << endl;
 }
 
-void CLocalImgWnd::OnRadio(int n)
+void CMainWnd::OnRadio(int n)
 {
 	cout << "OnRadio: " << n << endl;
 }
 
-void CLocalImgWnd::OnRadio2(int n)
+void CMainWnd::OnRadio2(int n)
 {
 	cout << "OnRadio2: " << n << endl;
 }
 
-void CLocalImgWnd::NotifyEvent(int nMsgID, const RECT &rc)
+void CMainWnd::NotifyEvent(int nMsgID, const RECT &rc)
 {
 	Println("NotifyEvent:", nMsgID, rc);
 }
@@ -95,8 +94,7 @@ void CLocalImgWnd::NotifyEvent(int nMsgID, const RECT &rc)
 int main()
 {
 	cout << "Hello World!" << endl;
-	gui = new CX11Global;
-	new CLocalImgWnd(0, 0, 800, 600);
+	new CMainWnd(0, 0, 800, 600);
 	gui->Start();
 	return 0;
 }

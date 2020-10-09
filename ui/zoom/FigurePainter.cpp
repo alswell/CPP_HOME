@@ -71,7 +71,7 @@ void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, char c)
 		{
 			char buff[8];
 			int i = 0;
-			FOR_EACH(it, ls)
+			for (auto it = ls.begin(); it != ls.end(); ++it)
 			{
 				sprintf(buff, "%d", i);
 				Point(*it, clr, buff);
@@ -80,8 +80,8 @@ void CPainHelper::Plot(const list<PointF>& ls, COLORREF clr, char c)
 		}
 		else
 		{
-			FOR_EACH(it, ls)
-			Point(*it, clr, c);
+			for (auto it = ls.begin(); it != ls.end(); ++it)
+				Point(*it, clr, c);
 		}
 	}
 }

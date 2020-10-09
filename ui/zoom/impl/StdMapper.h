@@ -1,5 +1,5 @@
 #pragma once
-#include "zoom/IZoom.h"
+#include "../IZoom.h"
 
 class CStdMapper : public IBmpMapper
 {

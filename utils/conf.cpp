@@ -1,5 +1,5 @@
 #include "conf.h"
-#include "file.h"
+#include "../io/file.h"
 
 CConf* CConf::m_pStatic = 0;
 CString CConf::m_strDefaultFile;

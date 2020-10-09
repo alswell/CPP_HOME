@@ -1,8 +1,8 @@
 #pragma once
 
-#include "env.h"
-#include "str.h"
-#include "dict.h"
+#include "../env.h"
+#include "../str.h"
+#include "../dict.h"
 
 class CConf
 {

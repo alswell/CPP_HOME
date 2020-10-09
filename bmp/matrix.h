@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 using namespace std;
-#include "vector2.h"
+#include "geometry/vector2.h"
 
 #define IS_INSIDE(r, c) (r >= 0 && r < m_uRow && c >= 0 & c < m_uColumn)
 #define IS_OUTSIDE(r, c) (r < 0 || r >= m_uRow || c < 0 || c >= m_uColumn)

@@ -1,8 +1,8 @@
 #ifndef __HTTP_H
 #define __HTTP_H
-#include "thread.h"
-#include "sock.h"
-#include "dict.h"
+#include "../thread/thread.h"
+#include "../io/sock.h"
+#include "../dict.h"
 
 
 class HttpResponse

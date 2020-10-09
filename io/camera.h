@@ -1,6 +1,6 @@
 #pragma once
 
-#include "env.h"
+#include "../env.h"
 #include <assert.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -9,7 +9,7 @@
 #include <getopt.h>             /* getopt_long() */
 #include <asm/types.h>          /* for videodev2.h */
 #include <linux/videodev2.h>
-#include "str.h"
+#include "../str.h"
 
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))

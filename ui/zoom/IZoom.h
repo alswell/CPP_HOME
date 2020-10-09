@@ -1,5 +1,5 @@
 #pragma once
-#include "LiteBKG.h"
+#include "ui/LiteBKG.h"
 
 #define ZOOM_NOTIFY_PT   110
 #define ZOOM_NOTIFY_RECT 111

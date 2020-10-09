@@ -1,5 +1,4 @@
 #include "IZoom.h"
-#include "zoom/impl/ZoomFigure.h"
 
 IBmpMapper::IBmpMapper(int nMulti /*= 1*/) : m_nMulti(nMulti) {}
 
