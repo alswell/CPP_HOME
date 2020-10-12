@@ -1,19 +1,19 @@
-CC := g++ -I ../../
+CC := g++ -I ../../src
 CO := $(CC) -c -o
 
 cam : main.cpp camera.o stream.o file.o str.o datetime.o args.o
 	$(CC) $^ -o $@
-camera.o : ../../io/camera.cpp
+camera.o : ../../src/io/camera.cpp
 	$(CO) $@ $^
-stream.o : ../../io/stream.cpp
+stream.o : ../../src/io/stream.cpp
 	$(CO) $@ $^
-file.o : ../../io/file.cpp
+file.o : ../../src/io/file.cpp
 	$(CO) $@ $^
-str.o : ../../str.cpp
+str.o : ../../src/str.cpp
 	$(CO) $@ $^
-datetime.o : ../../datetime.cpp
+datetime.o : ../../src/datetime.cpp
 	$(CO) $@ $^
-args.o : ../../utils/args.cpp
+args.o : ../../src/utils/args.cpp
 	$(CO) $@ $^
 %.o : basic/%.cpp
 	$(CO) $@ $^

@@ -1,4 +1,4 @@
-srv : srv.cpp ../../io/stream.* ../../io/sock.* ../../datetime.* ../../str.* ../../thread/thread.h
-	g++ $^ -I ../../ -l pthread -o $@ -g
-cli : cli.cpp ../../io/stream.* ../../io/sock.*
-	g++ $^ -I ../../ -o $@
+srv : srv.cpp ../../src/io/stream.* ../../src/io/sock.* ../../src/datetime.* ../../src/str.* ../../src/thread/thread.h
+	g++ $^ -I ../../src -l pthread -o $@ -g
+cli : cli.cpp ../../src/io/stream.* ../../src/io/sock.*
+	g++ $^ -I ../../src -o $@
