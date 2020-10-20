@@ -1,12 +1,23 @@
 #include "jpg.h"
 
+bool LoadJPG(unsigned char* buff, unsigned size, CRGBImg& img)
+{
+	unsigned char* tmp = nullptr;
+	unsigned w;
+	unsigned h;
+	if (jpeg2rgb(buff, size, tmp, w, h, 1) != 0)
+		return false;
+	img.Attach(h, w, reinterpret_cast<PIX32*>(tmp));
+	return true;
+}
+
 class CJPEGCtxt
 {
 	jpeg_error_mgr m_JPEGErrMgr; // be sure this is the first member
 	jmp_buf m_JmpBuf;
 	jpeg_decompress_struct m_info;
 
-    FILE* m_pFile;
+	FILE* m_pFile;
 public:
 	CJPEGCtxt()
 	{

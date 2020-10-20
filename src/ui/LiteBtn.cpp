@@ -41,10 +41,10 @@ void CLiteMagicBox::Show(int nIndex, bool refresh)
 }
 
 
-CLiteBtn::CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+CLiteBtn::CLiteBtn(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
 	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bIsDisable(false)
-	, m_cbNotify(cb)
+	, m_cbNotify(nullptr)
 {
 
 }
@@ -92,11 +92,11 @@ void CLiteBtn::Inactivate(bool bCapture)
 }
 
 
-CLiteCheckBox::CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+CLiteCheckBox::CLiteCheckBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
 	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bSelected(false)
 	, m_bIsDisable(false)
-	, m_cbNotify(cb)
+	, m_cbNotify(nullptr)
 {
 }
 
@@ -155,11 +155,11 @@ void CLiteCheckBox::Inactivate(bool bCapture)
 	}
 }
 
-CLiteRadioBox::CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle, NOTIFY cb)
+CLiteRadioBox::CLiteRadioBox(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
 	: CLiteMagicBox(rcRelLoc, str, btnStyle)
 	, m_bSelected(false)
 	, m_bIsDisable(false)
-	, m_cbNotify(cb)
+	, m_cbNotify(nullptr)
 {
 	m_mapRadio[m_cbNotify].push_back(this);
 }
@@ -245,7 +245,7 @@ void CLiteRadioBox::Select()
 }
 
 CLiteScrollBar::CLiteScrollBar(RECT rcRelLoc, const char* str, const BtnStyle& btnStyle)
-	: CLiteBtn(rcRelLoc, str, btnStyle, nullptr)
+	: CLiteBtn(rcRelLoc, str, btnStyle)
 {
 
 }
@@ -279,9 +279,9 @@ void CLiteScrollBar::ActivateMove(POINT ptWnd)
 	MoveTo(x, y);
 }
 
-CLiteScroll::CLiteScroll(RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle, CLiteScroll::NOTIFY cb)
+CLiteScroll::CLiteScroll(RECT rcRelLoc, EScrollType type, unsigned len, const BtnStyle& btnStyle)
 	: m_typeScroll(type)
-	, m_cbNotify(cb)
+	, m_cbNotify(nullptr)
 {
 	m_rcRelLoc = rcRelLoc;
 	rcRelLoc.MoveToXY(0, 0);

@@ -21,4 +21,5 @@ public:
 	int WriteLine(const char *str);
 
 	virtual void Close() = 0;
+	void WithExit();
 };

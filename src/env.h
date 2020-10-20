@@ -19,6 +19,17 @@
 
 using namespace std;
 
+#define THIS_CLS remove_pointer<decltype(this)>::type
+
+template<class T>
+struct With
+{
+	T x;
+	T* operator->() { return &x; }
+	~With() { x.WithExit(); }
+};
+#define with(obj) With<decltype(obj)>{obj}
+
 struct StrCMP
 {
 	bool operator()(const char* const& left, const char* const& right) const { return strcmp(left, right) < 0; }
