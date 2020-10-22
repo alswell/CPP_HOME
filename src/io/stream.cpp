@@ -15,6 +15,16 @@ IStream::~IStream()
 	}
 }
 
+unsigned IStream::TotalSize()
+{
+	return 255;
+}
+
+char *IStream::ReadAll()
+{
+	return ReadN(TotalSize());
+}
+
 char *IStream::ReadN(unsigned nSize)
 {
 	if (m_nSize < nSize)
@@ -22,7 +32,7 @@ char *IStream::ReadN(unsigned nSize)
 		if (m_pBuff)
 			delete[] m_pBuff;
 		m_nSize = nSize;
-		m_pBuff = new char[m_nSize];
+		m_pBuff = new char[m_nSize+1];
 	}
 	int r = Read(m_pBuff, nSize);
 	if (r < 0)

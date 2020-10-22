@@ -8,6 +8,16 @@ CFile::CFile(const char *strFileName, const char* mode)
 	m_pFile = fopen(strFileName, mode);
 }
 
+unsigned CFile::TotalSize()
+{
+	auto tmp = ftell(m_pFile);
+	fseek(m_pFile, 0, SEEK_END);
+	unsigned nSize = ftell(m_pFile);
+	//rewind(m_pFile);
+	fseek(m_pFile, tmp, SEEK_SET);
+	return nSize;
+}
+
 int CFile::Read(void *pBuff, unsigned nSize)
 {
 	return fread(pBuff, 1, nSize, m_pFile);
