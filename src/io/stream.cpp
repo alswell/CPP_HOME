@@ -13,7 +13,6 @@ IStream::~IStream()
 		delete[] m_pBuff;
 		m_pBuff = nullptr;
 	}
-	//Close();
 }
 
 char *IStream::ReadN(unsigned nSize)
