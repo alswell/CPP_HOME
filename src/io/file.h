@@ -8,7 +8,8 @@ class CFile : public IStream
 public:
 	CFile(const char* strFileName, const char *mode = "ab+");
 
-	virtual unsigned TotalSize() override;
+	unsigned TotalSize();
+	char* ReadAll();
 	virtual int Read(void *pBuff, unsigned nSize) override;
 	virtual int Write(const void *pBuff, unsigned long nSize) override;
 	virtual void Close() override;

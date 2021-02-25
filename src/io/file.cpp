@@ -18,6 +18,11 @@ unsigned CFile::TotalSize()
 	return nSize;
 }
 
+char *CFile::ReadAll()
+{
+	return ReadN(TotalSize());
+}
+
 int CFile::Read(void *pBuff, unsigned nSize)
 {
 	return fread(pBuff, 1, nSize, m_pFile);

@@ -11,10 +11,10 @@ public:
 	IStream();
 	virtual ~IStream();
 
-	virtual unsigned TotalSize();
 	virtual int Read(void* pBuff, unsigned nSize) = 0;
-	char* ReadAll();
+	//virtual char* ReadAll() = 0;
 	char* ReadN(unsigned nSize);
+	char* ReadUntil(const char* cutset, unsigned nSize = 1024);
 	char* ReadLine(unsigned nSize = 1024);
 
 	virtual int Write(const void* pBuff, unsigned long nSize) = 0;

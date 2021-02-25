@@ -15,16 +15,6 @@ IStream::~IStream()
 	}
 }
 
-unsigned IStream::TotalSize()
-{
-	return 255;
-}
-
-char *IStream::ReadAll()
-{
-	return ReadN(TotalSize());
-}
-
 char *IStream::ReadN(unsigned nSize)
 {
 	if (m_nSize < nSize)
@@ -41,8 +31,9 @@ char *IStream::ReadN(unsigned nSize)
 	return m_pBuff;
 }
 
-char *IStream::ReadLine(unsigned nSize)
+char *IStream::ReadUntil(const char *cutset, unsigned nSize)
 {
+	auto n = strlen(cutset);
 	if (m_nSize < nSize)
 	{
 		if (m_pBuff)
@@ -50,7 +41,7 @@ char *IStream::ReadLine(unsigned nSize)
 		m_nSize = nSize;
 		m_pBuff = new char[m_nSize];
 	}
-	unsigned i = 0;
+	unsigned i = 1;
 	for (;; ++i)
 	{
 		if (i == m_nSize)
@@ -64,10 +55,14 @@ char *IStream::ReadLine(unsigned nSize)
 		int r = Read(&m_pBuff[i], 1);
 		switch (r) {
 		case 1:
-			if (m_pBuff[i] == '\n')
+			for (unsigned j = 0; j < n; ++j)
 			{
-				m_pBuff[i] = 0;
-				return m_pBuff;
+				if (m_pBuff[i] == cutset[j])
+				{
+					m_pBuff[0] = cutset[j];
+					m_pBuff[i] = 0;
+					return m_pBuff+1;
+				}
 			}
 			break;
 		case 0:
@@ -79,7 +74,12 @@ char *IStream::ReadLine(unsigned nSize)
 		}
 	}
 	m_pBuff[i] = 0;
-	return m_pBuff;
+	return m_pBuff+1;
+}
+
+char *IStream::ReadLine(unsigned nSize)
+{
+	return ReadUntil("\n", nSize);
 }
 
 int IStream::WriteString(const char *str)
