@@ -1,51 +1,72 @@
-#ifndef __HTTP_H
-#define __HTTP_H
+#pragma once
 #include "../thread/thread.h"
 #include "../io/sock.h"
-#include "../dict.h"
+#include "../str.h"
+//#include "../dict.h"
 
 
 class HttpResponse
 {
-	CSock m_sock;
-	CString m_strResp;
-	CString m_strVersion;
+	friend struct InitHTTP;
+	static map<int, const char*> m_mStatus;
 	int m_nStatus;
-	CString m_strStatus;
-	CString m_strBody;
-	DICT(CString) m_dHead;
+	float m_fVersion;
+	map<CString, CString> m_mHeader;
+	int m_nContentLength;
+	char* m_bufBody;
 public:
 	HttpResponse(int status = 200, float version = 1.1);
-	HttpResponse(CSock _sock);
+	HttpResponse(IStream& reader);
+
+	void SetBody(const void *body, int len);
+	void NotFound();
 
 	CString &operator [] (const CString& key);
-	HttpResponse &operator () (const CString& strBody);
-	CString &operator () ();
+	char* BODY();
+	int BodyLen();
+
+	CString Head();
 };
+
+enum HttpMethod
+{
+	METHOD_UNKNOWN = 0,
+	METHOD_GET,
+	METHOD_DELETE,
+	METHOD_PUT,
+	METHOD_POST,
+};
+
 
 class HttpRequest
 {
-	CSock m_sock;
-	CString m_strReq;
-	CString m_strMethod;
-	CString m_strUrl;
-	CString m_strBody;
+	friend struct InitHTTP;
+	friend class HttpWorker;
+	static map<HttpMethod, const char*> m_mMethod;
+	HttpMethod m_eMethod;
 	float m_fVersion;
-	DICT(CString) m_dHead;
+	CString m_strUrl;
+	map<CString, CString> m_mHeader;
+	int m_nContentLength;
+	const char* m_strHost;
+	const char*  m_strUserAgent;
+	const char*  m_strAccept;
+	const char*  m_strContentType;
+	char* m_bufBody;
 public:
-	HttpRequest(const char* host, int port = 80, const char* url = "/", const char* method = "GET", float version = 1.1);
-	HttpRequest(const CString& str);
+	HttpRequest();
+	HttpRequest(const char* host, int port = 80, const char* url = "/", HttpMethod method = METHOD_GET, float version = 1.1);
+	bool Init(IStream& reader);
 
-	CString &METHOD();
+	HttpMethod &METHOD();
 	CString &URL();
-	CString &BODY();
+	char* BODY();
 	CString &operator [] (const CString& key);
-	HttpRequest &operator () (const CString& strBody);
-	CString &operator () ();
 
-	HttpResponse Send();
+	CString Head();
 };
 
+#define LOG cout << "[" << m_tid << "] "
 class HttpWorker : public CThreadImpl<HttpWorker>
 {
 protected:
@@ -64,42 +85,42 @@ public:
 	void* Run()
 	{
 		cout << "Accept!" << m_tid << endl;
-		CString buff;
-		m_sock.SetRecvFlag(0);
-		while (1)
+		while (true)
 		{
-			char * p = m_sock.ReadN(1024);
-			if (!p)
+			HttpRequest req;
+			if (!req.Init(m_sock))
 				break;
-			buff += p;
-			if (-1 != buff.Find("\r\n\r\n"))
-			{
-				//cout << buff << endl;
-				cout << "[tid: " << m_tid << "] ";
-				cout << "write hello" << endl;
-
-				HttpRequest req(buff);
-				HttpResponse resp(200);
-				if (!this->MainLoop(resp, req))
-					break;
-				CString strResp = resp();
-				cout << strResp << endl;
-				m_sock.WriteString(strResp);
-				buff = "";
-			}
+			LOG << "UserAgent: " << req.m_strUserAgent << endl;
+			LOG << "Version: " << req.m_fVersion << endl;
+			LOG << "Method: " << HttpRequest::m_mMethod[req.METHOD()] << endl;
+			LOG << "Host: " << req.m_strHost << endl;
+			LOG << "URL: " << req.URL() << endl;
+			LOG << "Content-Length: " << req.m_nContentLength << endl;
+			LOG << "Content-Type: " << req.m_strContentType << endl;
+			LOG << "Accept: " << req.m_strAccept << endl;
+			LOG << "Body: " << req.BODY() << endl;
+			HttpResponse resp;
+			this->MainLoop(resp, req);
+			if (req.m_fVersion == 1.0)
+				break;
+			m_sock.WriteString(resp.Head());
+			m_sock.Write(resp.BODY(), resp.BodyLen());
 		}
-		cout << "exit sub-thread!" << m_tid << endl;
+		m_sock.Close();
+		LOG << "exit!" << endl;
 		delete this;
+		return nullptr;
 	}
 };
 
+bool default_http_handler(HttpResponse& resp, HttpRequest& req);
 
 class HttpServer
 {
 	HttpWorker::_MainLoop MainLoop;
 	short m_nPort;
 public:
-	HttpServer(short port, HttpWorker::_MainLoop fun) : m_nPort(port)
+	HttpServer(short port, HttpWorker::_MainLoop fun=default_http_handler) : m_nPort(port)
 	{
 		MainLoop = fun;
 	}
@@ -116,5 +137,3 @@ public:
 	}
 };
 
-
-#endif
