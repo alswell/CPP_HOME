@@ -24,6 +24,11 @@ CString CDateTime::StrFmt(const char* fmt)
 	FMT_TIME(fmt);
 }
 
+CString CDateTime::Stamp()
+{
+	FMT_TIME("%s");
+}
+
 CString CDateTime::StrYmd()
 {
 	FMT_TIME("%Y%m%d");
