@@ -76,8 +76,9 @@ private:
 	unsigned m_nWidth;
 	unsigned m_nHeight;
 	unsigned m_nDataType;
-	unsigned m_nMemCount;
 	unsigned m_nImageSize;	//to keep the real image size!
+	unsigned m_nMemCount;
+	SBuff * m_pBuff;
 
 	fd_set m_fds;
 	int m_fdMax;
@@ -85,8 +86,6 @@ private:
 
 	io_method m_ioMethod;
 	vector<SFmtInfo> m_vFmts;
-	SBuff * m_pBuff;
-	unsigned m_nBuff;
 
 	bool open_device(void);
 	void close_device(void);

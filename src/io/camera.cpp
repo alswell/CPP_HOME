@@ -363,25 +363,26 @@ bool Camera::init_mmap(void)
 			errno_exit("VIDIOC_REQBUFS: xxx");
 	}
 	printf("req.count: %d\n", req.count);
+	m_nMemCount = req.count;
 	//if (req.count < 2)
 	//	errno_exit("insufficient buffer memory on dev");
 
 	m_pBuff = new SBuff[req.count];
 
-	for (m_nBuff = 0; m_nBuff < req.count; ++m_nBuff) 
+	for (unsigned i = 0; i < req.count; ++i)
 	{
 		struct v4l2_buffer buf;
 		CLEAR(buf);
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = m_nBuff;
+		buf.index = i;
 		if (-1 == xioctl(m_fd, VIDIOC_QUERYBUF, &buf))
 			errno_exit("VIDIOC_QUERYBUF");
-		m_pBuff[m_nBuff].length = buf.length;
-		m_pBuff[m_nBuff].start = mmap(nullptr /* start anywhere */, buf.length,
+		m_pBuff[i].length = buf.length;
+		m_pBuff[i].start = mmap(nullptr /* start anywhere */, buf.length,
 			PROT_READ | PROT_WRITE /* required */,
 			MAP_SHARED /* recommended */, m_fd, buf.m.offset);
-		if (MAP_FAILED == m_pBuff[m_nBuff].start)
+		if (MAP_FAILED == m_pBuff[i].start)
 			return false;
 	}
 	return true;
@@ -389,14 +390,13 @@ bool Camera::init_mmap(void)
 
 void Camera::uninit_device(void) 
 {
-	unsigned int i;
 	switch (m_ioMethod)
 	{
 	case IO_METHOD_READ:
 		//free(m_pBuff[0].start);
 		break;
 	case IO_METHOD_MMAP:
-		for (i = 0; i < m_nBuff; ++i)
+		for (unsigned i = 0; i < m_nMemCount; ++i)
 			if (-1 == munmap(m_pBuff[i].start, m_pBuff[i].length))
 				errno_exit("munmap");
 		break;
@@ -411,9 +411,7 @@ void Camera::uninit_device(void)
 
 bool Camera::start_capturing(void)
 {
-	unsigned int i;
-	enum v4l2_buf_type type;
-	for (i = 0; i < m_nBuff; ++i) 
+	for (unsigned i = 0; i < m_nMemCount; ++i)
 	{
 		struct v4l2_buffer buf;
 		CLEAR(buf);
@@ -423,7 +421,7 @@ bool Camera::start_capturing(void)
 		if (-1 == xioctl(m_fd, VIDIOC_QBUF, &buf))
 			errno_exit("start_capturing: VIDIOC_QBUF");
 	}
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	if (-1 == xioctl(m_fd, VIDIOC_STREAMON, &type))
 		errno_exit("start_capturing: VIDIOC_STREAMON");
 
@@ -471,7 +469,7 @@ unsigned Camera::read_frame(void* image)
 {
 	struct v4l2_buffer buf;
 	DQBUF(buf);
-	assert(buf.index < m_nBuff);
+	assert(buf.index < m_nMemCount);
 	memcpy(image, m_pBuff[buf.index].start, buf.bytesused);
 	unsigned bytesused = buf.bytesused;
 	QBUF(buf);
