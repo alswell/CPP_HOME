@@ -57,7 +57,7 @@ public:
 public:	// Constructor & Calculations
 
 	CMatrix(void) : m_pT(0), m_uRow(0), m_uColumn(0) {}
-	~CMatrix(void) { if (m_pT) delete[] m_pT; }
+	~CMatrix(void) { if (m_pT) delete[] m_pT; m_pT = nullptr; }
 
 	CMatrix(const CMatrix<T>& m)
 	{

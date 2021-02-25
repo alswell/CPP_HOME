@@ -25,9 +25,8 @@ public:
 	void ExtractChannel(CMatrix<DES_T>& _out_m, int channel)
 	{
 		_out_m = CMatrix<DES_T>(m_uRow, m_uColumn);
-		for (unsigned r = 0; r < m_uRow; r++)
-			for (unsigned c = 0; c < m_uColumn; c++)
-				_out_m[r][c] = DES_T(RGB_CH(r, c, channel));
+		for (unsigned r = 0; r < m_uRow; r++) for (unsigned c = 0; c < m_uColumn; c++)
+			_out_m[r][c] = DES_T(RGB_CH(r, c, channel));
 	}
 
 	template <class SRC_T>
@@ -35,16 +34,15 @@ public:
 	{
 		Init(_in_m.m_uRow, _in_m.m_uColumn);
 		unsigned char temp;
-		for (unsigned r = 0; r < m_uRow; r++)
-			for (unsigned c = 0; c < m_uColumn; c++)
-			{
-				temp = _in_m[r][c];
-				if (_in_m[r][c] > 255)
-					temp = 255;
-				else if (_in_m[r][c] < 0)
-					temp = 0;
-				RGB_CH(r, c, channel) = temp;
-			}
+		for (unsigned r = 0; r < m_uRow; r++) for (unsigned c = 0; c < m_uColumn; c++)
+		{
+			temp = _in_m[r][c];
+			if (_in_m[r][c] > 255)
+				temp = 255;
+			else if (_in_m[r][c] < 0)
+				temp = 0;
+			RGB_CH(r, c, channel) = temp;
+		}
 	}
 
 	template <class SRC_T>
@@ -52,18 +50,17 @@ public:
 	{
 		Init(_in_m.m_uRow, _in_m.m_uColumn);
 		unsigned char temp;
-		for (unsigned r = 0; r < m_uRow; r++)
-			for (unsigned c = 0; c < m_uColumn; c++)
-			{
-				temp = _in_m[r][c];
-				if (_in_m[r][c] > 255)
-					temp = 255;
-				else if (_in_m[r][c] < 0)
-					temp = 0;
-				RGB_CH(r, c, 0) = temp;
-				RGB_CH(r, c, 1) = temp;
-				RGB_CH(r, c, 2) = temp;
-			}
+		for (unsigned r = 0; r < m_uRow; r++) for (unsigned c = 0; c < m_uColumn; c++)
+		{
+			temp = _in_m[r][c];
+			if (_in_m[r][c] > 255)
+				temp = 255;
+			else if (_in_m[r][c] < 0)
+				temp = 0;
+			RGB_CH(r, c, 0) = temp;
+			RGB_CH(r, c, 1) = temp;
+			RGB_CH(r, c, 2) = temp;
+		}
 	}
 
 //	template <class SRC_T>
@@ -108,6 +105,12 @@ public:
 	void ToR();
 	void ToG();
 	void ToB();
+	void ToGreyR();
+	void ToGreyG();
+	void ToGreyB();
+	void DrawSquare(int r, int c, int radius, PIX32 clr);
+	void DrawRedSquare(int r, int c, int radius);
+	void DrawGreenSquare(int r, int c, int radius);
 	void DrawCross(int r, int c);
 	void DrawOutline(IIterator<PointF*>& iter);
 

@@ -29,12 +29,39 @@ void CRGBImg::ToR()
 {
 	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
 	{
+		m_pT[i].g = 0;
+		m_pT[i].b = 0;
+	}
+}
+
+void CRGBImg::ToG()
+{
+	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
+	{
+		m_pT[i].r = 0;
+		m_pT[i].b = 0;
+	}
+}
+
+void CRGBImg::ToB()
+{
+	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
+	{
+		m_pT[i].r = 0;
+		m_pT[i].g = 0;
+	}
+}
+
+void CRGBImg::ToGreyR()
+{
+	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
+	{
 		m_pT[i].g = m_pT[i].r;
 		m_pT[i].b = m_pT[i].r;
 	}
 }
 
-void CRGBImg::ToG()
+void CRGBImg::ToGreyG()
 {
 	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
 	{
@@ -43,13 +70,37 @@ void CRGBImg::ToG()
 	}
 }
 
-void CRGBImg::ToB()
+void CRGBImg::ToGreyB()
 {
 	for (unsigned i = 0; i < m_uRow * m_uColumn; i++)
 	{
-		m_pT[i].g = m_pT[i].b;
 		m_pT[i].r = m_pT[i].b;
+		m_pT[i].g = m_pT[i].b;
 	}
+}
+
+void CRGBImg::DrawSquare(int r, int c, int radius, PIX32 clr)
+{
+	for (int i = c-radius; i <= c+radius; ++i)
+	{
+		(*this)[r-radius][i] = clr;
+		(*this)[r+radius][i] = clr;
+	}
+	for (int i = r-radius+1; i < r+radius; ++i)
+	{
+		(*this)[i][c-radius] = clr;
+		(*this)[i][c+radius] = clr;
+	}
+}
+
+void CRGBImg::DrawRedSquare(int r, int c, int radius)
+{
+	DrawSquare(r, c, radius, PIX32_R);
+}
+
+void CRGBImg::DrawGreenSquare(int r, int c, int radius)
+{
+	DrawSquare(r, c, radius, PIX32_G);
 }
 
 void CRGBImg::DrawCross(int r, int c)
