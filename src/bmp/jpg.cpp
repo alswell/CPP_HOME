@@ -2,12 +2,8 @@
 
 bool LoadJPG(unsigned char* buff, unsigned size, CRGBImg& img)
 {
-	unsigned char* tmp = nullptr;
-	unsigned w;
-	unsigned h;
-	if (jpeg2rgb(buff, size, tmp, w, h, 1) != 0)
+	if (jpeg2rgb(buff, size, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
 		return false;
-	img.Attach(h, w, reinterpret_cast<PIX32*>(tmp));
 	return true;
 }
 
@@ -17,12 +13,14 @@ class CJPEGCtxt
 	jmp_buf m_JmpBuf;
 	jpeg_decompress_struct m_info;
 
+	J_COLOR_SPACE m_enClrSpace;
 	FILE* m_pFile;
 public:
-	CJPEGCtxt()
+	CJPEGCtxt(J_COLOR_SPACE color_space)
 	{
 		m_pFile = nullptr;
 		m_info.err = jpeg_std_error(&m_JPEGErrMgr);
+		m_enClrSpace = color_space;
 		m_JPEGErrMgr.error_exit = ErrHandler;
 		jpeg_create_decompress(&m_info);
 	}
@@ -43,11 +41,11 @@ public:
 	}
 	int Decompress(unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 	{
-		img = nullptr;
+		unsigned char* buf = nullptr;
 		if (setjmp(m_JmpBuf))
 		{
-			if (img)
-				delete []img;
+			if (buf)
+				delete []buf;
 			return -1;
 		}
 
@@ -55,11 +53,14 @@ public:
 
 		m_info.scale_num = 1;
 		m_info.scale_denom = scale_denom;
-		m_info.out_color_space = JCS_EXT_BGRA;
+		m_info.out_color_space = m_enClrSpace;
 		jpeg_start_decompress(&m_info);
 		printf("%d * %d [%d] >> %d * %d [%d]\n", m_info.image_width, m_info.image_height, m_info.num_components,
 			   m_info.output_width, m_info.output_height, m_info.output_components);
-		img = new unsigned char[m_info.output_width * m_info.output_height * unsigned(m_info.output_components)];
+		if (img && m_info.output_width * m_info.output_height > w * h)
+			return m_info.output_width * m_info.output_height;
+		if (img == nullptr)
+			buf = img = new unsigned char[m_info.output_width * m_info.output_height * unsigned(m_info.output_components)];
 		w = m_info.output_width;
 		h = m_info.output_height;
 
@@ -82,14 +83,14 @@ public:
 
 int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
-	CJPEGCtxt ctxt;
+	CJPEGCtxt ctxt(JCS_EXT_BGRA);
 	ctxt.Load(buff, size);
 	return ctxt.Decompress(img, w, h, scale_denom);
 }
 
 int jpeg2rgb(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
-	CJPEGCtxt ctxt;
+	CJPEGCtxt ctxt(JCS_EXT_BGRA);
 	ctxt.Load(filename);
 	return ctxt.Decompress(img, w, h, scale_denom);
 }
