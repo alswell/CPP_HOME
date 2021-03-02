@@ -19,6 +19,7 @@ public:
 	HttpResponse(IStream& reader);
 
 	void SetBody(const void *body, int len);
+	void SetBodyJPG(const void *body, int len);
 	void NotFound();
 
 	CString &operator [] (const CString& key);
@@ -115,7 +116,7 @@ public:
 
 bool default_http_handler(HttpResponse& resp, HttpRequest& req);
 
-class HttpServer
+class HttpServer : public CThreadImpl<HttpServer>
 {
 	HttpWorker::_MainLoop MainLoop;
 	short m_nPort;
@@ -125,7 +126,7 @@ public:
 		MainLoop = fun;
 	}
 
-	void Startup()
+	void* Run()
 	{
 		CServSock server(m_nPort);
 		cout << "Http server start! [" << m_nPort << "]" << endl;
@@ -134,6 +135,7 @@ public:
 			HttpWorker* worker = new HttpWorker(server.Accept(), MainLoop);
 			worker->Start();
 		}
+		return nullptr;
 	}
 };
 

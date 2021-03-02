@@ -61,8 +61,15 @@ void HttpResponse::SetBody(const void* body, int len)
 			delete []m_bufBody;
 		m_bufBody = new char[m_nContentLength+1];
 	}
-	m_bufBody[m_nContentLength] = 0;
+	if (m_bufBody)
+		m_bufBody[m_nContentLength] = 0;
 	memcpy(m_bufBody, body, len);
+}
+
+void HttpResponse::SetBodyJPG(const void *body, int len)
+{
+	m_mHeader["Content-Type"] = "image/jpg";
+	SetBody(body, len);
 }
 
 void HttpResponse::NotFound()
