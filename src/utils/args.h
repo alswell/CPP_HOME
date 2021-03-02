@@ -16,6 +16,7 @@ public:
 	void Init(const char* name, char short_name, bool required, const char* help, void* pValue);
 	virtual bool IsBool();
 	virtual void SetValue(const char* str) = 0;
+	virtual void PrintValue() = 0;
 	virtual const char* Type() = 0;
 };
 
@@ -24,6 +25,7 @@ class CArgBool : public IArg
 public:
 	virtual bool IsBool();
 	virtual void SetValue(const char*);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -31,6 +33,7 @@ class CArgInt : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -38,6 +41,7 @@ class CArgFloat : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -45,6 +49,7 @@ class CArgStr : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -52,6 +57,7 @@ class CArgIntList : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -59,6 +65,7 @@ class CArgFloatList : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 
@@ -66,6 +73,7 @@ class CArgStrList : public IArg
 {
 public:
 	virtual void SetValue(const char* str);
+	virtual void PrintValue();
 	virtual const char* Type();
 };
 

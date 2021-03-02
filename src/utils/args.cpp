@@ -29,6 +29,11 @@ void CArgBool::SetValue(const char*)
 	*p = !*p;
 }
 
+void CArgBool::PrintValue()
+{
+	cout << (*reinterpret_cast<bool*>(m_pValue) ? "true" : "false");
+}
+
 const char* CArgBool::Type()
 {
 	return "";
@@ -38,6 +43,11 @@ void CArgInt::SetValue(const char* str)
 {
 	auto p = reinterpret_cast<int*>(m_pValue);
 	*p = atoi(str);
+}
+
+void CArgInt::PrintValue()
+{
+	cout << *reinterpret_cast<int*>(m_pValue);
 }
 
 const char* CArgInt::Type()
@@ -51,6 +61,11 @@ void CArgFloat::SetValue(const char* str)
 	*p = atof(str);
 }
 
+void CArgFloat::PrintValue()
+{
+	cout << *reinterpret_cast<double*>(m_pValue);
+}
+
 const char* CArgFloat::Type()
 {
 	return "(float value)";
@@ -60,6 +75,11 @@ void CArgStr::SetValue(const char* str)
 {
 	auto p = reinterpret_cast<const char**>(m_pValue);
 	*p = str;
+}
+
+void CArgStr::PrintValue()
+{
+	cout << *reinterpret_cast<const char**>(m_pValue);
 }
 
 const char* CArgStr::Type()
@@ -73,6 +93,20 @@ void CArgIntList::SetValue(const char* str)
 	p->push_back(atoi(str));
 }
 
+void CArgIntList::PrintValue()
+{
+	auto p = reinterpret_cast<list<int>*>(m_pValue);
+	for (auto it = p->begin(); it != p->end(); ++it)
+	{
+		if (it == p->begin())
+			cout << '[';
+		else
+			cout << ' ';
+		cout << *it;
+	}
+	cout << ']';
+}
+
 const char* CArgIntList::Type()
 {
 	return "(int list)";
@@ -82,6 +116,20 @@ void CArgFloatList::SetValue(const char* str)
 {
 	auto p = reinterpret_cast<list<double>*>(m_pValue);
 	p->push_back(atof(str));
+}
+
+void CArgFloatList::PrintValue()
+{
+	auto p = reinterpret_cast<list<double>*>(m_pValue);
+	for (auto it = p->begin(); it != p->end(); ++it)
+	{
+		if (it == p->begin())
+			cout << '[';
+		else
+			cout << ' ';
+		cout << *it;
+	}
+	cout << ']';
 }
 
 const char* CArgFloatList::Type()
@@ -95,6 +143,20 @@ void CArgStrList::SetValue(const char* str)
 	p->push_back(str);
 }
 
+void CArgStrList::PrintValue()
+{
+	auto p = reinterpret_cast<list<const char*>*>(m_pValue);
+	for (auto it = p->begin(); it != p->end(); ++it)
+	{
+		if (it == p->begin())
+			cout << '[';
+		else
+			cout << ' ';
+		cout << *it;
+	}
+	cout << ']';
+}
+
 const char* CArgStrList::Type()
 {
 	return "(string list)";
@@ -103,6 +165,7 @@ const char* CArgStrList::Type()
 int CArgParser::m_nArg;
 char** CArgParser::m_pArgs;
 CArgParser::CArgParser(const char *sub_cmd, const char *description, CB cb)
+	: m_bPrintHelp(false)
 {
 	Add(m_bPrintHelp, "help", 'h', "show help message");
 	m_nMaxFlagLen = 4;
@@ -312,7 +375,11 @@ void CArgParser::PrintHelp()
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
 		printf(strFmtFlag, (**it).m_strName, (**it).m_cName);
-		printf("%14s: %s\n", (**it).Type(), (**it).m_strHelp);
+		printf("%14s: %s", (**it).Type(), (**it).m_strHelp);
+		if ((**it).m_bRequired)
+			cout << " (mandatory)" << endl;
+		else
+			cout << " (default: ", (**it).PrintValue(), cout << ")" << endl;
 	}
 	cout << endl;
 }
@@ -388,6 +455,7 @@ bool CArgParser::ParseArgs(int nBeg)
 		}
 		if (m_bPrintHelp)
 		{
+			m_bPrintHelp = false;
 			PrintHelp();
 			exit(0);
 		}
