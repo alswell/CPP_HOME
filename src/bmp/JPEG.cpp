@@ -1,7 +1,18 @@
 #include "JPEG.h"
 #include "setjmp.h"
 
-bool LoadJPG(unsigned char* buff, unsigned size, CRGBImg& img)
+bool LoadJPG(const char* filename, CRGBImg& img, unsigned scale_denom)
+{
+	unsigned char* tmp;
+	unsigned w;
+	unsigned h;
+	if (jpeg2rgb(filename, tmp, w, h, scale_denom) != 0)
+		return false;
+	img.Attach(h, w, reinterpret_cast<PIX32*>(tmp));
+	return true;
+}
+
+bool LoadJPG(unsigned char* buff, unsigned size, CRGBImg& img, unsigned scale_denom)
 {
 	if (jpeg2rgb(buff, size, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
 		return false;

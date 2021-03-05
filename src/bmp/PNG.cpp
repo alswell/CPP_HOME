@@ -1,5 +1,13 @@
 #include "PNG.h"
 
+void LoadPNG(const char* filename, CRGBImg& img)
+{
+	unsigned char* tmp;
+	unsigned w;
+	unsigned h;
+	png2rgb(filename, tmp, w, h);
+	img.Attach(h, w, reinterpret_cast<PIX32*>(tmp));
+}
 bool png2rgb(const char* filename, unsigned char*& img, unsigned& w, unsigned& h)
 {
 	FILE* f = fopen(filename, "rb");
