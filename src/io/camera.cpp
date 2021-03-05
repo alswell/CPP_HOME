@@ -505,6 +505,8 @@ int Camera::xioctl(int fd, unsigned request, void * arg)
 bool Camera::DQBUF(v4l2_buffer& buf)
 {
 	CLEAR(buf);
+	buf.index = -1;
+	buf.bytesused = -1;
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	buf.memory = V4L2_MEMORY_MMAP;
 	if (-1 == xioctl(m_fd, VIDIOC_DQBUF, &buf))
@@ -512,14 +514,14 @@ bool Camera::DQBUF(v4l2_buffer& buf)
 		switch (errno)
 		{
 		case EAGAIN:
-			printf("EAGAIN\n");
-			return 0;
+			printf("Camera::DQBUF Error: AGAIN [%d]bytesused: %d\n", buf.index, buf.bytesused);
+			return false;
 		case EIO:
-			printf("EIO\n");
+			printf("Camera::DQBUF Error: IO [%d]bytesused: %d\n", buf.index, buf.bytesused);
 			/* Could ignore EIO, see spec. */
 			[[clang::fallthrough]];
 		default:
-			errno_exit("VIDIOC_DQBUF");
+			errno_exit("Camera: VIDIOC_DQBUF");
 		}
 	}
 	printf("buf.index: %d; buf.bytesused: %d\n", buf.index, buf.bytesused);
@@ -529,8 +531,11 @@ bool Camera::DQBUF(v4l2_buffer& buf)
 
 bool Camera::QBUF(v4l2_buffer & buf)
 {
+	if (buf.index == unsigned(-1))
+		return false;
+	printf("buf.index: %d; buf.bytesused: %d VIDIOC_QBUF\n", buf.index, buf.bytesused);
 	if (-1 == xioctl(m_fd, VIDIOC_QBUF, &buf))
-		errno_exit("read_frame: VIDIOC_QBUF");
+		errno_exit("Camera: VIDIOC_QBUF");
 	return true;
 }
 
@@ -543,10 +548,14 @@ Camera::SFmtInfo::SFmtInfo(__u32 _fmt, char _name[])
 
 Camera::Frame::Frame(Camera* pCam)
 	: m_pCam(pCam)
+	, start(nullptr)
+	, len(0)
 {
-	m_pCam->DQBUF(m_buf);
-	start = m_pCam->m_pBuff[m_buf.index].start;
-	len = m_buf.bytesused;
+	if (m_pCam->DQBUF(m_buf))
+	{
+		start = m_pCam->m_pBuff[m_buf.index].start;
+		len = m_buf.bytesused;
+	}
 }
 
 Camera::Frame::~Frame()
