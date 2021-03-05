@@ -17,8 +17,9 @@ class HttpResponse
 public:
 	HttpResponse(int status = 200, float version = 1.1);
 	HttpResponse(IStream& reader);
+	~HttpResponse();
 
-	void SetBody(const void *body, int len);
+	void SetBody(const void *body, int len, bool str=true);
 	void SetBodyJPG(const void *body, int len);
 	void NotFound();
 

@@ -51,7 +51,13 @@ HttpResponse::HttpResponse(IStream &reader)
 	reader.Read(m_bufBody, m_nContentLength);
 }
 
-void HttpResponse::SetBody(const void* body, int len)
+HttpResponse::~HttpResponse()
+{
+	if (m_bufBody)
+		delete []m_bufBody;
+}
+
+void HttpResponse::SetBody(const void* body, int len, bool str)
 {
 	if (m_nContentLength < len)
 	{
@@ -61,15 +67,16 @@ void HttpResponse::SetBody(const void* body, int len)
 			delete []m_bufBody;
 		m_bufBody = new char[m_nContentLength+1];
 	}
-	if (m_bufBody)
+	if (str)
 		m_bufBody[m_nContentLength] = 0;
-	memcpy(m_bufBody, body, len);
+	if (len > 0)
+		memcpy(m_bufBody, body, len);
 }
 
 void HttpResponse::SetBodyJPG(const void *body, int len)
 {
 	m_mHeader["Content-Type"] = "image/jpg";
-	SetBody(body, len);
+	SetBody(body, len, false);
 }
 
 void HttpResponse::NotFound()
