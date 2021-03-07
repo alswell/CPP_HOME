@@ -6,6 +6,25 @@ CDateTime::CDateTime()
 	localtime_r(&m_tStamp.tv_sec, &m_t);
 }
 
+CDateTime::CDateTime(long sec, long usec)
+{
+	m_tStamp.tv_sec = sec;
+	m_tStamp.tv_usec = usec;
+	localtime_r(&m_tStamp.tv_sec, &m_t);
+}
+
+CDateTime::CDateTime(int y, int m, int d, int H, int M, int S)
+{
+	m_t.tm_year = y - 1900;
+	m_t.tm_mon = m - 1;
+	m_t.tm_mday = d;
+	m_t.tm_hour = H;
+	m_t.tm_min = M;
+	m_t.tm_sec = S;
+	m_tStamp.tv_sec = mktime(&m_t);
+	m_tStamp.tv_usec = 0;
+}
+
 long CDateTime::TickCount(const CDateTime& dt)
 {
 	long sec = dt.m_tStamp.tv_sec - m_tStamp.tv_sec;
@@ -24,9 +43,14 @@ CString CDateTime::StrFmt(const char* fmt)
 	FMT_TIME(fmt);
 }
 
-CString CDateTime::Stamp()
+long CDateTime::Stamp()
 {
-	FMT_TIME("%s");
+	return m_tStamp.tv_sec;
+}
+
+long CDateTime::UStamp()
+{
+	return m_tStamp.tv_sec * 1000000 + m_tStamp.tv_usec;
 }
 
 CString CDateTime::StrYmd()

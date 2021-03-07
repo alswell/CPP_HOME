@@ -9,9 +9,12 @@ class CDateTime
 	struct timeval m_tStamp;
 public:
 	CDateTime();
+	CDateTime(long sec, long usec = 0);
+	CDateTime(int y, int m, int d, int H, int M, int S);
 	long TickCount(const CDateTime &dt);
 	CString StrFmt(const char* fmt);
-	CString Stamp();
+	long Stamp();
+	long UStamp();
 	CString StrYmd();
 	CString StrHMS();
 	CString StrYmdHMS();
