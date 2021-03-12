@@ -327,7 +327,12 @@ void CArgParser::ParseArgs()
 
 void CArgParser::PrintHelp()
 {
-	cout << "usage: " << m_strName;
+	cout << "usage: ";
+	for (auto it = m_lsRefParentFlag.begin(); it != m_lsRefParentFlag.end(); ++it)
+	{
+		printf("--%s ", (**it).m_strName);
+	}
+	cout << m_strName;
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
 		if ((**it).m_bRequired)
@@ -364,7 +369,7 @@ void CArgParser::PrintHelp()
 
 	if (!m_lsRefParentFlag.empty())
 	{
-		cout << endl << "depend on:" << endl << "  ";
+		cout << endl << "depend on:" << endl;
 		for (auto it = m_lsRefParentFlag.begin(); it != m_lsRefParentFlag.end(); ++it)
 			printf("--%s/-%c\n", (**it).m_strName, (**it).m_cName);
 	}
@@ -441,15 +446,6 @@ bool CArgParser::ParseArgs(int nBeg)
 			else
 			{
 				auto pSubParser = itSub->second;
-				auto& flags = pSubParser->m_lsRefParentFlag;
-				for (auto it = flags.begin(); it != flags.end(); ++it)
-				{
-					if (!(**it).m_bSet)
-					{
-						printf("subcommand '%s' depends on --%s/-%c\n", pSubParser->m_strName, (**it).m_strName, (**it).m_cName);
-						exit(-1);
-					}
-				}
 				return pSubParser->ParseArgs(++i);
 			}
 		}
@@ -460,11 +456,21 @@ bool CArgParser::ParseArgs(int nBeg)
 			exit(0);
 		}
 	}
+	for (auto it = m_lsRefParentFlag.begin(); it != m_lsRefParentFlag.end(); ++it)
+	{
+		if (!(**it).m_bSet)
+		{
+			printf("subcommand '%s' depends on --%s/-%c\n", m_strName, (**it).m_strName, (**it).m_cName);
+			cout << "try --help/-h for more informatiion" << endl;
+			exit(-1);
+		}
+	}
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
 		if ((**it).m_bRequired && !(**it).m_bSet)
 		{
 			printf("--%s/-%c is required\n", (**it).m_strName, (**it).m_cName);
+			cout << "try --help/-h for more informatiion" << endl;
 			exit(-1);
 		}
 	}
@@ -472,6 +478,7 @@ bool CArgParser::ParseArgs(int nBeg)
 	if (nListPos < 0)
 	{
 		cout << "no enough positional arguments" << endl;
+		cout << "try --help/-h for more informatiion" << endl;
 		return false;
 	}
 	auto itInfo = m_lsPositional.begin();
