@@ -25,10 +25,10 @@ CDateTime::CDateTime(int y, int m, int d, int H, int M, int S)
 	m_tStamp.tv_usec = 0;
 }
 
-long CDateTime::TickCount(const CDateTime& dt)
+long CDateTime::operator-(const CDateTime& dt)
 {
-	long sec = dt.m_tStamp.tv_sec - m_tStamp.tv_sec;
-	long usec = dt.m_tStamp.tv_usec - m_tStamp.tv_usec;
+	long sec = m_tStamp.tv_sec - dt.m_tStamp.tv_sec;
+	long usec = m_tStamp.tv_usec - dt.m_tStamp.tv_usec;
 	return sec * 1000000 + usec;
 }
 
@@ -77,7 +77,7 @@ long GetTickCount()
 {
 	static CDateTime g_tick;
 	CDateTime dt;
-	return g_tick.TickCount(dt);
+	return dt - g_tick;
 }
 
 CTickHelper::CTickHelper(const char *info)
@@ -89,6 +89,6 @@ CTickHelper::CTickHelper(const char *info)
 CTickHelper::~CTickHelper()
 {
 	CDateTime dt;
-	long us = m_tick.TickCount(dt);
+	long us = dt - m_tick;
 	cout << m_info << "{time cost}: " << us << endl;
 }

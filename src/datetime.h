@@ -11,7 +11,7 @@ public:
 	CDateTime();
 	CDateTime(long sec, long usec = 0);
 	CDateTime(int y, int m, int d, int H, int M, int S);
-	long TickCount(const CDateTime &dt);
+	long operator-(const CDateTime &dt);
 	CString StrFmt(const char* fmt);
 	long Stamp();
 	long UStamp();
