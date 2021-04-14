@@ -25,10 +25,11 @@ template<class T>
 struct With
 {
 	T x;
+	bool b;
 	T* operator->() { return &x; }
-	~With() { x.WithExit(); }
+	~With() { x.WithAutoClose(); }
 };
-#define with(obj) With<decltype(obj)>{obj}
+#define with_as(obj, p) for(auto p = With<decltype(obj)>{obj, true}; p.b; p.b = false)
 
 struct StrCMP
 {

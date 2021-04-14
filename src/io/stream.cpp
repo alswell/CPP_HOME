@@ -101,7 +101,7 @@ int IStream::WriteLine(const char *str)
 //	return WriteString(CRLF) == strlen(CRLF) ? r : -1;
 }
 
-void IStream::WithExit()
+void IStream::WithAutoClose()
 {
 	Close();
 }
