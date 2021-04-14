@@ -28,7 +28,7 @@ Camera::Camera(int nDevNum)
 
 Camera::Camera(const char *dev)
 {
-	m_strDevName = dev;
+	m_strDevName.Format("/dev/v4l/by-path/%s", dev);
 	CheckDev();
 }
 
