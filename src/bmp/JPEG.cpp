@@ -3,14 +3,14 @@
 
 bool LoadJPG(const char* filename, CRGBImg& img, unsigned scale_denom)
 {
-	if (jpeg2rgb(filename, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
+	if (JPEG2BGRA(filename, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
 		return false;
 	return true;
 }
 
 bool LoadJPG(unsigned char* buff, unsigned size, CRGBImg& img, unsigned scale_denom)
 {
-	if (jpeg2rgb(buff, size, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
+	if (JPEG2BGRA(buff, size, (unsigned char*&)img.m_pT, img.m_uColumn, img.m_uRow, 1) != 0)
 		return false;
 	return true;
 }
@@ -89,21 +89,35 @@ public:
 	}
 };
 
-int jpeg2rgb(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+int JPEG2BGRA(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
 	CJPEGCtxt ctxt(JCS_EXT_BGRA);
 	ctxt.Load(buff, size);
 	return ctxt.Decompress(img, w, h, scale_denom);
 }
 
-int jpeg2rgb(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+int JPEG2BGRA(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
 {
 	CJPEGCtxt ctxt(JCS_EXT_BGRA);
 	ctxt.Load(filename);
 	return ctxt.Decompress(img, w, h, scale_denom);
 }
 
-void rgb2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h)
+int JPEG2RGBA(unsigned char* buff, unsigned size, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+{
+	CJPEGCtxt ctxt(JCS_EXT_RGBA);
+	ctxt.Load(buff, size);
+	return ctxt.Decompress(img, w, h, scale_denom);
+}
+
+int JPEG2RGBA(const char* filename, unsigned char*& img, unsigned& w, unsigned& h, unsigned scale_denom)
+{
+	CJPEGCtxt ctxt(JCS_EXT_RGBA);
+	ctxt.Load(filename);
+	return ctxt.Decompress(img, w, h, scale_denom);
+}
+
+void mx2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h, J_COLOR_SPACE cs)
 {
 	FILE * f = fopen(filename, "wb");
 	if (f == nullptr)
@@ -118,7 +132,7 @@ void rgb2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h)
 	cinfo.image_width = w;
 	cinfo.image_height = h;
 	cinfo.input_components = 4;
-	cinfo.in_color_space = JCS_EXT_BGRA;
+	cinfo.in_color_space = cs;
 	jpeg_set_defaults(&cinfo);
 	//jpeg_set_quality(&cinfo, 90, TRUE); // 压缩比为90%
 	jpeg_start_compress(&cinfo, TRUE);
@@ -132,4 +146,13 @@ void rgb2jpeg(const char* filename, unsigned char* img, unsigned w, unsigned h)
 	jpeg_destroy_compress(&cinfo);
 	fclose(f);
 }
+void BGRA2JPEG(const char* filename, unsigned char* img, unsigned w, unsigned h)
+{
+	mx2jpeg(filename, img, w, h, JCS_EXT_BGRA);
+}
+void RGBA2JPEG(const char* filename, unsigned char* img, unsigned w, unsigned h)
+{
+	mx2jpeg(filename, img, w, h, JCS_EXT_RGBA);
+}
+
 
