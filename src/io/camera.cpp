@@ -551,7 +551,7 @@ Camera::Frame::Frame(Camera* pCam)
 	, start(nullptr)
 	, len(0)
 {
-	if (m_pCam->DQBUF(m_buf))
+	if (m_pCam && m_pCam->DQBUF(m_buf))
 	{
 		start = m_pCam->m_pBuff[m_buf.index].start;
 		len = m_buf.bytesused;

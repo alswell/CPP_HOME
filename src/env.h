@@ -129,22 +129,8 @@ struct LS
 //	T* Detach() { T* x = p; p = nullptr; return x; }
 //};
 
-template <class T>
-list<T> VectorToList(vector<T> v)
-{
-	list<T> l;
-	for (auto it = v.begin(); it != v.end(); ++it)
-		l.push_back(*it);
-	return l;
-}
-template <class T>
-vector<T> ListToVector(list<T> l)
-{
-	vector<T> v;
-	for (auto it = l.begin(); it != l.end(); ++it)
-		v.push_back(*it);
-	return v;
-}
+#define VectorToList(v, l) for (auto it = v.begin(); it != v.end(); ++it) l.push_back(*it)
+#define ListToVector(l, v) v.reserve(l.size()); for (auto it = l.begin(); it != l.end(); ++it) v.push_back(*it)
 
 #define DEC_INSTANCE(cls) static cls* Instance()
 
