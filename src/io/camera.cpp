@@ -46,7 +46,8 @@ void Camera::PrintDevInfo()
 	printf("Supported Format:\n");
 	for (unsigned i = 0; i < m_vFmts.size(); ++i)
 	{
-		printf("\t[%d] %s\n", i, m_vFmts[i].name);
+		const char* p = (const char*)&m_vFmts[i].fmt;
+		printf("\t[%d: %c%c%c%c] %s\n", i, p[0], p[1], p[2], p[3], m_vFmts[i].name);
 		enum_frame_sizes(m_fd, m_vFmts[i].fmt);
 		printf("\n");
 	}
