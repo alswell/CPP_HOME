@@ -30,8 +30,8 @@ int main(int argc, char ** argv) {
 		Camera::Frame frame = cam.GetFrame();
 		CString strFileName;
 		strFileName.Format("photo%03d.jpeg", i);
-		auto file = with(CFile(strFileName, "w"));
-		file->Write(frame.start, frame.len);
+		with_as(CFile(strFileName, "w"), file)
+			file->Write(frame.start, frame.len);
 	}
 	return 0;
 }
