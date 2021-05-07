@@ -18,13 +18,6 @@
 class Camera
 {
 	friend class Frame;
-	typedef enum
-	{
-		IO_METHOD_READ,
-		IO_METHOD_MMAP,
-		IO_METHOD_USERPTR,
-	} io_method;
-
 	struct SBuff
 	{
 		void * start;
@@ -54,6 +47,7 @@ public:
 		~Frame();
 	};
 
+	void UseMMAP();
 	void SetMemBufCount(unsigned n);
 	bool Init(unsigned w, unsigned h, unsigned nDataType = 0);
 	void Restart();
@@ -84,7 +78,7 @@ private:
 	int m_fdMax;
 	struct timeval m_tmSelect; 	// timeout for select
 
-	io_method m_ioMethod;
+	v4l2_memory m_ioMethod;
 	vector<SFmtInfo> m_vFmts;
 
 	bool open_device(void);
@@ -95,6 +89,7 @@ private:
 	bool check_device(void);
 	bool init_device(void);
 	bool init_mmap(void);
+	bool init_user_prt(void);
 	void uninit_device(void);
 	bool m_bInited;
 
