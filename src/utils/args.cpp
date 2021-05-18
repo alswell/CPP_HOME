@@ -96,11 +96,10 @@ void CArgIntList::SetValue(const char* str)
 void CArgIntList::PrintValue()
 {
 	auto p = reinterpret_cast<list<int>*>(m_pValue);
+	cout << '[';
 	for (auto it = p->begin(); it != p->end(); ++it)
 	{
-		if (it == p->begin())
-			cout << '[';
-		else
+		if (it != p->begin())
 			cout << ' ';
 		cout << *it;
 	}
@@ -121,11 +120,10 @@ void CArgFloatList::SetValue(const char* str)
 void CArgFloatList::PrintValue()
 {
 	auto p = reinterpret_cast<list<double>*>(m_pValue);
+	cout << '[';
 	for (auto it = p->begin(); it != p->end(); ++it)
 	{
-		if (it == p->begin())
-			cout << '[';
-		else
+		if (it != p->begin())
 			cout << ' ';
 		cout << *it;
 	}
@@ -146,11 +144,10 @@ void CArgStrList::SetValue(const char* str)
 void CArgStrList::PrintValue()
 {
 	auto p = reinterpret_cast<list<const char*>*>(m_pValue);
+	cout << '[';
 	for (auto it = p->begin(); it != p->end(); ++it)
 	{
-		if (it == p->begin())
-			cout << '[';
-		else
+		if (it != p->begin())
 			cout << ' ';
 		cout << *it;
 	}
