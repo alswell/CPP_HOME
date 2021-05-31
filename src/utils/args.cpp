@@ -325,9 +325,9 @@ void CArgParser::ParseArgs()
 char short_flag[] = "/- ";
 const char* print_short(char c)
 {
-    if (c == 0) return "";
-    short_flag[2] = c;
-    return short_flag;
+	if (c == 0) return "";
+	short_flag[2] = c;
+	return short_flag;
 }
 void CArgParser::PrintHelp()
 {
@@ -375,19 +375,19 @@ void CArgParser::PrintHelp()
 	{
 		cout << endl << "depend on:" << endl;
 		for (auto it = m_lsRefParentFlag.begin(); it != m_lsRefParentFlag.end(); ++it)
-            cout << "--" << (**it).m_strName << print_short((**it).m_cName) << endl;
+			cout << "--" << (**it).m_strName << print_short((**it).m_cName) << endl;
 	}
 
 	cout << endl << "optional arguments:" << endl;
 	char strFmtFlag[32];
-    sprintf(strFmtFlag, "--%%-%zus ", m_nMaxFlagLen);
+	sprintf(strFmtFlag, "--%%-%zus ", m_nMaxFlagLen);
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
-        printf(strFmtFlag, (**it).m_strName);
-        if ((**it).m_cName)
-            printf("-%c ", (**it).m_cName);
-        else
-            cout << "   ";
+		printf(strFmtFlag, (**it).m_strName);
+		if ((**it).m_cName)
+			printf("-%c ", (**it).m_cName);
+		else
+			cout << "   ";
 		printf("%14s: %s", (**it).Type(), (**it).m_strHelp);
 		if ((**it).m_bRequired)
 			cout << " (mandatory)" << endl;
@@ -464,28 +464,28 @@ bool CArgParser::ParseArgs(int nBeg)
 			exit(0);
 		}
 	}
-    bool quit = false;
+	bool quit = false;
 	for (auto it = m_lsRefParentFlag.begin(); it != m_lsRefParentFlag.end(); ++it)
 	{
 		if (!(**it).m_bSet)
 		{
-            quit = true;
-            printf("subcommand '%s' depends on --%s%s\n", m_strName, (**it).m_strName, print_short((**it).m_cName));
+			quit = true;
+			printf("subcommand '%s' depends on --%s%s\n", m_strName, (**it).m_strName, print_short((**it).m_cName));
 		}
 	}
 	for (auto it = m_lsArgInfo.begin(); it != m_lsArgInfo.end(); ++it)
 	{
 		if ((**it).m_bRequired && !(**it).m_bSet)
 		{
-            quit = true;
-            printf("--%s%s is required\n", (**it).m_strName, print_short((**it).m_cName));
+			quit = true;
+			printf("--%s%s is required\n", (**it).m_strName, print_short((**it).m_cName));
 		}
 	}
-    if (quit)
-    {
-        cout << "try --help/-h for more informatiion" << endl;
-        exit(-1);
-    }
+	if (quit)
+	{
+		cout << "try --help/-h for more informatiion" << endl;
+		exit(-1);
+	}
 	int nListPos = int(lsPos.size()) - int(m_lsPositional.size());
 	if (nListPos < 0)
 	{
