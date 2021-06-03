@@ -216,14 +216,6 @@ void CArgParser::AddOption(IArg* p)
 		m_nMaxFlagLen = strlen(p->m_strName);
 }
 
-IArg* CArgParser::Add(bool& value, const char* name, char short_name, const char* help)
-{
-	auto p = new CArgBool;
-	p->Init(name, short_name, false, help, &value);
-	AddOption(p);
-	return p;
-}
-
 #define ADD_FLAG(cls) \
 auto p = new cls;\
 p->Init(name, short_name, required, help, &value);\
@@ -248,6 +240,12 @@ m_lsPositional.push_back(p);\
 m_pListPosition = p;\
 return p
 
+
+IArg* CArgParser::Add(bool& value, const char* name, char short_name, const char* help)
+{
+	bool required = false;
+	ADD_FLAG(CArgBool);
+}
 
 IArg* CArgParser::Add(int& value, const char* name, char short_name, bool required, const char* help)
 {

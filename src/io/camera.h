@@ -12,9 +12,6 @@
 #include "../str.h"
 
 
-#define CLEAR(x) memset (&(x), 0, sizeof (x))
-
-
 class Camera
 {
 	friend class Frame;
@@ -22,12 +19,6 @@ class Camera
 	{
 		void * start;
 		size_t length;	//buffer's length is different from cap_image_size
-	};
-	struct SFmtInfo
-	{
-		__u32 fmt;
-		char name[32];
-		SFmtInfo(__u32 _fmt, char _name[]);
 	};
 public:
 	Camera(int nDevNum);
@@ -46,14 +37,12 @@ public:
 	};
 
 	void UseMMAP();
-	bool UseMJPG();
+	bool SetPixFmt(unsigned format);
+	bool SetPixFmtMJPG();
+	bool SetPixFmtYUYV();
 	void SetMemBufCount(unsigned n);
 	bool Init(unsigned w, unsigned h);
 	unsigned GetImage(void* image);
-	Camera *GetFrame();
-	unsigned GetW();
-	unsigned GetH();
-	unsigned GetImageSize();
 
 	int AutoFocus(int bOn);
 	int IsAutoFocus();
@@ -64,16 +53,10 @@ public:
 private:
 	CString m_strDevName;
 	int m_fd;
-	unsigned m_nWidth;
-	unsigned m_nHeight;
-	unsigned m_nDataFmt;
-	unsigned m_nImageSize;	//to keep the real image size!
-	unsigned m_nMemCount;
 	SBuff * m_pBuff;
 
-	v4l2_memory m_ioMethod;
-	vector<SFmtInfo> m_vFmts;
-
+	struct v4l2_format fmt;
+	struct v4l2_requestbuffers req;
 
 	int enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 height);
 	int enum_frame_sizes(int dev, __u32 pixfmt);

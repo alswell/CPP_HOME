@@ -1,6 +1,6 @@
 #include "camera.h"
 
-
+#define CLEAR(x) memset (&(x), 0, sizeof (x))
 
 Camera::Camera(int nDevNum)
 {
@@ -16,8 +16,11 @@ Camera::Camera(const char *dev)
 
 Camera::~Camera()
 {
-	stop_capturing();
-	uninit_device();
+	if (m_pBuff)
+	{
+		stop_capturing();
+		uninit_device();
+	}
 	if (-1 == close(m_fd))
 		errno_exit("close dev failed");
 	m_fd = -1;
@@ -25,37 +28,48 @@ Camera::~Camera()
 
 void Camera::UseMMAP()
 {
-	m_ioMethod = V4L2_MEMORY_MMAP;
+	req.memory = V4L2_MEMORY_MMAP;
 }
 
-bool Camera::UseMJPG()
+bool Camera::SetPixFmt(unsigned format)
 {
-	for (unsigned i = 0; m_vFmts.size(); ++i) {
-		if (m_vFmts[i].fmt == V4L2_PIX_FMT_MJPEG) {
-			m_nDataFmt = V4L2_PIX_FMT_MJPEG;
+	struct v4l2_fmtdesc fmtdesc;
+	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	for (fmtdesc.index = 0; ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1; ++fmtdesc.index)
+	{
+		if (fmtdesc.pixelformat == format) {
+			fmt.fmt.pix.pixelformat = format;
 			return true;
 		}
 	}
 	return false;
 }
 
+bool Camera::SetPixFmtMJPG()
+{
+	return SetPixFmt(V4L2_PIX_FMT_MJPEG);
+}
+
+bool Camera::SetPixFmtYUYV()
+{
+	return SetPixFmt(V4L2_PIX_FMT_YUYV);
+}
+
 void Camera::SetMemBufCount(unsigned n)
 {
-	m_nMemCount = n;
+	req.count = n;
 }
 
 bool Camera::Init(unsigned w, unsigned h)
 {
 	check_device();
 
-	m_nWidth = w;
-	m_nHeight = h;
-	if (!init_device())
-		errno_exit("camera init failed");
-	cout << "camera init success" << endl;
+	fmt.fmt.pix.width = w;
+	fmt.fmt.pix.height = h;
 
-	if (!start_capturing())
-		errno_exit("start_capturing failed");
+	init_device();
+	cout << "camera init success" << endl;
+	start_capturing();
 	cout << "start_capturing success" << endl;
 
 	return true;
@@ -65,31 +79,11 @@ unsigned Camera::GetImage(void* image)
 {
 	struct v4l2_buffer buf;
 	DQBUF(buf);
-	assert(buf.index < m_nMemCount);
+	//assert(buf.index < req.count);
 	memcpy(image, m_pBuff[buf.index].start, buf.bytesused);
 	unsigned bytesused = buf.bytesused;
 	QBUF(buf);
 	return bytesused;
-}
-
-Camera * Camera::GetFrame()
-{
-	return this;
-}
-
-unsigned Camera::GetW()
-{
-	return m_nWidth;
-}
-
-unsigned Camera::GetH()
-{
-	return m_nHeight;
-}
-
-unsigned Camera::GetImageSize()
-{
-	return m_nImageSize;
 }
 
 int Camera::AutoFocus(int bOn)
@@ -128,43 +122,38 @@ int Camera::GetFocus()
 
 void Camera::PrintDevInfo()
 {
-	printf("Supported Format:\n");
-	for (unsigned i = 0; i < m_vFmts.size(); ++i)
+	cout << "Supported Format:" << endl;
+	struct v4l2_fmtdesc fmtdesc;
+	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	for (fmtdesc.index = 0; ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1; ++fmtdesc.index)
 	{
-		const char* p = (const char*)&m_vFmts[i].fmt;
-		printf("\t[%d: %c%c%c%c] %s\n", i, p[0], p[1], p[2], p[3], m_vFmts[i].name);
-		enum_frame_sizes(m_fd, m_vFmts[i].fmt);
+		const char* p = (const char*)&fmtdesc.pixelformat;
+		printf("\t[%d: %c%c%c%c] %s\n", fmtdesc.index, p[0], p[1], p[2], p[3], reinterpret_cast<char*>(fmtdesc.description));
+		enum_frame_sizes(m_fd, fmtdesc.pixelformat);
 		printf("\n");
 	}
 }
 
 int Camera::enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 height)
 {
-	int ret;
 	struct v4l2_frmivalenum fival;
-
-	memset(&fival, 0, sizeof(fival));
+	CLEAR(fival);
 	fival.index = 0;
 	fival.pixel_format = pixfmt;
 	fival.width = width;
 	fival.height = height;
-	printf("\t  time interval between frame:");
+	printf("\t  time interval between frames:");
+	int ret;
 	while ((ret = ioctl(dev, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) {
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) {
-			printf("%u/%u, ",
-				fival.discrete.numerator, fival.discrete.denominator);
+			printf(" %u/%u", fival.discrete.numerator, fival.discrete.denominator);
 		}
 		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) {
-			printf("{min{ %u/%u } max{ %u/%u }}, ",
-				fival.stepwise.min.numerator, fival.stepwise.min.numerator,
-				fival.stepwise.max.denominator, fival.stepwise.max.denominator);
+			printf(" {%u/%u ~ %u/%u}", fival.stepwise.min.numerator, fival.stepwise.min.numerator, fival.stepwise.max.denominator, fival.stepwise.max.denominator);
 			break;
 		}
 		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) {
-			printf("{min{ %u/%u } max{ %u/%u } stepsize{ %u/%u }}, ",
-				fival.stepwise.min.numerator, fival.stepwise.min.denominator,
-				fival.stepwise.max.numerator, fival.stepwise.max.denominator,
-				fival.stepwise.step.numerator, fival.stepwise.step.denominator);
+			printf(" {%u/%u ~ %u/%u stepsize: %u/%u}", fival.stepwise.min.numerator, fival.stepwise.min.denominator, fival.stepwise.max.numerator, fival.stepwise.max.denominator, fival.stepwise.step.numerator, fival.stepwise.step.denominator);
 			break;
 		}
 		fival.index++;
@@ -180,28 +169,19 @@ int Camera::enum_frame_intervals(int dev, __u32 pixfmt, __u32 width, __u32 heigh
 
 int Camera::enum_frame_sizes(int dev, __u32 pixfmt)
 {
-	int ret;
 	struct v4l2_frmsizeenum fsize;
-
-	memset(&fsize, 0, sizeof(fsize));
+	CLEAR(fsize);
 	fsize.index = 0;
 	fsize.pixel_format = pixfmt;
+
+	int ret;
 	while ((ret = ioctl(dev, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) {
-		if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS)
-		{
-			printf("\t{ CONTINUOUS: min{ %u * %u } max{ %u * %u } }\n",
-				fsize.stepwise.min_width, fsize.stepwise.min_height,
-				fsize.stepwise.max_width, fsize.stepwise.max_height);
-			printf("\tRefusing to enumerate frame intervals.\n");
+		if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) {
+			printf("\tCONTINUOUS: {%u * %u} ~ {%u * %u}\n", fsize.stepwise.min_width, fsize.stepwise.min_height, fsize.stepwise.max_width, fsize.stepwise.max_height);
 			break;
 		}
-		if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE)
-		{
-			printf("\t{ STEPWISE: min{ %u * %u } max { %u * %u } stepsize{ %u * %u } }\n",
-				fsize.stepwise.min_width, fsize.stepwise.min_height,
-				fsize.stepwise.max_width, fsize.stepwise.max_height,
-				fsize.stepwise.step_width, fsize.stepwise.step_height);
-			printf("\tRefusing to enumerate frame intervals.\n");
+		if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) {
+			printf("\tSTEPWISE: {%u * %u} ~ {%u * %u} stepsize: {%u : %u}\n", fsize.stepwise.min_width, fsize.stepwise.min_height, fsize.stepwise.max_width, fsize.stepwise.max_height, fsize.stepwise.step_width, fsize.stepwise.step_height);
 			break;
 		}
 		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
@@ -222,10 +202,18 @@ int Camera::enum_frame_sizes(int dev, __u32 pixfmt)
 
 void Camera::PrepareDev()
 {
-	m_ioMethod = V4L2_MEMORY_USERPTR;
-	m_nDataFmt = V4L2_PIX_FMT_MJPEG;
-	m_nImageSize = 0;
-	m_nMemCount = 4;
+	m_pBuff = nullptr;
+	CLEAR(fmt);
+	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;//V4L2_BUF_TYPE_PRIVATE;//
+	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+	//V4L2_PIX_FMT_YUV420 : Planar formats with 1/2 horizontal and vertical chroma resolution, also known as YUV 4:2:0
+	//V4L2_PIX_FMT_YUYV : Packed format with 1/2 horizontal chroma resolution, also known as YUV 4:2:2
+	//V4L2_PIX_FMT_NV12 :
+	//fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+	CLEAR(req);
+	req.count = 4;
+	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	req.memory = V4L2_MEMORY_USERPTR;
 
 	struct stat st;
 	if (-1 == stat(m_strDevName, &st))
@@ -235,12 +223,7 @@ void Camera::PrepareDev()
 	m_fd = open(m_strDevName, O_RDWR /*| O_NONBLOCK*/, 0);
 	if (-1 == m_fd)
 		errno_exit("open dev failed");
-	cout << "open camera success\n" << endl;
-
-	struct v4l2_fmtdesc fmtdesc;
-	fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	for (fmtdesc.index = 0; ioctl(m_fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1; ++fmtdesc.index)
-		m_vFmts.push_back(SFmtInfo(fmtdesc.pixelformat, reinterpret_cast<char*>(fmtdesc.description)));
+	cout << "open camera success" << endl;
 }
 
 bool Camera::check_device(void)
@@ -254,7 +237,7 @@ bool Camera::check_device(void)
 	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
 		errno_exit("not video capture device");
 
-	switch (m_ioMethod)
+	switch (req.memory)
 	{
 //	case IO_METHOD_READ:
 //		if (!(cap.capabilities & V4L2_CAP_READWRITE))
@@ -266,7 +249,7 @@ bool Camera::check_device(void)
 			errno_exit("not support streaming i/o");
 		break;
 	default:
-		errno_exit("unsupported m_ioMethod");
+		errno_exit("unsupported io method");
 	}
 	return true;
 }
@@ -280,46 +263,25 @@ bool Camera::init_device(void)
 	//if (rtn < 0)
 	//	errno_exit("VIDIOC_S_INPUT");
 
-	struct v4l2_format fmt;
-	CLEAR(fmt);
-	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;//V4L2_BUF_TYPE_PRIVATE;//
-	fmt.fmt.pix.width = m_nWidth;
-	fmt.fmt.pix.height = m_nHeight;
-	//V4L2_PIX_FMT_YUV420 : Planar formats with 1/2 horizontal and vertical chroma resolution, also known as YUV 4:2:0
-	//V4L2_PIX_FMT_YUYV : Packed format with 1/2 horizontal chroma resolution, also known as YUV 4:2:2
-	fmt.fmt.pix.pixelformat = m_nDataFmt; //V4L2_PIX_FMT_NV12;//V4L2_PIX_FMT_YUV420;//V4L2_PIX_FMT_MJPEG;//
-	//fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
 	if (-1 == xioctl(m_fd, VIDIOC_S_FMT, &fmt))
 		errno_exit("VIDIOC_S_FMT fail");
-
 	/* Note VIDIOC_S_FMT may change width and height. */
 	if (-1 == xioctl(m_fd, VIDIOC_G_FMT, &fmt))
 		errno_exit("VIDIOC_G_FMT fail");
+	printf("{%d * %d} size: %d; bytesperline: %d\n", fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.sizeimage, fmt.fmt.pix.bytesperline);
 
-	printf("after set fmt:\n");
-	printf("\tfmt.fmt.pix.width = %d\n", fmt.fmt.pix.width);
-	printf("\tfmt.fmt.pix.height = %d\n", fmt.fmt.pix.height);
-	printf("\tfmt.fmt.pix.sizeimage = %d\n", fmt.fmt.pix.sizeimage);
-	printf("\tfmt.fmt.pix.bytesperline = %d\n", fmt.fmt.pix.bytesperline);
-	m_nImageSize = fmt.fmt.pix.sizeimage;
-
-//	printf("-#-#-#-#-#-#-#-#-#-#-#-#-#-\n");
-//	/* Buggy driver paranoia. */
-//	unsigned min = fmt.fmt.pix.width * 2;
-//	if (fmt.fmt.pix.bytesperline < min)
-//		fmt.fmt.pix.bytesperline = min;
-//	min = m_nWidth * m_nHeight * 3 / 2;
-//	printf("min:%d\n", min);
-//	if (fmt.fmt.pix.sizeimage < min)
-//		fmt.fmt.pix.sizeimage = min;
-//	printf("After Buggy driver paranoia\n");
-//	printf("\tfmt.fmt.pix.sizeimage = %d\n", fmt.fmt.pix.sizeimage);
-//	printf("\tfmt.fmt.pix.bytesperline = %d\n", fmt.fmt.pix.bytesperline);
-//	printf("-#-#-#-#-#-#-#-#-#-#-#-#-#-\n\n");
-//	m_nImageSize = fmt.fmt.pix.sizeimage;
-
-	if (m_ioMethod == V4L2_MEMORY_MMAP)
+	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
+	{
+		if (EINVAL == errno)
+			errno_exit("VIDIOC_REQBUFS: dev does not support configured io method");
+		else
+			errno_exit("VIDIOC_REQBUFS");
+	}
+	//printf("req.capabilities: 0x%X, req.count: %d\n", req.capabilities, req.count);
+	printf("req.count: %d\n", req.count);
+	m_pBuff = new SBuff[req.count];
+	if (req.memory == V4L2_MEMORY_MMAP)
 		init_mmap();
 	else
 		init_user_prt();
@@ -328,22 +290,6 @@ bool Camera::init_device(void)
 
 bool Camera::init_mmap(void) 
 {
-	struct v4l2_requestbuffers req;
-	CLEAR(req);
-	req.count = m_nMemCount;
-	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	req.memory = V4L2_MEMORY_MMAP;
-	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
-	{
-		if (EINVAL == errno)
-			errno_exit("VIDIOC_REQBUFS: dev does not support memory mapping");
-		else
-			errno_exit("VIDIOC_REQBUFS: mmap");
-	}
-	//printf("req.capabilities: 0x%X, req.count: %d\n", req.capabilities, req.count);
-	printf("req.count: %d\n", req.count);
-	m_nMemCount = req.count;
-	m_pBuff = new SBuff[req.count];
 	for (unsigned i = 0; i < req.count; ++i)
 	{
 		struct v4l2_buffer buf;
@@ -353,6 +299,7 @@ bool Camera::init_mmap(void)
 		buf.index = i;
 		if (-1 == xioctl(m_fd, VIDIOC_QUERYBUF, &buf))
 			errno_exit("VIDIOC_QUERYBUF");
+		printf("buf[%d] len: %d\n", i, buf.length);
 		m_pBuff[i].length = buf.length;
 		m_pBuff[i].start = mmap(nullptr, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, buf.m.offset);
 		if (MAP_FAILED == m_pBuff[i].start)
@@ -363,25 +310,9 @@ bool Camera::init_mmap(void)
 
 bool Camera::init_user_prt()
 {
-	struct v4l2_requestbuffers req;
-	CLEAR(req);
-	req.count = m_nMemCount;
-	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	req.memory = V4L2_MEMORY_USERPTR;
-	if (-1 == xioctl(m_fd, VIDIOC_REQBUFS, &req))
-	{
-		if (EINVAL == errno)
-			errno_exit("VIDIOC_REQBUFS: dev does not support user ptr");
-		else
-			errno_exit("VIDIOC_REQBUFS: uptr");
-	}
-	//printf("req.capabilities: 0x%X, req.count: %d\n", req.capabilities, req.count);
-	printf("req.count: %d\n", req.count);
-	m_nMemCount = req.count;
-	m_pBuff = new SBuff[req.count];
 	for (unsigned i = 0; i < req.count; ++i)
 	{
-		m_pBuff[i].length = m_nImageSize;//1024*1024;
+		m_pBuff[i].length = fmt.fmt.pix.sizeimage;
 		m_pBuff[i].start = malloc(m_pBuff[i].length);
 	}
 	return true;
@@ -389,37 +320,36 @@ bool Camera::init_user_prt()
 
 void Camera::uninit_device(void) 
 {
-	switch (m_ioMethod)
+	switch (req.memory)
 	{
 //	case IO_METHOD_READ:
 //		//free(m_pBuff[0].start);
 //		break;
 	case V4L2_MEMORY_MMAP:
-		for (unsigned i = 0; i < m_nMemCount; ++i)
+		for (unsigned i = 0; i < req.count; ++i)
 			if (-1 == munmap(m_pBuff[i].start, m_pBuff[i].length))
 				errno_exit("munmap");
 		break;
 	case V4L2_MEMORY_USERPTR:
-		for (unsigned i = 0; i < m_nMemCount; ++i)
+		for (unsigned i = 0; i < req.count; ++i)
 			free(m_pBuff[i].start);
 		break;
 	default:
 		break;
 	}
-	//free(m_pBuff);
 	delete[] m_pBuff;
 }
 
 bool Camera::start_capturing(void)
 {
-	for (unsigned i = 0; i < m_nMemCount; ++i)
+	for (unsigned i = 0; i < req.count; ++i)
 	{
 		struct v4l2_buffer buf;
 		CLEAR(buf);
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		buf.memory = m_ioMethod;
+		buf.memory = req.memory;
 		buf.index = i;
-		if (m_ioMethod == V4L2_MEMORY_USERPTR)
+		if (req.memory == V4L2_MEMORY_USERPTR)
 		{
 			buf.length = m_pBuff[i].length;
 			buf.m.userptr = (unsigned long)m_pBuff[i].start;
@@ -437,7 +367,7 @@ bool Camera::start_capturing(void)
 void Camera::stop_capturing(void)
 {
 	enum v4l2_buf_type type;
-	switch (m_ioMethod)
+	switch (req.memory)
 	{
 //	case IO_METHOD_READ:
 //		/* Nothing to do. */
@@ -475,7 +405,7 @@ bool Camera::DQBUF(v4l2_buffer& buf)
 	buf.index = -1;
 	buf.bytesused = -1;
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf.memory = m_ioMethod;
+	buf.memory = req.memory;
 	if (-1 == xioctl(m_fd, VIDIOC_DQBUF, &buf))
 	{
 		switch (errno)
@@ -507,24 +437,15 @@ bool Camera::QBUF(v4l2_buffer & buf)
 }
 
 
-Camera::SFmtInfo::SFmtInfo(__u32 _fmt, char _name[])
-{
-	fmt = _fmt;
-	strcpy(name, _name);
-}
-
 #include "datetime.h"
 Camera::Frame::Frame(Camera* pCam)
 	: m_pCam(pCam)
-	, start(nullptr)
-	, len(0)
 {
+	CLEAR(m_buf);
 	CTickHelper h("get frame");
-	if (m_pCam && m_pCam->DQBUF(m_buf))
-	{
-		start = m_pCam->m_pBuff[m_buf.index].start;
-		len = m_buf.bytesused;
-	}
+	m_pCam->DQBUF(m_buf);
+	start = m_pCam->m_pBuff[m_buf.index].start;
+	len = m_buf.bytesused;
 }
 
 Camera::Frame::~Frame()
